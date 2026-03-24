@@ -126,27 +126,21 @@ async def get_chat_reply(
 
 Be conversational, knowledgeable, and use surf lingo naturally. Give specific spot recommendations based on what the user tells you about their skill level and preferences. Keep replies concise (2-4 sentences) unless the user asks for detail. Today is {datetime.now().strftime('%A, %B %d %Y')}."""
 
-    # Try Gemini first
-    if _gemini_key():
-        try:
-            import google.generativeai as genai
-            genai.configure(api_key=_gemini_key())
-            model = genai.GenerativeModel(
-                model_name="gemini-2.0-flash",
-                system_instruction=system,
-                generation_config={"temperature": 0.7, "max_output_tokens": 512},
-            )
-            history = []
-            for msg in messages[:-1]:
-                history.append({
-                    "role": "user" if msg["role"] == "user" else "model",
-                    "parts": [msg["content"]],
-                })
-            chat = model.start_chat(history=history)
-            response = await chat.send_message_async(messages[-1]["content"])
-            return response.text
-        except Exception as e:
-            raise RuntimeError(f"Gemini error: {e}")
+    # Use Groq (Llama 3.3 70B) for chat
+    if _groq_key():
+        from groq import AsyncGroq
+        client = AsyncGroq(api_key=_groq_key())
+        groq_msgs = [{"role": "system", "content": system}] + \
+                    [{"role": m["role"], "content": m["content"]} for m in messages]
+        resp = await client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=groq_msgs,
+            max_tokens=512,
+            temperature=0.7,
+        )
+        return resp.choices[0].message.content
+
+    raise RuntimeError("No GROQ_API_KEY configured")
 
 
 # ── Groq / Claude fallbacks ───────────────────────────────────────────────────
