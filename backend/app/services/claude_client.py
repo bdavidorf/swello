@@ -141,7 +141,8 @@ Be conversational, knowledgeable, and use surf lingo naturally. Give specific sp
         )
         return resp.choices[0].message.content
 
-    raise RuntimeError("No GROQ_API_KEY configured")
+    import os as _os
+    raise RuntimeError(f"No GROQ_API_KEY configured. gemini_slot={bool(_os.environ.get('GEMINI_API_KEY'))}, groq_slot={bool(_os.environ.get('GROQ_API_KEY'))}, groq_key_fn={bool(_groq_key())}")
 
 
 # ── Groq / Claude fallbacks ───────────────────────────────────────────────────
