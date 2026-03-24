@@ -8,83 +8,88 @@ export function TopBar() {
 
   return (
     <header
-      className="flex items-center justify-between px-4 md:px-6 py-3 border-b flex-shrink-0"
+      className="flex items-center justify-between px-4 md:px-6 flex-shrink-0"
       style={{
-        paddingTop: 'max(env(safe-area-inset-top), 12px)',
-        background: 'rgba(9,16,26,0.92)',
+        paddingTop: 'max(env(safe-area-inset-top), 14px)',
+        paddingBottom: 14,
+        background: 'rgba(20,18,16,0.88)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
-        borderColor: 'rgba(26,48,80,0.60)',
+        borderBottom: '1px solid rgba(240,226,200,0.08)',
       }}
     >
       {/* Logo */}
-      <div className="flex items-center gap-2.5">
-        <svg width="20" height="14" viewBox="0 0 24 18" fill="none">
-          <path d="M2 12c2-4 4-6 7-6 2 0 3 1.5 5 1.5S17 6 20 4"
-            stroke="#1AFFD0" strokeWidth="2.5" strokeLinecap="round" />
-          <path d="M2 17c2-3 4-5 7-5 2 0 3 1.5 5 1.5S17 12 20 10"
-            stroke="#1AFFD0" strokeWidth="1.8" strokeLinecap="round" opacity="0.4" />
+      <div className="flex items-center gap-3">
+        {/* Retro wave mark */}
+        <svg width="28" height="18" viewBox="0 0 28 18" fill="none">
+          <path d="M1 11 C4 5, 7 3, 10 3 C13 3, 14 7, 17 7 C20 7, 22 4, 26 2"
+            stroke="#E07A5F" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+          <path d="M1 16 C4 11, 7 9, 10 9 C13 9, 14 13, 17 13 C20 13, 22 10, 26 8"
+            stroke="#E07A5F" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.4" />
         </svg>
-        <span style={{
-          fontFamily: "'Archivo Black', Impact, system-ui",
-          fontSize: 20,
-          color: '#EDE8DC',
-          letterSpacing: '0.04em',
-          lineHeight: 1,
-        }}>
-          SWELLO
-        </span>
-        <span style={{
-          fontFamily: "'JetBrains Mono', monospace",
-          fontSize: 10,
-          color: '#1AFFD0',
-          letterSpacing: '0.10em',
-          marginLeft: 2,
-        }}>
-          LA
-        </span>
+        <div className="flex items-baseline gap-1.5">
+          <span className="font-display" style={{ fontSize: 26, color: '#F0E2C8', letterSpacing: '0.08em', lineHeight: 1 }}>
+            SWELLO
+          </span>
+          <span style={{
+            fontFamily: "'Syne', system-ui", fontWeight: 800,
+            fontSize: 9, color: '#E07A5F', letterSpacing: '0.20em',
+          }}>
+            LA
+          </span>
+        </div>
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-2">
         <button
           onClick={() => qc.invalidateQueries()}
-          className="p-2 rounded-lg transition-colors"
-          style={{ color: '#3A5870' }}
+          style={{
+            padding: '6px 8px', borderRadius: 10, color: '#4A4440',
+            background: 'transparent', border: 'none', cursor: 'pointer',
+            transition: 'color 0.2s',
+          }}
           title="Refresh"
         >
           <RefreshCw size={15} />
         </button>
+
         <button
           onClick={() => setMobileTab(mobileTab === 'spots' ? 'waves' : 'spots')}
-          className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border"
+          className="hidden md:flex items-center gap-1.5"
           style={{
-            fontFamily: "'JetBrains Mono', monospace",
-            letterSpacing: '0.06em',
-            background: mobileTab === 'spots' ? 'rgba(26,255,208,0.10)' : 'rgba(21,40,64,0.50)',
-            borderColor: mobileTab === 'spots' ? 'rgba(26,255,208,0.40)' : 'rgba(26,48,80,0.80)',
-            color: mobileTab === 'spots' ? '#1AFFD0' : '#6A8AA0',
+            padding: '6px 14px', borderRadius: 20,
+            fontFamily: "'Syne', system-ui", fontWeight: 700,
+            fontSize: 10, letterSpacing: '0.14em',
+            background: mobileTab === 'spots' ? 'rgba(224,122,95,0.18)' : 'rgba(48,44,40,0.60)',
+            border: `1px solid ${mobileTab === 'spots' ? 'rgba(224,122,95,0.40)' : 'rgba(240,226,200,0.10)'}`,
+            color: mobileTab === 'spots' ? '#E07A5F' : '#8A7868',
+            cursor: 'pointer', transition: 'all 0.2s',
           }}
         >
-          <Map size={12} /> MAP
+          <Map size={11} /> MAP
         </button>
+
         <button
           onClick={() => setPreferencesOpen(!preferencesOpen)}
-          className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border"
+          className="hidden md:flex items-center gap-1.5"
           style={{
-            fontFamily: "'JetBrains Mono', monospace",
-            letterSpacing: '0.06em',
-            background: preferencesOpen ? 'rgba(26,255,208,0.10)' : 'rgba(21,40,64,0.50)',
-            borderColor: preferencesOpen ? 'rgba(26,255,208,0.40)' : 'rgba(26,48,80,0.80)',
-            color: preferencesOpen ? '#1AFFD0' : '#6A8AA0',
+            padding: '6px 14px', borderRadius: 20,
+            fontFamily: "'Syne', system-ui", fontWeight: 700,
+            fontSize: 10, letterSpacing: '0.14em',
+            background: preferencesOpen ? 'rgba(224,122,95,0.18)' : 'rgba(48,44,40,0.60)',
+            border: `1px solid ${preferencesOpen ? 'rgba(224,122,95,0.40)' : 'rgba(240,226,200,0.10)'}`,
+            color: preferencesOpen ? '#E07A5F' : '#8A7868',
+            cursor: 'pointer', transition: 'all 0.2s',
           }}
         >
-          <Settings size={12} /> PREFS
+          <Settings size={11} /> PREFS
         </button>
+
         <button
           onClick={() => setMobileTab('ai')}
-          className="md:hidden p-2 rounded-lg transition-colors"
-          style={{ color: '#3A5870' }}
+          className="md:hidden"
+          style={{ padding: '6px 8px', borderRadius: 10, color: '#4A4440', background: 'transparent', border: 'none', cursor: 'pointer' }}
         >
           <Settings size={16} />
         </button>

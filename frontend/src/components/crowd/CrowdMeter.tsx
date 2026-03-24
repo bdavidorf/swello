@@ -1,20 +1,20 @@
 import { motion } from 'framer-motion'
 import type { CrowdLevel } from '../../types/surf'
 
-const LEVEL_COLORS: Record<CrowdLevel, string> = {
-  empty:     '#10b981',
-  uncrowded: '#84cc16',
-  moderate:  '#f59e0b',
-  crowded:   '#ef4444',
-  packed:    '#9333ea',
+const LEVEL_COLOR: Record<CrowdLevel, string> = {
+  empty:     '#6BAA6B',
+  uncrowded: '#8BC050',
+  moderate:  '#D4A853',
+  crowded:   '#E07A5F',
+  packed:    '#C040A0',
 }
 
-const LEVEL_ICONS: Record<CrowdLevel, string> = {
-  empty:     '🏄',
-  uncrowded: '🏄🏄',
-  moderate:  '🏄🏄🏄',
-  crowded:   '🏄🏄🏄🏄',
-  packed:    '🏄🏄🏄🏄🏄',
+const LEVEL_TEXT: Record<CrowdLevel, string> = {
+  empty:     'EMPTY',
+  uncrowded: 'UNCROWDED',
+  moderate:  'MODERATE',
+  crowded:   'CROWDED',
+  packed:    'PACKED',
 }
 
 interface Props {
@@ -25,17 +25,18 @@ interface Props {
 }
 
 export function CrowdMeter({ score, level, confidence, peakHour }: Props) {
-  const size = 120
+  const color = LEVEL_COLOR[level]
+
+  // Analog dial geometry
+  const size = 140
   const cx = size / 2
   const cy = size / 2
-  const r = 46
-  const strokeWidth = 8
-
+  const r = 50
+  const strokeW = 9
+  const startAngle = 225  // degrees
   const sweepDeg = 270
-  const startAngle = 135
   const pct = score / 100
   const activeSweep = sweepDeg * pct
-  const color = LEVEL_COLORS[level]
 
   const toRad = (d: number) => (d * Math.PI) / 180
   const arcPath = (start: number, sweep: number) => {
@@ -50,58 +51,101 @@ export function CrowdMeter({ score, level, confidence, peakHour }: Props) {
     return `M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}`
   }
 
+  // Needle angle
+  const needleDeg = startAngle + activeSweep
+  const needleRad = toRad(needleDeg)
+  const needleTipX = cx + (r - 12) * Math.cos(needleRad)
+  const needleTipY = cy + (r - 12) * Math.sin(needleRad)
+  const needleTailX = cx + (-14) * Math.cos(needleRad)
+  const needleTailY = cy + (-14) * Math.sin(needleRad)
+
+  // Tick marks
+  const ticks = [0, 25, 50, 75, 100]
+
   return (
     <div className="card p-5">
-      <p className="stat-label mb-4">Crowd Forecast</p>
-      <div className="flex items-center gap-4">
-        <div className="relative">
+      <p className="stat-label mb-3">Vibe Meter</p>
+      <div className="flex items-center gap-5">
+        {/* Analog dial */}
+        <div style={{ position: 'relative', flexShrink: 0 }}>
           <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+            {/* Tick marks */}
+            {ticks.map(t => {
+              const a = toRad(startAngle + (t / 100) * sweepDeg)
+              const ox = cx + (r + strokeW / 2 + 2) * Math.cos(a)
+              const oy = cy + (r + strokeW / 2 + 2) * Math.sin(a)
+              const ix = cx + (r - strokeW / 2 - 2) * Math.cos(a)
+              const iy = cy + (r - strokeW / 2 - 2) * Math.sin(a)
+              return <line key={t} x1={ox} y1={oy} x2={ix} y2={iy}
+                stroke="rgba(240,226,200,0.30)" strokeWidth="1.5" strokeLinecap="round" />
+            })}
+
             {/* Track */}
-            <path
-              d={arcPath(startAngle, sweepDeg)}
-              fill="none"
-              stroke="#123055"
-              strokeWidth={strokeWidth}
-              strokeLinecap="round"
-            />
-            {/* Active */}
+            <path d={arcPath(startAngle, sweepDeg)} fill="none"
+              stroke="rgba(48,44,40,0.90)" strokeWidth={strokeW} strokeLinecap="round" />
+
+            {/* Colored fill arc */}
             <motion.path
               d={arcPath(startAngle, activeSweep)}
               fill="none"
               stroke={color}
-              strokeWidth={strokeWidth}
+              strokeWidth={strokeW}
               strokeLinecap="round"
+              style={{ filter: `drop-shadow(0 0 5px ${color}88)` }}
               initial={{ pathLength: 0 }}
               animate={{ pathLength: 1 }}
-              transition={{ duration: 1.0, ease: 'easeOut' }}
+              transition={{ duration: 1.2, ease: 'easeOut' }}
             />
-            {/* Center */}
-            <text x={cx} y={cy - 6} textAnchor="middle" fill={color} fontSize="22" fontWeight="900" fontFamily="Inter">
+
+            {/* Needle */}
+            <motion.line
+              x1={needleTailX} y1={needleTailY}
+              x2={needleTipX}  y2={needleTipY}
+              stroke={color}
+              strokeWidth={2}
+              strokeLinecap="round"
+              style={{ filter: `drop-shadow(0 0 3px ${color}cc)` }}
+              initial={{ rotate: 0, originX: `${cx}px`, originY: `${cy}px` }}
+              animate={{ rotate: 0 }}
+            />
+
+            {/* Hub */}
+            <circle cx={cx} cy={cy} r={7}
+              fill="rgba(30,28,26,0.95)" stroke="rgba(240,226,200,0.20)" strokeWidth={1} />
+            <circle cx={cx} cy={cy} r={4} fill={color}
+              style={{ filter: `drop-shadow(0 0 3px ${color}cc)` }} />
+
+            {/* Center score */}
+            <text x={cx} y={cy + 20}
+              textAnchor="middle" fill={color}
+              fontSize="14" fontWeight="900"
+              fontFamily="'Bangers', Impact, system-ui"
+              letterSpacing="0.04em">
               {Math.round(score)}
-            </text>
-            <text x={cx} y={cy + 11} textAnchor="middle" fill="#6aa3d4" fontSize="9" fontFamily="Inter">
-              /100
             </text>
           </svg>
         </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-lg">{LEVEL_ICONS[level]}</span>
-            <span className="font-bold text-ocean-50 capitalize text-lg">{level}</span>
-          </div>
+
+        {/* Labels */}
+        <div>
+          <p className="font-display" style={{ fontSize: 22, color, letterSpacing: '0.06em', lineHeight: 1 }}>
+            {LEVEL_TEXT[level]}
+          </p>
           {peakHour != null && (
-            <p className="text-ocean-400 text-sm">
-              Peak crowd ~{peakHour > 12 ? `${peakHour - 12}pm` : `${peakHour}am`}
+            <p className="mt-1.5" style={{
+              fontFamily: "'Syne', system-ui", fontWeight: 600, fontSize: 11,
+              color: '#4A4440', letterSpacing: '0.08em',
+            }}>
+              PEAK ~{peakHour > 12 ? `${peakHour - 12}PM` : `${peakHour}AM`}
             </p>
           )}
           {confidence != null && (
-            <p className="text-ocean-500 text-xs mt-1">
-              {Math.round(confidence * 100)}% confidence
+            <p className="mt-1" style={{
+              fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: '#4A4440',
+            }}>
+              {Math.round(confidence * 100)}% conf.
             </p>
           )}
-          <p className="text-ocean-400 text-xs mt-2 leading-relaxed">
-            Based on wave conditions, day of week, holidays, and historical patterns.
-          </p>
         </div>
       </div>
     </div>

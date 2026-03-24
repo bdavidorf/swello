@@ -1,19 +1,10 @@
-interface Props {
-  rating: number   // 0–10
-}
+interface Props { rating: number }
 
 function ratingColor(r: number): string {
-  if (r >= 8) return '#1AFFD0'   // Electric Seafoam — excellent
-  if (r >= 6) return '#4AE090'   // green — good
-  if (r >= 4) return '#FF9A40'   // amber — fair
-  return '#FF6B2B'                // Safety Orange — poor
-}
-
-function ratingLabel(r: number): string {
-  if (r >= 8) return 'EXCELLENT'
-  if (r >= 6) return 'GOOD'
-  if (r >= 4) return 'FAIR'
-  return 'POOR'
+  if (r >= 8) return '#D4A853'  // Sandy Gold — firing
+  if (r >= 6) return '#3D5A80'  // Muted Teal — good
+  if (r >= 4) return '#E07A5F'  // Burnt Orange — fair
+  return '#C05A40'              // Deeper orange — poor
 }
 
 const SEGMENTS = 10
@@ -21,7 +12,7 @@ const SEGMENTS = 10
 export function EnergyBar({ rating }: Props) {
   const clamped = Math.max(0, Math.min(10, rating))
   const color   = ratingColor(clamped)
-  const label   = ratingLabel(clamped)
+  const label   = clamped >= 8 ? 'FIRING' : clamped >= 6 ? 'GOOD' : clamped >= 4 ? 'FAIR' : 'WEAK'
   const filled  = Math.round(clamped)
 
   return (
@@ -30,48 +21,24 @@ export function EnergyBar({ rating }: Props) {
       <div style={{ display: 'flex', flexDirection: 'column-reverse', gap: 3 }}>
         {Array.from({ length: SEGMENTS }, (_, i) => {
           const active = i < filled
-          // Color intensity: lower segments dimmer
-          const opacity = active ? (0.5 + (i / SEGMENTS) * 0.5) : 1
           return (
             <div
               key={i}
               style={{
-                width: 14,
-                height: 7,
-                borderRadius: 2,
-                background: active
-                  ? color
-                  : 'rgba(26,48,80,0.70)',
-                opacity,
-                transition: 'background 0.4s ease, opacity 0.4s ease',
-                boxShadow: active && i === filled - 1
-                  ? `0 0 8px ${color}88`
-                  : 'none',
+                width: 12, height: 7, borderRadius: 2,
+                background: active ? color : 'rgba(48,44,40,0.80)',
+                opacity: active ? (0.4 + (i / SEGMENTS) * 0.6) : 1,
+                transition: 'all 0.4s ease',
+                boxShadow: active && i === filled - 1 ? `0 0 8px ${color}99` : 'none',
               }}
             />
           )
         })}
       </div>
-
-      {/* Rating number */}
-      <span style={{
-        fontFamily: "'Archivo Black', Impact, system-ui",
-        fontSize: 24,
-        lineHeight: 1,
-        color,
-      }}>
+      <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 26, lineHeight: 1, color }}>
         {clamped}
       </span>
-
-      {/* Label */}
-      <span style={{
-        fontFamily: "'JetBrains Mono', monospace",
-        fontSize: 7,
-        letterSpacing: '0.12em',
-        color,
-        opacity: 0.85,
-        textTransform: 'uppercase',
-      }}>
+      <span style={{ fontFamily: "'Syne', system-ui", fontWeight: 800, fontSize: 7, color, opacity: 0.75, letterSpacing: '0.14em' }}>
         {label}
       </span>
     </div>

@@ -1,4 +1,3 @@
-import clsx from 'clsx'
 import { Waves, BarChart2, Map, Bot, type LucideProps } from 'lucide-react'
 import { useSpotStore, type MobileTab } from '../../store/spotStore'
 import type { ForwardRefExoticComponent, RefAttributes } from 'react'
@@ -17,13 +16,13 @@ export function MobileNav() {
 
   return (
     <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-50"
       style={{
         paddingBottom: 'env(safe-area-inset-bottom)',
-        background: 'rgba(9,16,26,0.95)',
+        background: 'rgba(20,18,16,0.95)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
-        borderColor: 'rgba(26,48,80,0.60)',
+        borderTop: '1px solid rgba(240,226,200,0.08)',
       }}
     >
       <div className="grid grid-cols-4">
@@ -34,14 +33,15 @@ export function MobileNav() {
               key={id}
               onClick={() => setMobileTab(id)}
               className="flex flex-col items-center justify-center gap-1 py-3 transition-colors"
-              style={{ color: active ? '#1AFFD0' : '#3A5870' }}
+              style={{ color: active ? '#E07A5F' : '#4A4440', border: 'none', background: 'transparent', cursor: 'pointer' }}
             >
               <Icon size={20} />
               <span style={{
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "'Syne', system-ui",
+                fontWeight: 800,
                 fontSize: 8,
-                letterSpacing: '0.12em',
-                color: active ? '#1AFFD0' : '#3A5870',
+                letterSpacing: '0.16em',
+                color: active ? '#E07A5F' : '#4A4440',
               }}>
                 {label}
               </span>

@@ -2,27 +2,24 @@ import clsx from 'clsx'
 import { useSpotStore } from '../../store/spotStore'
 import type { SurfCondition } from '../../types/surf'
 
-interface Props {
-  conditions: SurfCondition[] | undefined
-}
+interface Props { conditions: SurfCondition[] | undefined }
 
 function ratingColor(r: number) {
-  return r >= 7 ? '#1AFFD0' : r >= 5 ? '#4AE090' : r >= 3 ? '#FF9A40' : '#6A8AA0'
+  return r >= 7 ? '#D4A853' : r >= 5 ? '#3D5A80' : r >= 3 ? '#E07A5F' : '#4A4440'
 }
 
 export function MobileSpotPicker({ conditions }: Props) {
   const { selectedSpotId, setSelectedSpot } = useSpotStore()
-
   if (!conditions || conditions.length === 0) return null
 
   return (
     <div
-      className="flex-shrink-0 overflow-x-auto border-b"
+      className="flex-shrink-0 overflow-x-auto"
       style={{
-        background: 'rgba(9,16,26,0.90)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderColor: 'rgba(26,48,80,0.60)',
+        background: 'rgba(20,18,16,0.90)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderBottom: '1px solid rgba(240,226,200,0.07)',
       }}
     >
       <div
@@ -32,6 +29,7 @@ export function MobileSpotPicker({ conditions }: Props) {
         {conditions.map((c) => {
           const selected = c.spot_id === selectedSpotId
           const rating   = c.wave_power?.surf_rating ?? 0
+          const rc       = ratingColor(rating)
 
           return (
             <button
@@ -40,31 +38,27 @@ export function MobileSpotPicker({ conditions }: Props) {
               style={{
                 scrollSnapAlign: 'start',
                 flexShrink: 0,
-                background: selected
-                  ? 'rgba(26,255,208,0.10)'
-                  : 'rgba(21,40,64,0.60)',
+                background: selected ? 'rgba(224,122,95,0.14)' : 'rgba(30,28,26,0.70)',
+                border: `1px solid ${selected ? 'rgba(224,122,95,0.40)' : 'rgba(240,226,200,0.08)'}`,
+                borderRadius: 16,
+                padding: '6px 14px',
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                minWidth: 64, cursor: 'pointer', transition: 'all 0.18s',
               }}
-              className={clsx(
-                'flex flex-col items-center px-3 py-1.5 rounded-lg border transition-all text-center min-w-[64px]',
-                selected
-                  ? 'border-wave-400/50'
-                  : 'border-ocean-700/60 hover:border-ocean-600'
-              )}
             >
-              <span className={clsx(
-                'text-xs font-semibold leading-tight',
-                selected ? 'text-ocean-50' : 'text-ocean-400'
-              )}>
+              <span style={{
+                fontFamily: "'Syne', system-ui", fontWeight: 700,
+                fontSize: 10, lineHeight: 1.2, letterSpacing: '0.04em',
+                color: selected ? '#F0E2C8' : '#8A7868',
+              }}>
                 {c.spot_short_name}
               </span>
               {rating > 0 && (
-                <span
-                  className="text-[11px] font-black mt-0.5"
-                  style={{
-                    fontFamily: "'Archivo Black', Impact, system-ui",
-                    color: ratingColor(rating),
-                  }}
-                >
+                <span style={{
+                  fontFamily: "'Bangers', Impact, system-ui",
+                  fontSize: 14, lineHeight: 1.2, color: rc,
+                  letterSpacing: '0.04em',
+                }}>
                   {rating}
                 </span>
               )}

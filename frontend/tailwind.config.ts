@@ -5,74 +5,77 @@ export default {
   theme: {
     extend: {
       colors: {
-        // ── Midnight Oceanic scale ──
+        // ── Golden Hour Charcoal — warm, textured dark ──
         ocean: {
-          950: '#0C1420',  // body background — deep inky ocean
-          900: '#0F1E2E',  // card background
-          800: '#152840',  // elevated surface
-          700: '#1A3050',  // borders
-          600: '#264462',  // muted borders
-          500: '#3A5870',  // muted icons / placeholder
-          400: '#6A8AA0',  // secondary text
-          200: '#9AAABB',  // body text
-          50:  '#EDE8DC',  // headings — warm parchment (magazine paper)
+          950: '#1A1A1B',  // deep charcoal body
+          900: '#1E1C1A',  // card bg
+          800: '#252220',  // elevated surface
+          700: '#302C28',  // borders
+          600: '#4A4440',  // muted borders
+          500: '#8A7868',  // muted icons / placeholder
+          400: '#A89880',  // secondary text
+          200: '#C8B090',  // body text
+          50:  '#F0E2C8',  // warm cream — headings
         },
-        // ── Electric Seafoam — use ONLY for highlights/good conditions ──
+        // ── Burnt Orange — primary energy accent ──
         wave: {
-          300: '#5AFFF2',
-          400: '#1AFFD0',  // Electric Seafoam
-          500: '#00C4A8',
-          600: '#008870',
+          300: '#EC9A84',
+          400: '#E07A5F',  // Burnt Orange
+          500: '#C05A40',
+          600: '#A04030',
         },
-        // ── Safety Orange — use ONLY for CTAs and poor/critical ──
+        // ── Muted Teal — secondary accent ──
         coral: {
-          300: '#FF8A5A',
-          400: '#FF6B2B',  // Safety Orange
-          500: '#E04A18',
-          600: '#B03210',
+          300: '#6A9AC0',
+          400: '#3D5A80',  // Muted Teal
+          500: '#2A4060',
+          600: '#1A2E48',
         },
-        // ── Surf conditions ──
-        surf: {
-          flat:     '#3A5870',
-          small:    '#6AACCC',
-          medium:   '#1AFFD0',
-          solid:    '#4AE090',
-          overhead: '#FF9A40',
-          xxl:      '#FF6B2B',
+        // ── Sandy Gold — tertiary warmth ──
+        sand: {
+          200: '#E8D4A0',
+          300: '#D4B870',
+          400: '#D4A853',  // Sandy Gold
+          500: '#B08030',
+          600: '#886018',
         },
         // ── Crowd ──
         crowd: {
-          empty:    '#4AE090',
-          light:    '#6ACA50',
-          moderate: '#FF9A40',
-          crowded:  '#FF6B2B',
-          packed:   '#E040A0',
+          empty:    '#6BAA6B',
+          light:    '#8BC050',
+          moderate: '#D4A853',
+          crowded:  '#E07A5F',
+          packed:   '#C040A0',
         },
       },
       fontFamily: {
-        display: ['Archivo Black', 'Impact', 'system-ui', 'sans-serif'],
-        serif:   ['Lora', 'Georgia', 'serif'],
+        display: ['Bangers', 'Impact', 'system-ui', 'sans-serif'],
+        marker:  ['Permanent Marker', 'cursive'],
+        syne:    ['Syne', 'system-ui', 'sans-serif'],
         sans:    ['Inter', 'system-ui', 'sans-serif'],
         mono:    ['JetBrains Mono', 'Menlo', 'monospace'],
       },
+      borderRadius: {
+        '4xl': '2rem',
+        '5xl': '2.5rem',
+      },
       boxShadow: {
-        'glass':      '0 8px 40px rgba(0,0,0,0.40), 0 2px 10px rgba(0,0,0,0.25)',
-        'glass-lg':   '0 20px 60px rgba(0,0,0,0.50), 0 4px 20px rgba(0,0,0,0.30)',
-        'seafoam':    '0 4px 20px rgba(26,255,208,0.25)',
-        'orange':     '0 4px 20px rgba(255,107,43,0.30)',
+        'warm':    '0 8px 40px rgba(0,0,0,0.45), 0 2px 12px rgba(0,0,0,0.30)',
+        'warm-lg': '0 20px 64px rgba(0,0,0,0.55), 0 4px 20px rgba(0,0,0,0.35)',
+        'orange':  '0 4px 20px rgba(224,122,95,0.35)',
+        'teal':    '0 4px 20px rgba(61,90,128,0.35)',
+        'gold':    '0 4px 20px rgba(212,168,83,0.30)',
+        'float':   '0 12px 40px rgba(0,0,0,0.50), 0 4px 16px rgba(0,0,0,0.30)',
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'fade-up':    'fadeUp 0.5s ease-out forwards',
         'grain':      'grain 8s steps(10) infinite',
-        'seaflare':   'seaflare 2.5s ease-in-out infinite',
+        'float':      'float 3s ease-in-out infinite',
       },
       keyframes: {
-        fadeUp: { '0%': { opacity: '0', transform: 'translateY(12px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
-        seaflare: {
-          '0%, 100%': { boxShadow: '0 4px 20px rgba(26,255,208,0.25), 0 2px 8px rgba(26,255,208,0.12)' },
-          '50%':      { boxShadow: '0 6px 32px rgba(26,255,208,0.50), 0 4px 14px rgba(255,107,43,0.18)' },
-        },
+        fadeUp: { '0%': { opacity: '0', transform: 'translateY(14px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+        float:  { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-4px)' } },
         grain: {
           '0%, 100%': { transform: 'translate(0, 0)' },
           '10%': { transform: 'translate(-2%, -3%)' },
