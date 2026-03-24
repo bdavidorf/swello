@@ -13,8 +13,12 @@ const GREETING: Message = {
   content: "Hey! I'm your Swello Surf Advisor 🤙 Tell me your skill level and what you're after, and I'll find you the best spots and windows across all 11 LA breaks.",
 }
 
-const WINDOW_W = 340
-const WINDOW_H = 480
+const BOARD_W = 320
+const BOARD_H = 470
+
+// ── Surfboard shape via clip-path (shortboard silhouette) ───────────────────
+// The path tapers at nose (top) and tail (bottom) while keeping the body wide
+const BOARD_CLIP = `path('M 160 0 C 210 0 302 42 314 108 L 316 364 C 316 432 256 470 160 470 C 64 470 4 432 4 364 L 6 108 C 18 42 110 0 160 0 Z')`
 
 function ChatWindow({ onClose }: { onClose: () => void }) {
   const { selectedSpotId } = useSpotStore()
@@ -23,18 +27,18 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
   const [loading, setLoading] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  // Drag state
   const windowRef = useRef<HTMLDivElement>(null)
   const dragging = useRef(false)
   const dragOffset = useRef({ x: 0, y: 0 })
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null)
 
-  // Initial position: bottom-right (mirroring the button)
   useEffect(() => {
     const safeBottom = 76 + 16
+    // Account for nose (32px) + fin (24px) decorations
+    const totalH = BOARD_H + 32 + 24
     setPos({
-      x: window.innerWidth - WINDOW_W - 16,
-      y: window.innerHeight - WINDOW_H - safeBottom,
+      x: window.innerWidth - BOARD_W - 16,
+      y: window.innerHeight - totalH - safeBottom,
     })
   }, [])
 
@@ -47,8 +51,9 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
 
   const onDragMove = useCallback((clientX: number, clientY: number) => {
     if (!dragging.current) return
-    const x = Math.max(0, Math.min(window.innerWidth - WINDOW_W, clientX - dragOffset.current.x))
-    const y = Math.max(0, Math.min(window.innerHeight - WINDOW_H, clientY - dragOffset.current.y))
+    const totalH = BOARD_H + 56
+    const x = Math.max(0, Math.min(window.innerWidth - BOARD_W, clientX - dragOffset.current.x))
+    const y = Math.max(0, Math.min(window.innerHeight - totalH, clientY - dragOffset.current.y))
     setPos({ x, y })
   }, [])
 
@@ -109,93 +114,240 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
   return (
     <div
       ref={windowRef}
-      className="fixed z-50 flex flex-col overflow-hidden shadow-2xl select-none"
-      style={{
-        left: pos.x,
-        top: pos.y,
-        width: WINDOW_W,
-        height: WINDOW_H,
-        borderRadius: 20,
-        background: '#071428',
-        border: '1px solid rgba(18,48,85,0.8)',
-      }}
+      className="fixed z-50 select-none"
+      style={{ left: pos.x, top: pos.y, width: BOARD_W }}
     >
-      {/* Header — drag handle */}
-      <div
-        className="flex items-center justify-between px-4 py-3 border-b border-ocean-700/60 flex-shrink-0 cursor-grab active:cursor-grabbing"
-        style={{ background: 'rgba(13,32,64,0.97)', touchAction: 'none' }}
-        onMouseDown={e => onDragStart(e.clientX, e.clientY)}
-        onTouchStart={e => onDragStart(e.touches[0].clientX, e.touches[0].clientY)}
-      >
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-wave-400/20 border border-wave-400/30 flex items-center justify-center">
-            <Waves size={13} className="text-wave-400" />
-          </div>
-          <div>
-            <p className="font-bold text-sm text-ocean-50 leading-none">Ask Swello 🤙</p>
-          </div>
-        </div>
-        <button
-          onMouseDown={e => e.stopPropagation()}
-          onClick={onClose}
-          className="w-7 h-7 rounded-full flex items-center justify-center text-ocean-500 hover:text-ocean-200 hover:bg-ocean-700/40 transition-colors"
-        >
-          <X size={15} />
-        </button>
-      </div>
+      {/* ── Surfboard nose (decorative) ── */}
+      <div style={{
+        width: 68, height: 32,
+        margin: '0 auto',
+        position: 'relative',
+        bottom: -2,
+        background: 'linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(240,252,250,0.88))',
+        borderRadius: '50% 50% 0 0 / 100% 100% 0 0',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255,255,255,0.7)',
+        borderBottom: 'none',
+      }} />
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2.5">
-        {messages.map((msg, i) => (
-          <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div
-              className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-relaxed ${
-                msg.role === 'user'
-                  ? 'bg-wave-400 text-ocean-950 font-medium rounded-br-sm'
-                  : 'bg-ocean-800/80 text-ocean-100 border border-ocean-700/50 rounded-bl-sm'
-              }`}
-            >
-              {msg.content}
+      {/* ── Main board body ── */}
+      <div
+        style={{
+          width: BOARD_W,
+          height: BOARD_H,
+          clipPath: BOARD_CLIP,
+          position: 'relative',
+          // Surfboard foam texture — warm white with subtle teal tint
+          background: 'linear-gradient(165deg, rgba(255,255,255,0.92) 0%, rgba(240,252,250,0.88) 40%, rgba(236,248,252,0.90) 100%)',
+          backdropFilter: 'blur(18px)',
+          WebkitBackdropFilter: 'blur(18px)',
+          boxShadow: '0 20px 60px rgba(100,160,150,0.18), 0 8px 24px rgba(100,160,150,0.12)',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {/* Board outline highlight */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          clipPath: BOARD_CLIP,
+          border: '1.5px solid rgba(255,255,255,0.88)',
+          borderRadius: 0,
+          pointerEvents: 'none',
+          zIndex: 10,
+        }} />
+
+        {/* Stringer — thin center line down the board */}
+        <div style={{
+          position: 'absolute',
+          left: '50%', top: '6%', bottom: '6%',
+          width: 1,
+          background: 'linear-gradient(to bottom, transparent, rgba(168,218,220,0.35) 20%, rgba(168,218,220,0.35) 80%, transparent)',
+          transform: 'translateX(-50%)',
+          pointerEvents: 'none',
+          zIndex: 1,
+        }} />
+
+        {/* Leash plug dot */}
+        <div style={{
+          position: 'absolute',
+          bottom: 38, left: '50%',
+          transform: 'translateX(-50%)',
+          width: 7, height: 7,
+          borderRadius: '50%',
+          background: 'rgba(168,218,220,0.6)',
+          border: '1px solid rgba(120,190,194,0.8)',
+          pointerEvents: 'none',
+          zIndex: 2,
+        }} />
+
+        {/* ── Header — drag handle, positioned in the board body ── */}
+        <div
+          className="flex items-center justify-between flex-shrink-0 cursor-grab active:cursor-grabbing"
+          style={{
+            padding: '20px 24px 12px',
+            touchAction: 'none',
+            zIndex: 3,
+            position: 'relative',
+          }}
+          onMouseDown={e => onDragStart(e.clientX, e.clientY)}
+          onTouchStart={e => onDragStart(e.touches[0].clientX, e.touches[0].clientY)}
+        >
+          <div className="flex items-center gap-2.5">
+            <div style={{
+              width: 28, height: 28, borderRadius: 8,
+              background: 'rgba(168,218,220,0.25)',
+              border: '1px solid rgba(168,218,220,0.5)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Waves size={13} style={{ color: '#78BEC2' }} />
+            </div>
+            <div>
+              <p style={{ fontWeight: 800, fontSize: 14, color: '#1C3535', lineHeight: 1 }}>
+                Ask Swello 🤙
+              </p>
             </div>
           </div>
-        ))}
+          <button
+            onMouseDown={e => e.stopPropagation()}
+            onClick={onClose}
+            style={{
+              width: 28, height: 28, borderRadius: '50%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#91AFAA', border: '1px solid rgba(192,213,204,0.6)',
+              background: 'rgba(255,255,255,0.5)',
+              cursor: 'pointer',
+              transition: 'all 0.15s',
+            }}
+          >
+            <X size={13} />
+          </button>
+        </div>
 
-        {loading && (
-          <div className="flex justify-start">
-            <div className="bg-ocean-800/80 border border-ocean-700/50 rounded-2xl rounded-bl-sm px-4 py-3">
-              <div className="flex gap-1.5 items-center h-4">
-                <span className="w-1.5 h-1.5 bg-ocean-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="w-1.5 h-1.5 bg-ocean-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="w-1.5 h-1.5 bg-ocean-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+        {/* Divider */}
+        <div style={{ height: 1, background: 'rgba(192,213,204,0.45)', margin: '0 20px', flexShrink: 0 }} />
+
+        {/* ── Messages ── */}
+        <div
+          style={{
+            flex: 1, overflowY: 'auto',
+            padding: '12px 20px',
+            display: 'flex', flexDirection: 'column',
+            gap: 10,
+            zIndex: 3, position: 'relative',
+          }}
+        >
+          {messages.map((msg, i) => (
+            <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
+              <div style={{
+                maxWidth: '84%',
+                borderRadius: msg.role === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+                padding: '8px 12px',
+                fontSize: 13,
+                lineHeight: 1.5,
+                ...(msg.role === 'user' ? {
+                  background: 'linear-gradient(135deg, #A8DADC 0%, #88C8CC 100%)',
+                  color: '#1C3535',
+                  fontWeight: 500,
+                  boxShadow: '0 2px 8px rgba(168,218,220,0.35)',
+                } : {
+                  background: 'rgba(255,255,255,0.75)',
+                  color: '#2E5454',
+                  border: '1px solid rgba(192,213,204,0.55)',
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                }),
+              }}>
+                {msg.content}
               </div>
             </div>
-          </div>
-        )}
-        <div ref={bottomRef} />
+          ))}
+
+          {loading && (
+            <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+              <div style={{
+                background: 'rgba(255,255,255,0.75)',
+                border: '1px solid rgba(192,213,204,0.55)',
+                borderRadius: '16px 16px 16px 4px',
+                padding: '10px 14px',
+              }}>
+                <div style={{ display: 'flex', gap: 5, alignItems: 'center', height: 14 }}>
+                  {[0, 150, 300].map((delay) => (
+                    <span key={delay} style={{
+                      width: 6, height: 6, borderRadius: '50%',
+                      background: '#A8DADC',
+                      display: 'inline-block',
+                      animation: `bounce 1.2s ${delay}ms ease-in-out infinite`,
+                    }} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          <div ref={bottomRef} />
+        </div>
+
+        {/* ── Input ── */}
+        <div style={{
+          flexShrink: 0,
+          borderTop: '1px solid rgba(192,213,204,0.45)',
+          padding: '10px 20px 14px',
+          display: 'flex', alignItems: 'flex-end', gap: 8,
+          background: 'rgba(255,255,255,0.30)',
+          zIndex: 3, position: 'relative',
+        }}>
+          <textarea
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={onKeyDown}
+            placeholder="Ask about conditions or spots…"
+            rows={1}
+            style={{
+              flex: 1,
+              background: 'rgba(255,255,255,0.65)',
+              border: '1px solid rgba(192,213,204,0.65)',
+              borderRadius: 14,
+              padding: '8px 12px',
+              fontSize: 13,
+              color: '#1C3535',
+              resize: 'none',
+              outline: 'none',
+              maxHeight: 72,
+              overflowY: 'auto',
+              lineHeight: 1.45,
+              fontFamily: 'Inter, system-ui, sans-serif',
+            }}
+          />
+          <button
+            onClick={send}
+            disabled={!input.trim() || loading}
+            style={{
+              width: 36, height: 36, borderRadius: 12, flexShrink: 0,
+              background: 'linear-gradient(135deg, #A8DADC 0%, #78BEC2 100%)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              border: 'none', cursor: 'pointer',
+              boxShadow: '0 2px 10px rgba(168,218,220,0.45)',
+              opacity: !input.trim() || loading ? 0.45 : 1,
+              transition: 'all 0.15s',
+            }}
+          >
+            <Send size={14} style={{ color: '#FDFBF7' }} />
+          </button>
+        </div>
       </div>
 
-      {/* Input */}
-      <div
-        className="flex-shrink-0 border-t border-ocean-700/50 px-3 py-2.5 flex items-end gap-2"
-        style={{ background: 'rgba(7,20,40,0.97)' }}
-      >
-        <textarea
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={onKeyDown}
-          placeholder="Ask about conditions or spots..."
-          rows={1}
-          className="flex-1 bg-ocean-800/60 border border-ocean-700/60 rounded-xl px-3 py-2 text-sm text-ocean-50 placeholder-ocean-600 resize-none focus:outline-none focus:border-wave-400/50 leading-relaxed"
-          style={{ maxHeight: 80, overflowY: 'auto' }}
-        />
-        <button
-          onClick={send}
-          disabled={!input.trim() || loading}
-          className="w-9 h-9 rounded-xl bg-wave-400 flex items-center justify-center flex-shrink-0 disabled:opacity-40 transition-all active:scale-95"
-        >
-          <Send size={14} className="text-ocean-950" />
-        </button>
-      </div>
+      {/* ── Surfboard fin (decorative) ── */}
+      <div style={{
+        width: 44, height: 24,
+        margin: '0 auto',
+        position: 'relative',
+        top: -2,
+        clipPath: 'polygon(18% 0%, 82% 0%, 100% 100%, 0% 100%)',
+        background: 'linear-gradient(to bottom, rgba(236,248,252,0.90), rgba(200,230,228,0.55))',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+      }} />
     </div>
   )
 }
@@ -209,16 +361,18 @@ export function SurfChatWidget() {
 
       <button
         onClick={() => setOpen(o => !o)}
-        className="fixed z-50 flex items-center gap-2.5 px-5 py-4 rounded-2xl shadow-lg transition-all active:scale-95"
+        className="ask-swello-btn fixed z-50 flex items-center gap-2.5 px-5 py-3.5 rounded-full"
         style={{
           bottom: 'calc(env(safe-area-inset-bottom) + 76px)',
           right: 16,
-          background: '#00d4c8',
           display: open ? 'none' : 'flex',
+          color: '#1C3535',
         }}
       >
-        <Waves size={20} className="text-ocean-950" />
-        <span className="text-ocean-950 font-black text-base">Ask Swello 🤙</span>
+        <Waves size={18} style={{ color: '#56A0A4' }} />
+        <span style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.01em' }}>
+          Ask Swello 🤙
+        </span>
       </button>
     </>
   )

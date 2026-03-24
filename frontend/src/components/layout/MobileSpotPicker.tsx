@@ -7,7 +7,7 @@ interface Props {
 }
 
 function ratingColor(r: number) {
-  return r >= 7 ? '#00d4c8' : r >= 5 ? '#22c55e' : r >= 3 ? '#f59e0b' : '#6b7280'
+  return r >= 7 ? '#56A0A4' : r >= 5 ? '#52B879' : r >= 3 ? '#F5A44A' : '#91AFAA'
 }
 
 export function MobileSpotPicker({ conditions }: Props) {
@@ -16,7 +16,7 @@ export function MobileSpotPicker({ conditions }: Props) {
   if (!conditions || conditions.length === 0) return null
 
   return (
-    <div className="md:hidden flex-shrink-0 overflow-x-auto bg-ocean-950/80 border-b border-ocean-700/40">
+    <div className="md:hidden flex-shrink-0 overflow-x-auto border-b border-ocean-700/40" style={{ background: 'rgba(255,255,255,0.55)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
       <div
         className="flex gap-2 px-4 py-2.5"
         style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}
@@ -33,9 +33,10 @@ export function MobileSpotPicker({ conditions }: Props) {
               className={clsx(
                 'flex flex-col items-center px-3 py-1.5 rounded-xl border transition-all text-center min-w-[64px]',
                 selected
-                  ? 'bg-wave-400/15 border-wave-400/50'
-                  : 'bg-ocean-800/40 border-ocean-700/40'
+                  ? 'bg-wave-400/20 border-wave-400/60'
+                  : 'border-ocean-700/50'
               )}
+              style={!selected ? { background: 'rgba(255,255,255,0.55)' } : {}}
             >
               <span className={clsx(
                 'text-xs font-semibold leading-tight',

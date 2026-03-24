@@ -64,6 +64,18 @@ def _fallback_score(spot_id: str, wvht_m: float, dt: datetime) -> float:
     from app.ml.feature_engineering import SPOT_FAME
     fame = SPOT_FAME.get(spot_id, 0.5)
     is_wknd = dt.weekday() >= 5
-    hour_peak = np.exp(-0.5 * ((dt.hour - 10.5) / 2.5) ** 2)
-    score = fame * 40 + (20 if is_wknd else 0) + hour_peak * 20 + wvht_m * 3
+    h = dt.hour
+
+    # Hard daylight gate — nobody surfs in the dark
+    # Ramp up between 5:30–7:00 (dawn), ramp down between 18:30–20:00 (dusk)
+    if h < 5 or h >= 21:
+        return 0.0
+    dawn_ramp  = float(np.clip((h - 5.5) / 1.5, 0.0, 1.0))   # 0→1 over 5:30–7:00
+    dusk_ramp  = float(np.clip((20.0 - h) / 1.5, 0.0, 1.0))   # 1→0 over 18:30–20:00
+    daylight   = dawn_ramp * dusk_ramp
+
+    # Gaussian peak centered on mid-morning (10:30am)
+    hour_peak = np.exp(-0.5 * ((h - 10.5) / 3.0) ** 2)
+
+    score = (fame * 38 + (18 if is_wknd else 0) + hour_peak * 22 + wvht_m * 3) * daylight
     return float(np.clip(score, 0, 100))

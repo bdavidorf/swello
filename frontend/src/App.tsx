@@ -23,7 +23,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <div className="flex flex-col bg-ocean-950 text-ocean-50"
+      <div className="flex flex-col text-ocean-50"
            style={{ height: '100dvh', overflow: 'hidden' }}>
 
         <TopBar />

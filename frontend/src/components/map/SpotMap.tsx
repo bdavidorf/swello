@@ -22,7 +22,7 @@ const SPOT_COORDS: Record<string, [number, number]> = {
 
 // ── Custom SVG marker ─────────────────────────────────────────────────────────
 function ratingColor(r: number) {
-  return r >= 7 ? '#00d4c8' : r >= 5 ? '#22c55e' : r >= 3 ? '#f59e0b' : '#6b7280'
+  return r >= 7 ? '#56A0A4' : r >= 5 ? '#52B879' : r >= 3 ? '#F5A44A' : '#91AFAA'
 }
 
 function createMarker(rating: number, selected: boolean) {
@@ -36,15 +36,16 @@ function createMarker(rating: number, selected: boolean) {
     className: '',
     html: `<div style="
       width:${size}px;height:${size}px;
-      background:${bg};
-      border:2.5px solid ${color};
+      background:${selected ? color : 'rgba(255,255,255,0.85)'};
+      border:2px solid ${color};
       border-radius:50%;
       display:flex;align-items:center;justify-content:center;
       font-weight:900;font-size:${selected ? 15 : 12}px;
-      color:${tc};
+      color:${selected ? '#FDFBF7' : color};
       font-family:Inter,system-ui,sans-serif;
-      box-shadow:${glow};
+      box-shadow:${glow},0 2px 8px rgba(0,0,0,0.12);
       cursor:pointer;
+      backdrop-filter:blur(6px);
       transition:all .2s;
     ">${rating > 0 ? rating : '·'}</div>`,
     iconSize:   [size, size],
@@ -134,22 +135,27 @@ export function SpotMap({ conditions }: Props) {
                 offset={[0, -4]}
               >
                 <div style={{
-                  background: '#071428',
-                  border: `1px solid ${color}55`,
-                  borderRadius: 12,
+                  background: 'rgba(255,255,255,0.88)',
+                  backdropFilter: 'blur(14px)',
+                  WebkitBackdropFilter: 'blur(14px)',
+                  border: `1px solid rgba(255,255,255,0.9)`,
+                  borderRadius: 16,
                   padding: '10px 14px',
                   minWidth: 130,
                   fontFamily: 'Inter, system-ui, sans-serif',
+                  boxShadow: '0 8px 24px rgba(100,160,150,0.14)',
                 }}>
-                  <p style={{ color: '#e8f4ff', fontWeight: 700, fontSize: 13, margin: '0 0 4px' }}>{name}</p>
+                  <p style={{ color: '#1C3535', fontWeight: 700, fontSize: 13, margin: '0 0 4px' }}>{name}</p>
                   <p style={{ color, fontWeight: 900, fontSize: 15, margin: '0 0 2px' }}>{wave}</p>
-                  <p style={{ color: '#6aa3d4', fontSize: 11, margin: 0 }}>Rating {rating}/10</p>
+                  <p style={{ color: '#5E8A86', fontSize: 11, margin: 0 }}>Rating {rating}/10</p>
                   <button
                     onClick={() => { setSelectedSpot(spotId); setMobileTab('waves') }}
                     style={{
-                      marginTop: 8, width: '100%', background: color,
-                      color: '#030b17', border: 'none', borderRadius: 8,
-                      padding: '5px 0', fontWeight: 700, fontSize: 12, cursor: 'pointer',
+                      marginTop: 8, width: '100%',
+                      background: `linear-gradient(135deg, ${color}dd, ${color})`,
+                      color: '#FDFBF7', border: 'none', borderRadius: 10,
+                      padding: '6px 0', fontWeight: 700, fontSize: 12, cursor: 'pointer',
+                      boxShadow: `0 2px 8px ${color}55`,
                     }}
                   >
                     View Conditions →
@@ -164,16 +170,19 @@ export function SpotMap({ conditions }: Props) {
       {/* Legend */}
       <div style={{
         position: 'absolute', bottom: 16, left: 16, zIndex: 1000,
-        background: 'rgba(7,20,40,0.92)', border: '1px solid rgba(18,48,85,0.8)',
-        borderRadius: 12, padding: '8px 12px',
+        background: 'rgba(255,255,255,0.82)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        border: '1px solid rgba(255,255,255,0.9)',
+        borderRadius: 14, padding: '8px 12px',
         fontFamily: 'Inter, system-ui, sans-serif',
-        backdropFilter: 'blur(8px)',
+        boxShadow: '0 4px 16px rgba(100,160,150,0.12)',
       }}>
-        <p style={{ color: '#6aa3d4', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 6px' }}>Rating</p>
-        {[['7–10', '#00d4c8'], ['5–6', '#22c55e'], ['3–4', '#f59e0b'], ['0–2', '#6b7280']].map(([label, color]) => (
+        <p style={{ color: '#5E8A86', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 6px' }}>Rating</p>
+        {[['7–10', '#56A0A4'], ['5–6', '#52B879'], ['3–4', '#F5A44A'], ['0–2', '#91AFAA']].map(([label, color]) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
             <div style={{ width: 10, height: 10, borderRadius: '50%', background: color }} />
-            <span style={{ color: '#b8d4f0', fontSize: 11 }}>{label}</span>
+            <span style={{ color: '#2E5454', fontSize: 11 }}>{label}</span>
           </div>
         ))}
       </div>

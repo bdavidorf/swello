@@ -1,30 +1,26 @@
 /**
- * Surf-O-Meter — car fuel/speedometer gauge style.
- * Arc sweeps 230° clockwise from lower-left (0, red) to lower-right (10, green).
+ * Surf-O-Meter — sun-bleached glass gauge.
+ * Translucent face with soft coastal color zones.
  */
 
 interface Props {
   rating: number
 }
 
-// Layout constants
-const CX = 75       // center x
-const CY = 76       // center y (positioned low so endpoints land near viewBox bottom)
-const R  = 62       // arc radius
-const TW = 11       // track stroke width
+const CX = 75
+const CY = 76
+const R  = 62
+const TW = 11
 
-// Arc start/end angles (standard math: 0°=right, 90°=up, 180°=left)
-const START = 205   // lower-left  (rating 0  = "E")
-const END   = 335   // lower-right (rating 10 = "F")
-const SWEEP = 230   // clockwise degrees from START to END
+const START = 205
+const END   = 335
+const SWEEP = 230
 
-/** Point on circle at angleDeg */
 function pt(deg: number, r = R): [number, number] {
   const rad = (deg * Math.PI) / 180
   return [CX + r * Math.cos(rad), CY - r * Math.sin(rad)]
 }
 
-/** SVG clockwise arc from startDeg to endDeg */
 function arcCW(startDeg: number, endDeg: number, r = R, large = 0): string {
   const [x1, y1] = pt(startDeg, r)
   const [x2, y2] = pt(endDeg, r)
@@ -34,9 +30,8 @@ function arcCW(startDeg: number, endDeg: number, r = R, large = 0): string {
   )
 }
 
-// Zone boundary angles (clockwise from START)
-const R3  = START - (3  / 10) * SWEEP  // rating 3  → amber starts
-const R7  = START - (7  / 10) * SWEEP  // rating 7  → green starts
+const R3 = START - (3  / 10) * SWEEP
+const R7 = START - (7  / 10) * SWEEP
 
 export function SurfOMeter({ rating }: Props) {
   const clamped    = Math.max(0, Math.min(10, rating))
@@ -44,23 +39,21 @@ export function SurfOMeter({ rating }: Props) {
   const activeSpan = (clamped / 10) * SWEEP
   const activeLarge = activeSpan > 180 ? 1 : 0
 
-  // Needle geometry
-  const [tipX, tipY]   = pt(needleDeg, R - 8)    // tip near arc
-  const [tailX, tailY] = pt(needleDeg, -16)       // short tail past pivot
+  const [tipX, tipY]   = pt(needleDeg, R - 8)
+  const [tailX, tailY] = pt(needleDeg, -16)
 
-  // Color based on rating
+  // Coastal palette — poor=coral, fair=peach, good=green, excellent=sea-glass
   const color =
-    rating >= 8 ? '#00d4c8' :
-    rating >= 6 ? '#22c55e' :
-    rating >= 4 ? '#f59e0b' :
-    '#ef4444'
+    rating >= 8 ? '#78BEC2' :
+    rating >= 6 ? '#52B879' :
+    rating >= 4 ? '#F5A44A' :
+    '#FF9A8B'
 
   const label =
     rating >= 8 ? 'Excellent' :
     rating >= 6 ? 'Good' :
     rating >= 4 ? 'Fair' : 'Poor'
 
-  // End-label positions (just outside arc at the two endpoints)
   const [elx, ely] = pt(START, R + 14)
   const [erx, ery] = pt(END,   R + 14)
 
@@ -69,25 +62,53 @@ export function SurfOMeter({ rating }: Props) {
       <p className="stat-label mb-1 self-start">Surf-O-Meter</p>
 
       <svg viewBox="0 0 150 92" width="162" height="99" style={{ overflow: 'visible' }}>
+        <defs>
+          {/* Gauge face gradient — frosted glass with teal ambient glow */}
+          <radialGradient id="faceGrad" cx="50%" cy="55%" r="55%">
+            <stop offset="0%"   stopColor="rgba(240,252,250,0.92)" />
+            <stop offset="65%"  stopColor="rgba(255,255,255,0.78)" />
+            <stop offset="100%" stopColor="rgba(230,245,243,0.60)" />
+          </radialGradient>
 
-        {/* ── Gauge face background circle ── */}
-        <circle cx={CX} cy={CY} r={R + TW / 2 + 4} fill="#060f1a" />
+          {/* Soft ambient glow behind active arc */}
+          <radialGradient id="glowGrad" cx="50%" cy="60%" r="60%">
+            <stop offset="0%"   stopColor={color} stopOpacity="0.20" />
+            <stop offset="100%" stopColor={color} stopOpacity="0" />
+          </radialGradient>
+
+          {/* Glass face filter — soft inner shadow */}
+          <filter id="glassFace" x="-10%" y="-10%" width="120%" height="120%">
+            <feDropShadow dx="0" dy="1" stdDeviation="2" floodColor="rgba(168,218,220,0.25)" />
+          </filter>
+        </defs>
+
+        {/* ── Ambient glow halo ── */}
+        <circle cx={CX} cy={CY} r={R + TW / 2 + 6} fill="url(#glowGrad)" />
+
+        {/* ── Gauge face — frosted glass circle ── */}
+        <circle
+          cx={CX} cy={CY} r={R + TW / 2 + 4}
+          fill="url(#faceGrad)"
+          stroke="rgba(255,255,255,0.85)"
+          strokeWidth={1.5}
+          filter="url(#glassFace)"
+        />
 
         {/* ── Background track ── */}
         <path
           d={arcCW(START, END, R, 1)}
           fill="none"
-          stroke="#0d2035"
+          stroke="rgba(192,213,204,0.45)"
           strokeWidth={TW}
           strokeLinecap="round"
         />
 
-        {/* ── Dim zone tints (always on) ── */}
-        <path d={arcCW(START, R3,  R, 0)} fill="none" stroke="#ef444432" strokeWidth={TW} />
-        <path d={arcCW(R3,   R7,  R, 0)} fill="none" stroke="#f59e0b28" strokeWidth={TW} />
-        <path d={arcCW(R7,   END, R, 0)} fill="none" stroke="#22c55e28" strokeWidth={TW} />
+        {/* ── Zone tints — always visible, soft ── */}
+        <path d={arcCW(START, R3,  R, 0)} fill="none" stroke="rgba(255,154,139,0.22)" strokeWidth={TW} />
+        <path d={arcCW(R3,   R7,  R, 0)} fill="none" stroke="rgba(245,164,74,0.18)"  strokeWidth={TW} />
+        <path d={arcCW(R7,   END, R, 0)} fill="none" stroke="rgba(82,184,121,0.18)"  strokeWidth={TW} />
 
-        {/* ── Active arc (filled up to rating) ── */}
+        {/* ── Active arc with glow ── */}
         {clamped > 0 && (
           <path
             d={arcCW(START, needleDeg, R, activeLarge)}
@@ -95,11 +116,11 @@ export function SurfOMeter({ rating }: Props) {
             stroke={color}
             strokeWidth={TW}
             strokeLinecap="round"
-            style={{ filter: `drop-shadow(0 0 5px ${color}99)` }}
+            style={{ filter: `drop-shadow(0 0 4px ${color}bb)` }}
           />
         )}
 
-        {/* ── Tick marks every 2 rating points ── */}
+        {/* ── Tick marks ── */}
         {[0, 2, 4, 6, 8, 10].map(v => {
           const deg  = START - (v / 10) * SWEEP
           const [ox, oy] = pt(deg, R + TW / 2 + 1)
@@ -110,50 +131,45 @@ export function SurfOMeter({ rating }: Props) {
               key={v}
               x1={ox.toFixed(2)} y1={oy.toFixed(2)}
               x2={ix.toFixed(2)} y2={iy.toFixed(2)}
-              stroke={isMajor ? '#2a5070' : '#162a3d'}
+              stroke={isMajor ? 'rgba(78,130,128,0.55)' : 'rgba(168,218,220,0.40)'}
               strokeWidth={isMajor ? 2 : 1.2}
               strokeLinecap="round"
             />
           )
         })}
 
-        {/* ── E / F end labels ── */}
+        {/* ── End labels ── */}
         <text
           x={elx.toFixed(2)} y={ely.toFixed(2)}
           textAnchor="middle" dominantBaseline="middle"
-          fill="#ef4444" fontSize="9" fontWeight="700"
-          fontFamily="system-ui, sans-serif" opacity="0.8"
-        >
-          0
-        </text>
+          fill="#FF9A8B" fontSize="9" fontWeight="700"
+          fontFamily="system-ui, sans-serif" opacity="0.9"
+        >0</text>
         <text
           x={erx.toFixed(2)} y={ery.toFixed(2)}
           textAnchor="middle" dominantBaseline="middle"
-          fill="#22c55e" fontSize="9" fontWeight="700"
-          fontFamily="system-ui, sans-serif" opacity="0.8"
-        >
-          10
-        </text>
+          fill="#52B879" fontSize="9" fontWeight="700"
+          fontFamily="system-ui, sans-serif" opacity="0.9"
+        >10</text>
 
         {/* ── Needle tail ── */}
         <line
           x1={CX} y1={CY}
           x2={tailX.toFixed(2)} y2={tailY.toFixed(2)}
-          stroke={color} strokeWidth={2} strokeLinecap="round" opacity="0.5"
+          stroke={color} strokeWidth={2} strokeLinecap="round" opacity="0.45"
         />
 
-        {/* ── Needle ── */}
+        {/* ── Needle — thin with soft glow ── */}
         <line
           x1={CX} y1={CY}
           x2={tipX.toFixed(2)} y2={tipY.toFixed(2)}
-          stroke={color} strokeWidth={3} strokeLinecap="round"
+          stroke={color} strokeWidth={2.5} strokeLinecap="round"
+          style={{ filter: `drop-shadow(0 0 3px ${color}99)` }}
         />
 
-        {/* ── Pivot cap ── */}
-        <circle cx={CX} cy={CY} r={6}   fill="#060f1a" />
-        <circle cx={CX} cy={CY} r={3.5} fill={color} />
-
-
+        {/* ── Pivot ── */}
+        <circle cx={CX} cy={CY} r={6}   fill="rgba(255,255,255,0.92)" stroke="rgba(192,213,204,0.6)" strokeWidth={1} />
+        <circle cx={CX} cy={CY} r={3.5} fill={color} style={{ filter: `drop-shadow(0 0 3px ${color}cc)` }} />
       </svg>
 
       <p className="text-2xl font-black -mt-2 tracking-tight" style={{ color }}>{label}</p>
