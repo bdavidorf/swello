@@ -74,6 +74,20 @@
   }
 }
 
+/* Leaflet popup — strip default white box */
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+.leaflet-popup-content {
+  margin: 0 !important;
+}
+.leaflet-container {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
 /* Wave height display */
 .wave-height-display {
   font-feature-settings: 'tnum';

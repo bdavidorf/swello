@@ -4,6 +4,7 @@ import { SpotSidebar } from './components/layout/SpotSidebar'
 import { MobileNav } from './components/layout/MobileNav'
 import { MobileSpotPicker } from './components/layout/MobileSpotPicker'
 import { MobileSpotList } from './components/layout/MobileSpotList'
+import { SpotMap } from './components/map/SpotMap'
 import { DashboardContent } from './pages/DashboardContent'
 import { SurfChatWidget } from './components/ai/SurfChat'
 import { useQuery } from '@tanstack/react-query'
@@ -41,14 +42,11 @@ export default function App() {
             />
           </div>
 
-          {/* Mobile spots list — only shown on Spots tab */}
+          {/* Mobile map — only shown on Spots tab */}
           {mobileTab === 'spots' ? (
-            <div className="md:hidden flex-1 overflow-y-auto pb-24"
-                 style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 72px)' }}>
-              <MobileSpotList
-                conditions={allConditions.data}
-                loading={allConditions.isLoading}
-              />
+            <div className="md:hidden flex-1 flex flex-col overflow-hidden"
+                 style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)' }}>
+              <SpotMap conditions={allConditions.data} />
             </div>
           ) : (
             <DashboardContent />

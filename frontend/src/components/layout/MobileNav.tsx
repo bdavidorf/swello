@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { Waves, BarChart2, MapPin, Bot, type LucideProps } from 'lucide-react'
+import { Waves, BarChart2, Map, Bot, type LucideProps } from 'lucide-react'
 import { useSpotStore, type MobileTab } from '../../store/spotStore'
 import type { ForwardRefExoticComponent, RefAttributes } from 'react'
 
@@ -8,7 +8,7 @@ type LucideIcon = ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttrib
 const TABS: { id: MobileTab; label: string; Icon: LucideIcon }[] = [
   { id: 'waves',    label: 'Now',      Icon: Waves    },
   { id: 'forecast', label: 'Forecast', Icon: BarChart2 },
-  { id: 'spots',    label: 'Spots',    Icon: MapPin   },
+  { id: 'spots',    label: 'Explore',  Icon: Map      },
   { id: 'ai',       label: 'AI',       Icon: Bot      },
 ]
 
