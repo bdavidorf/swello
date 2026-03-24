@@ -1,9 +1,7 @@
 import { BrowserRouter } from 'react-router-dom'
 import { TopBar } from './components/layout/TopBar'
-import { SpotSidebar } from './components/layout/SpotSidebar'
 import { MobileNav } from './components/layout/MobileNav'
 import { MobileSpotPicker } from './components/layout/MobileSpotPicker'
-import { MobileSpotList } from './components/layout/MobileSpotList'
 import { SpotMap } from './components/map/SpotMap'
 import { DashboardContent } from './pages/DashboardContent'
 import { SurfChatWidget } from './components/ai/SurfChat'
@@ -28,21 +26,12 @@ export default function App() {
 
         <TopBar />
 
-        {/* Mobile spot chip picker — hidden on Spots tab (full list shown instead) */}
+        {/* Spot picker — visible on all screen sizes when not on map tab */}
         {mobileTab !== 'spots' && (
           <MobileSpotPicker conditions={allConditions.data} />
         )}
 
-        <div className="flex flex-1 min-h-0 overflow-hidden">
-          {/* Desktop sidebar — hidden on mobile */}
-          <div className="hidden md:flex">
-            <SpotSidebar
-              conditions={allConditions.data}
-              loading={allConditions.isLoading}
-            />
-          </div>
-
-          {/* Map — shown on Spots tab on any screen size */}
+        <div className="flex flex-1 min-h-0 overflow-hidden justify-center">
           {mobileTab === 'spots' ? (
             <div className="flex-1 flex flex-col overflow-hidden"
                  style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)' }}>
@@ -53,10 +42,7 @@ export default function App() {
           )}
         </div>
 
-        {/* Bottom nav — mobile only */}
         <MobileNav />
-
-        {/* Floating chat widget — always visible */}
         <SurfChatWidget />
       </div>
     </BrowserRouter>

@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import { Sparkles } from 'lucide-react'
 import { fetchSpotAnalysis } from '../../api/client'
 import type { SurfCondition, SpotMeta } from '../../types/surf'
 
@@ -13,35 +12,82 @@ export function AISpotAnalysis({ condition, spotMeta }: Props) {
     queryKey: ['spot-analysis', condition.spot_id],
     queryFn: () =>
       fetchSpotAnalysis(condition, {
-        break_type:  spotMeta?.break_type  ?? '',
-        difficulty:  spotMeta?.difficulty  ?? '',
-        facing_dir:  spotMeta?.facing_dir  ?? '',
+        break_type: spotMeta?.break_type ?? '',
+        difficulty: spotMeta?.difficulty ?? '',
+        facing_dir: spotMeta?.facing_dir ?? '',
       }),
     staleTime: 5 * 60 * 1000,
     enabled: !!condition,
   })
 
+  const today = new Date().toLocaleDateString('en-US', {
+    weekday: 'short', month: 'short', day: 'numeric',
+  }).toUpperCase()
+
   return (
-    <div className="card-glow px-5 py-4">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-6 h-6 rounded-lg bg-wave-400/15 flex items-center justify-center">
-          <Sparkles size={12} className="text-wave-400" />
-        </div>
-        <p className="stat-label">Swello AI Analysis</p>
+    <div className="forecasters-log" style={{ padding: '14px 18px' }}>
+      {/* Header */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        marginBottom: 10,
+        paddingBottom: 10,
+        borderBottom: '1px solid rgba(237,232,220,0.10)',
+      }}>
+        <span style={{
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: 8,
+          letterSpacing: '0.18em',
+          color: '#FF6B2B',
+          textTransform: 'uppercase',
+        }}>
+          ◆ FORECASTER'S LOG
+        </span>
+        <span style={{
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: 8,
+          letterSpacing: '0.12em',
+          color: '#3A5870',
+        }}>
+          — {today}
+        </span>
       </div>
 
+      {/* Body */}
       {isLoading ? (
-        <div className="space-y-2">
-          <div className="h-3.5 bg-ocean-800/60 rounded-full w-full animate-pulse" />
-          <div className="h-3.5 bg-ocean-800/60 rounded-full w-5/6 animate-pulse" />
-          <div className="h-3.5 bg-ocean-800/60 rounded-full w-4/5 animate-pulse" />
-          <div className="h-3.5 bg-ocean-800/60 rounded-full w-full animate-pulse" />
-          <div className="h-3.5 bg-ocean-800/60 rounded-full w-3/4 animate-pulse" />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {[100, 85, 92, 78, 88].map((w, i) => (
+            <div key={i} style={{
+              height: 13,
+              width: `${w}%`,
+              background: 'rgba(26,48,80,0.50)',
+              borderRadius: 2,
+              animation: 'pulse 1.8s ease-in-out infinite',
+            }} />
+          ))}
         </div>
       ) : data?.analysis ? (
-        <p className="text-ocean-200 text-sm leading-relaxed">{data.analysis}</p>
+        <p style={{
+          fontFamily: "'Lora', Georgia, serif",
+          fontSize: 13.5,
+          lineHeight: 1.80,
+          color: '#C8D8E4',
+          fontStyle: 'italic',
+          margin: 0,
+          position: 'relative',
+          zIndex: 1,
+        }}>
+          {data.analysis}
+        </p>
       ) : (
-        <p className="text-ocean-500 text-sm">Analysis unavailable — check your Gemini API key in Vercel.</p>
+        <p style={{
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: 11,
+          color: '#3A5870',
+        }}>
+          Analysis unavailable — check Gemini API key.
+        </p>
       )}
     </div>
   )

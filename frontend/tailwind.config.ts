@@ -5,79 +5,73 @@ export default {
   theme: {
     extend: {
       colors: {
-        // ── Deep ocean dark scale — 950=deepest bg, 50=brightest text ──
+        // ── Midnight Oceanic scale ──
         ocean: {
-          950: '#0A1628',  // deep navy — body background
-          900: '#0E1E38',  // card background
-          800: '#142540',  // elevated card
-          700: '#1E3554',  // borders
-          600: '#2A4A6A',  // muted borders / dividers
-          500: '#4A7090',  // icons, placeholder text
-          400: '#6A90AC',  // muted text
-          200: '#A8C4D8',  // body text
-          50:  '#E0EEF8',  // headings (near white, cool tint)
+          950: '#0C1420',  // body background — deep inky ocean
+          900: '#0F1E2E',  // card background
+          800: '#152840',  // elevated surface
+          700: '#1A3050',  // borders
+          600: '#264462',  // muted borders
+          500: '#3A5870',  // muted icons / placeholder
+          400: '#6A8AA0',  // secondary text
+          200: '#9AAABB',  // body text
+          50:  '#EDE8DC',  // headings — warm parchment (magazine paper)
         },
-        // ── Electric teal accent ──
+        // ── Electric Seafoam — use ONLY for highlights/good conditions ──
         wave: {
-          300: '#4AEAE0',
-          400: '#00CFC0',  // primary teal
-          500: '#00A898',
-          600: '#007A6E',
+          300: '#5AFFF2',
+          400: '#1AFFD0',  // Electric Seafoam
+          500: '#00C4A8',
+          600: '#008870',
         },
-        // ── Coral / fiery accent ──
+        // ── Safety Orange — use ONLY for CTAs and poor/critical ──
         coral: {
-          300: '#FF8060',
-          400: '#FF6040',  // primary coral
-          500: '#E04020',
-          600: '#B03010',
+          300: '#FF8A5A',
+          400: '#FF6B2B',  // Safety Orange
+          500: '#E04A18',
+          600: '#B03210',
         },
         // ── Surf conditions ──
         surf: {
-          flat:     '#4A7090',
-          small:    '#6ABCCC',
-          medium:   '#00CFC0',
-          solid:    '#4AE080',
+          flat:     '#3A5870',
+          small:    '#6AACCC',
+          medium:   '#1AFFD0',
+          solid:    '#4AE090',
           overhead: '#FF9A40',
-          xxl:      '#FF6040',
+          xxl:      '#FF6B2B',
         },
         // ── Crowd ──
         crowd: {
-          empty:    '#4AE080',
+          empty:    '#4AE090',
           light:    '#6ACA50',
           moderate: '#FF9A40',
-          crowded:  '#FF6040',
+          crowded:  '#FF6B2B',
           packed:   '#E040A0',
         },
       },
       fontFamily: {
-        display: ['Bebas Neue', 'system-ui', 'sans-serif'],
+        display: ['Archivo Black', 'Impact', 'system-ui', 'sans-serif'],
+        serif:   ['Lora', 'Georgia', 'serif'],
         sans:    ['Inter', 'system-ui', 'sans-serif'],
         mono:    ['JetBrains Mono', 'Menlo', 'monospace'],
       },
-      backgroundImage: {
-        'teal-coral': 'linear-gradient(135deg, #00CFC0 0%, #FF6040 100%)',
-        'deep-glass': 'linear-gradient(145deg, rgba(14,30,56,0.90) 0%, rgba(10,22,40,0.85) 100%)',
-      },
       boxShadow: {
-        'glass':      '0 8px 32px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.18), inset 0 1px 0 rgba(0,207,192,0.08)',
-        'glass-lg':   '0 16px 48px rgba(0,0,0,0.35), 0 4px 16px rgba(0,0,0,0.22), inset 0 1px 0 rgba(0,207,192,0.10)',
-        'teal-glow':  '0 4px 20px rgba(0,207,192,0.30)',
-        'coral-glow': '0 4px 20px rgba(255,96,64,0.30)',
-        'card':       '0 8px 32px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.18)',
+        'glass':      '0 8px 40px rgba(0,0,0,0.40), 0 2px 10px rgba(0,0,0,0.25)',
+        'glass-lg':   '0 20px 60px rgba(0,0,0,0.50), 0 4px 20px rgba(0,0,0,0.30)',
+        'seafoam':    '0 4px 20px rgba(26,255,208,0.25)',
+        'orange':     '0 4px 20px rgba(255,107,43,0.30)',
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'wave-in':    'waveIn 0.6s ease-out forwards',
         'fade-up':    'fadeUp 0.5s ease-out forwards',
-        'teal-flare': 'tealFlare 2.5s ease-in-out infinite',
         'grain':      'grain 8s steps(10) infinite',
+        'seaflare':   'seaflare 2.5s ease-in-out infinite',
       },
       keyframes: {
-        waveIn:    { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
-        fadeUp:    { '0%': { opacity: '0', transform: 'translateY(12px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
-        tealFlare: {
-          '0%, 100%': { boxShadow: '0 4px 20px rgba(0,207,192,0.30), 0 2px 8px rgba(0,207,192,0.15)' },
-          '50%':      { boxShadow: '0 6px 32px rgba(0,207,192,0.55), 0 4px 14px rgba(255,96,64,0.20)' },
+        fadeUp: { '0%': { opacity: '0', transform: 'translateY(12px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+        seaflare: {
+          '0%, 100%': { boxShadow: '0 4px 20px rgba(26,255,208,0.25), 0 2px 8px rgba(26,255,208,0.12)' },
+          '50%':      { boxShadow: '0 6px 32px rgba(26,255,208,0.50), 0 4px 14px rgba(255,107,43,0.18)' },
         },
         grain: {
           '0%, 100%': { transform: 'translate(0, 0)' },

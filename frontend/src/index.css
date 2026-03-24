@@ -15,14 +15,15 @@
   body {
     font-family: 'Inter', system-ui, sans-serif;
     /*
-      Deep ocean night — like paddling out at 5am.
-      Subtle teal bloom top-left (bioluminescence), faint coral bottom-right (dawn).
+      Midnight Oceanic — deep ocean before dawn.
+      Barely-there teal bloom (phosphorescence) top-left,
+      faint amber hint bottom-right (distant city lights through fog).
     */
     background:
-      radial-gradient(ellipse at 15% 0%,   rgba(0,207,192,0.08) 0%, transparent 50%),
-      radial-gradient(ellipse at 85% 110%,  rgba(255,96,64,0.06) 0%, transparent 50%),
-      #0A1628;
-    color: #A8C4D8;
+      radial-gradient(ellipse at 25% -10%, rgba(0,110,150,0.18) 0%, transparent 55%),
+      radial-gradient(ellipse at 75% 115%, rgba(0,60,120,0.12) 0%, transparent 55%),
+      linear-gradient(170deg, #0C1420 0%, #0A192E 50%, #0C1420 100%);
+    color: #9AAABB;
     height: 100%;
     overflow: hidden;
     -webkit-tap-highlight-color: transparent;
@@ -30,7 +31,7 @@
 
   #root { height: 100%; }
 
-  /* ── Film grain — subtle texture so it doesn't look digital-sterile ── */
+  /* ── Film grain — removes the sterile flatscreen look ── */
   body::after {
     content: '';
     position: fixed;
@@ -38,87 +39,111 @@
     width: 200%; height: 200%;
     pointer-events: none;
     z-index: 9999;
-    opacity: 0.032;
+    opacity: 0.038;
     background-image: url("data:image/svg+xml,%3Csvg viewBox%3D%220 0 512 512%22 xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cfilter id%3D%22n%22%3E%3CfeTurbulence type%3D%22fractalNoise%22 baseFrequency%3D%220.68%22 numOctaves%3D%224%22 stitchTiles%3D%22stitch%22%2F%3E%3C%2Ffilter%3E%3Crect width%3D%22100%25%22 height%3D%22100%25%22 filter%3D%22url(%23n)%22%2F%3E%3C%2Fsvg%3E");
     animation: grain 8s steps(10) infinite;
   }
 
-  /* ── Scrollbar — teal on dark ── */
+  /* ── Scrollbar ── */
   ::-webkit-scrollbar       { width: 4px; height: 4px; }
-  ::-webkit-scrollbar-track { background: rgba(30,53,84,0.40); }
-  ::-webkit-scrollbar-thumb { background: rgba(0,207,192,0.35); border-radius: 2px; }
-  ::-webkit-scrollbar-thumb:hover { background: #00CFC0; }
+  ::-webkit-scrollbar-track { background: rgba(26,48,80,0.40); }
+  ::-webkit-scrollbar-thumb { background: rgba(26,255,208,0.25); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: #1AFFD0; }
 }
 
 @layer components {
 
-  /* ── Glass card — dark ocean glass ── */
+  /* ── Glass card — maximum frosted depth ── */
   .card {
-    background: rgba(14,30,56,0.88);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-radius: 16px;
-    border: 1px solid rgba(0,207,192,0.12);
+    background: rgba(15,30,46,0.82);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border-radius: 12px;
+    border: 1px solid rgba(237,232,220,0.08);
     box-shadow:
-      0 8px 32px rgba(0,0,0,0.28),
-      0 2px 8px  rgba(0,0,0,0.18),
-      inset 0 1px 0 rgba(0,207,192,0.08);
+      0 8px 40px rgba(0,0,0,0.40),
+      0 2px 10px rgba(0,0,0,0.25),
+      inset 0 1px 0 rgba(237,232,220,0.05);
   }
 
-  /* ── Hero card — slightly more elevated ── */
+  /* ── Elevated card ── */
   .card-glow {
-    background: rgba(14,30,56,0.92);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border-radius: 18px;
-    border: 1px solid rgba(0,207,192,0.16);
+    background: rgba(15,30,46,0.88);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    border-radius: 14px;
+    border: 1px solid rgba(237,232,220,0.10);
     box-shadow:
-      0 12px 40px rgba(0,0,0,0.35),
-      0 4px  16px rgba(0,0,0,0.22),
-      inset 0 1px 0 rgba(0,207,192,0.12);
+      0 16px 56px rgba(0,0,0,0.50),
+      0 4px 16px rgba(0,0,0,0.30),
+      inset 0 1px 0 rgba(237,232,220,0.07);
   }
 
   /* ── Type helpers ── */
   .stat-label {
-    @apply text-[10px] font-semibold uppercase tracking-[0.14em] text-ocean-500;
+    @apply text-[9px] font-semibold uppercase tracking-[0.18em] text-ocean-500;
+    font-family: 'JetBrains Mono', monospace;
   }
   .stat-value {
     @apply font-bold text-ocean-50;
   }
 
-  /* ── Surf display font — Bebas Neue for hero numbers & headings ── */
-  .font-surf {
-    font-family: 'Bebas Neue', system-ui, sans-serif;
-    letter-spacing: 0.02em;
+  /* ── Mono data value ── */
+  .data-val {
+    font-family: 'JetBrains Mono', Menlo, monospace;
+    @apply text-sm font-medium text-ocean-50;
+  }
+
+  /* ── Display headline — Archivo Black ── */
+  .font-display {
+    font-family: 'Archivo Black', Impact, system-ui, sans-serif;
   }
 
   /* ── Buttons ── */
   .btn-primary {
-    @apply bg-wave-400 hover:bg-wave-300 text-ocean-950 font-bold rounded-xl px-4 py-2
+    background: #FF6B2B;
+    @apply text-white font-bold rounded-lg px-4 py-2
            transition-all duration-200 active:scale-95;
-    box-shadow: 0 3px 16px rgba(0,207,192,0.40);
+    box-shadow: 0 3px 16px rgba(255,107,43,0.40);
   }
+  .btn-primary:hover { background: #FF8A5A; }
+
   .btn-ghost {
-    @apply border border-ocean-700 text-ocean-400 font-medium rounded-xl px-4 py-2
+    @apply border border-ocean-700 text-ocean-400 font-medium rounded-lg px-4 py-2
            transition-all duration-200;
-    background: rgba(14,30,56,0.50);
+    background: rgba(15,30,46,0.50);
   }
-  .btn-ghost:hover {
-    @apply border-wave-400 text-ocean-50;
-  }
+  .btn-ghost:hover { @apply border-wave-400 text-ocean-50; }
 
   /* ── Ask Swello pill ── */
   .ask-swello-btn {
-    background: linear-gradient(135deg, #00CFC0 0%, #0080FF 100%);
-    border: 1px solid rgba(0,207,192,0.40);
-    box-shadow: 0 4px 20px rgba(0,207,192,0.35), 0 2px 8px rgba(0,128,255,0.20);
+    background: linear-gradient(135deg, #1AFFD0 0%, #0080FF 100%);
+    border: 1px solid rgba(26,255,208,0.35);
+    box-shadow: 0 4px 20px rgba(26,255,208,0.28), 0 2px 8px rgba(0,128,255,0.18);
     transition: box-shadow 0.3s ease, transform 0.15s ease;
   }
   .ask-swello-btn:hover {
-    animation: tealFlare 2.5s ease-in-out infinite;
+    animation: seaflare 2.5s ease-in-out infinite;
     transform: translateY(-1px);
   }
   .ask-swello-btn:active { transform: scale(0.97); }
+
+  /* ── Forecaster's Log — editorial paper feel ── */
+  .forecasters-log {
+    background: rgba(10,18,30,0.92);
+    border: 1px dashed rgba(237,232,220,0.20);
+    border-radius: 4px;
+    position: relative;
+  }
+  .forecasters-log::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 4px;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox%3D%220 0 200 200%22 xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cfilter id%3D%22p%22%3E%3CfeTurbulence type%3D%22fractalNoise%22 baseFrequency%3D%220.9%22 numOctaves%3D%224%22 stitchTiles%3D%22stitch%22%2F%3E%3C%2Ffilter%3E%3Crect width%3D%22100%25%22 height%3D%22100%25%22 filter%3D%22url(%23p)%22%2F%3E%3C%2Fsvg%3E");
+    opacity: 0.018;
+    pointer-events: none;
+  }
 }
 
 /* ── Leaflet popup overrides ── */
@@ -131,12 +156,10 @@
 .leaflet-popup-content { margin: 0 !important; }
 .leaflet-container { font-family: 'Inter', system-ui, sans-serif; }
 
-/* ── Wave height display — tabular numerals + Bebas Neue ── */
+/* ── Wave height display ── */
 .wave-height-display {
-  font-family: 'Bebas Neue', system-ui, sans-serif;
-  font-feature-settings: 'tnum';
+  font-family: 'Archivo Black', Impact, system-ui, sans-serif;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.01em;
 }
 
 /* ── Swell bar ── */
@@ -163,7 +186,7 @@
   90% { transform: translate(-2%, 4%); }
 }
 
-@keyframes tealFlare {
-  0%, 100% { box-shadow: 0 4px 20px rgba(0,207,192,0.35), 0 2px 8px rgba(0,128,255,0.20); }
-  50%       { box-shadow: 0 6px 32px rgba(0,207,192,0.60), 0 4px 14px rgba(255,96,64,0.20); }
+@keyframes seaflare {
+  0%, 100% { box-shadow: 0 4px 20px rgba(26,255,208,0.28), 0 2px 8px rgba(0,128,255,0.18); }
+  50%       { box-shadow: 0 6px 32px rgba(26,255,208,0.55), 0 4px 14px rgba(255,107,43,0.20); }
 }

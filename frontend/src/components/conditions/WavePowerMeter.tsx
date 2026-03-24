@@ -7,12 +7,12 @@ interface Props {
 
 // Color stops: flat -> small -> medium -> solid -> overhead -> XXL
 function kwToColor(kw: number): string {
-  if (kw < 1)  return '#4A7090'
-  if (kw < 5)  return '#6ABCCC'
-  if (kw < 15) return '#00CFC0'
-  if (kw < 30) return '#4AE080'
+  if (kw < 1)  return '#3A5870'
+  if (kw < 5)  return '#6AACCC'
+  if (kw < 15) return '#1AFFD0'
+  if (kw < 30) return '#4AE090'
   if (kw < 60) return '#FF9A40'
-  return '#FF6040'
+  return '#FF6B2B'
 }
 
 function kwToLabel(kw: number): string {
@@ -60,7 +60,7 @@ export function WavePowerMeter({ kw, maxKw = 80 }: Props) {
         <path
           d={arcPath(startAngle, sweepDeg)}
           fill="none"
-          stroke="rgba(30,53,84,0.80)"
+          stroke="rgba(26,48,80,0.80)"
           strokeWidth={strokeWidth}
           strokeLinecap="round"
         />
@@ -76,10 +76,10 @@ export function WavePowerMeter({ kw, maxKw = 80 }: Props) {
           transition={{ duration: 1.2, ease: 'easeOut' }}
         />
         {/* Center value */}
-        <text x={cx} y={cy - 3} textAnchor="middle" fill={color} fontSize="11" fontWeight="800" fontFamily="Inter">
+        <text x={cx} y={cy - 3} textAnchor="middle" fill={color} fontSize="11" fontWeight="800" fontFamily="Archivo Black, Impact, system-ui">
           {kw < 10 ? kw.toFixed(1) : kw.toFixed(0)}
         </text>
-        <text x={cx} y={cy + 9} textAnchor="middle" fill="#4A7090" fontSize="7" fontFamily="Inter">
+        <text x={cx} y={cy + 9} textAnchor="middle" fill="#3A5870" fontSize="7" fontFamily="JetBrains Mono, monospace">
           kW/m
         </text>
       </svg>
