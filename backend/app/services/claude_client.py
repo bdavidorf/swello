@@ -92,7 +92,7 @@ def _get_gemini_model(json_mode: bool = False):
     if json_mode:
         config["response_mime_type"] = "application/json"
     return genai.GenerativeModel(
-        model_name="gemini-3-flash-preview",
+        model_name="gemini-2.0-flash",
         generation_config=config,
     )
 
@@ -107,33 +107,49 @@ async def get_chat_reply(
     messages: list[dict],
     conditions_context: str,
 ) -> str:
-    """Conversational chat with Gemini. messages = [{role, content}, ...]"""
-    import google.generativeai as genai
-    genai.configure(api_key=settings.gemini_api_key)
-
+    """Conversational chat. Tries Gemini first, falls back to Claude."""
     system = f"""You are Swello, a friendly AI surf advisor for Los Angeles beaches. You have real-time surf data.
 
 {conditions_context}
 
 Be conversational, knowledgeable, and use surf lingo naturally. Give specific spot recommendations based on what the user tells you about their skill level and preferences. Keep replies concise (2-4 sentences) unless the user asks for detail. Today is {datetime.now().strftime('%A, %B %d %Y')}."""
 
-    model = genai.GenerativeModel(
-        model_name="gemini-3-flash-preview",
-        system_instruction=system,
-        generation_config={"temperature": 0.7, "max_output_tokens": 512},
-    )
+    # Try Gemini first
+    if settings.gemini_api_key:
+        try:
+            import google.generativeai as genai
+            genai.configure(api_key=settings.gemini_api_key)
+            model = genai.GenerativeModel(
+                model_name="gemini-2.0-flash",
+                system_instruction=system,
+                generation_config={"temperature": 0.7, "max_output_tokens": 512},
+            )
+            history = []
+            for msg in messages[:-1]:
+                history.append({
+                    "role": "user" if msg["role"] == "user" else "model",
+                    "parts": [msg["content"]],
+                })
+            chat = model.start_chat(history=history)
+            response = await chat.send_message_async(messages[-1]["content"])
+            return response.text
+        except Exception:
+            pass  # fall through to Claude
 
-    # Build chat history (all but last message)
-    history = []
-    for msg in messages[:-1]:
-        history.append({
-            "role": "user" if msg["role"] == "user" else "model",
-            "parts": [msg["content"]],
-        })
+    # Fallback: Claude
+    if settings.anthropic_api_key:
+        from anthropic import AsyncAnthropic
+        client = AsyncAnthropic(api_key=settings.anthropic_api_key)
+        claude_msgs = [{"role": m["role"], "content": m["content"]} for m in messages]
+        message = await client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=512,
+            system=system,
+            messages=claude_msgs,
+        )
+        return message.content[0].text
 
-    chat = model.start_chat(history=history)
-    response = await chat.send_message_async(messages[-1]["content"])
-    return response.text
+    raise RuntimeError("No AI API key configured")
 
 
 # ── Groq / Claude fallbacks ───────────────────────────────────────────────────
@@ -241,7 +257,7 @@ async def get_ai_ranking(
 
     if settings.gemini_api_key:
         try:
-            return _parse_windows(await _call_gemini_ranking(prompt), "gemini-3-flash-preview")
+            return _parse_windows(await _call_gemini_ranking(prompt), "gemini-2.0-flash")
         except Exception as e:
             errors.append(f"Gemini: {e}")
 
