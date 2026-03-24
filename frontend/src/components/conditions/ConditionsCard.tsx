@@ -10,9 +10,9 @@ import { AISpotAnalysis } from '../ai/AISpotAnalysis'
 
 interface Props { condition: SurfCondition }
 
-// Rating → accent color (muted palette)
+// Rating → accent color
 function ratingAccent(r: number) {
-  return r >= 8 ? '#4E7A7C' : r >= 6 ? '#5E9268' : r >= 4 ? '#C4904A' : '#B07860'
+  return r >= 8 ? '#00CFC0' : r >= 6 ? '#4AE080' : r >= 4 ? '#FF9A40' : '#FF6040'
 }
 function ratingLabel(r: number) {
   return r >= 8 ? 'Excellent' : r >= 6 ? 'Good' : r >= 4 ? 'Fair' : 'Poor'
@@ -36,10 +36,10 @@ export function ConditionsCard({ condition }: Props) {
     : buoy.wvht_ft != null ? buoy.wvht_ft.toFixed(1) : '--'
 
   const windColor =
-    wind?.quality === 'offshore'       ? '#5E9268' :
-    wind?.quality === 'cross-offshore' ? '#5E9268' :
-    wind?.quality === 'cross'          ? '#C4904A' :
-    wind?.quality === 'cross-onshore'  ? '#B07860' : '#B07860'
+    wind?.quality === 'offshore'       ? '#00CFC0' :
+    wind?.quality === 'cross-offshore' ? '#00CFC0' :
+    wind?.quality === 'cross'          ? '#FF9A40' :
+    wind?.quality === 'cross-onshore'  ? '#FF6040' : '#FF6040'
 
   return (
     <motion.div
@@ -47,12 +47,12 @@ export function ConditionsCard({ condition }: Props) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
       style={{
-        background: 'rgba(237,231,223,0.78)',
+        background: 'rgba(14,30,56,0.92)',
         backdropFilter: 'blur(18px)',
         WebkitBackdropFilter: 'blur(18px)',
         borderRadius: 20,
-        border: '1px solid rgba(255,248,240,0.70)',
-        boxShadow: '0 12px 40px rgba(50,38,28,0.12), 0 4px 16px rgba(50,38,28,0.08)',
+        border: '1px solid rgba(0,207,192,0.14)',
+        boxShadow: '0 12px 40px rgba(0,0,0,0.35), 0 4px 16px rgba(0,0,0,0.22), inset 0 1px 0 rgba(0,207,192,0.08)',
         overflow: 'hidden',
       }}
     >
@@ -62,7 +62,7 @@ export function ConditionsCard({ condition }: Props) {
       {/* ── Header: spot name + meta ── */}
       <div className="flex items-start justify-between px-5 pt-4 pb-2">
         <div>
-          <h2 className="text-xl font-black text-ocean-50 tracking-tight leading-none">
+          <h2 className="font-surf text-2xl text-ocean-50 leading-none tracking-wide">
             {condition.spot_name}
           </h2>
           {breaking && (
@@ -112,7 +112,7 @@ export function ConditionsCard({ condition }: Props) {
       {/* ── Stats strip — horizontal, divided ── */}
       <div
         className="grid grid-cols-4 border-t border-b"
-        style={{ borderColor: 'rgba(168,160,152,0.30)' }}
+        style={{ borderColor: 'rgba(30,53,84,0.80)' }}
       >
         <StatCell
           label="Period"
@@ -146,7 +146,7 @@ export function ConditionsCard({ condition }: Props) {
       {/* ── Wind compass + badges ── */}
       <div
         className="flex items-center gap-4 px-5 pt-3 pb-4 border-t"
-        style={{ borderColor: 'rgba(168,160,152,0.25)', background: 'rgba(50,38,28,0.03)' }}
+        style={{ borderColor: 'rgba(30,53,84,0.80)', background: 'rgba(0,0,0,0.12)' }}
       >
         {wind && <CompassRose deg={wind.direction_deg} size={46} color={windColor} />}
         <div className="space-y-1.5">
@@ -192,7 +192,7 @@ function StatCell({
   return (
     <div
       className="flex flex-col items-center py-2.5 px-1 border-r last:border-r-0 text-center"
-      style={{ borderColor: 'rgba(168,160,152,0.25)' }}
+      style={{ borderColor: 'rgba(30,53,84,0.80)' }}
     >
       <p className="stat-label mb-1">{label}</p>
       <p

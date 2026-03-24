@@ -15,15 +15,14 @@
   body {
     font-family: 'Inter', system-ui, sans-serif;
     /*
-      Warm taupe / weathered concrete — not white, not navy.
-      Think: old surf shop wall, early-morning fog on PCH.
-      Very subtle teal bloom top-left (sky), muted terracotta bottom-right (sand).
+      Deep ocean night — like paddling out at 5am.
+      Subtle teal bloom top-left (bioluminescence), faint coral bottom-right (dawn).
     */
     background:
-      radial-gradient(ellipse at 20% 0%,   rgba(106,154,156,0.18) 0%, transparent 48%),
-      radial-gradient(ellipse at 80% 110%,  rgba(176,120,96,0.14) 0%, transparent 48%),
-      #B8B2AA;
-    color: #221C18;
+      radial-gradient(ellipse at 15% 0%,   rgba(0,207,192,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 110%,  rgba(255,96,64,0.06) 0%, transparent 50%),
+      #0A1628;
+    color: #A8C4D8;
     height: 100%;
     overflow: hidden;
     -webkit-tap-highlight-color: transparent;
@@ -31,7 +30,7 @@
 
   #root { height: 100%; }
 
-  /* ── Film grain — tactile, not sterile ── */
+  /* ── Film grain — subtle texture so it doesn't look digital-sterile ── */
   body::after {
     content: '';
     position: fixed;
@@ -39,78 +38,84 @@
     width: 200%; height: 200%;
     pointer-events: none;
     z-index: 9999;
-    opacity: 0.045;
+    opacity: 0.032;
     background-image: url("data:image/svg+xml,%3Csvg viewBox%3D%220 0 512 512%22 xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cfilter id%3D%22n%22%3E%3CfeTurbulence type%3D%22fractalNoise%22 baseFrequency%3D%220.68%22 numOctaves%3D%224%22 stitchTiles%3D%22stitch%22%2F%3E%3C%2Ffilter%3E%3Crect width%3D%22100%25%22 height%3D%22100%25%22 filter%3D%22url(%23n)%22%2F%3E%3C%2Fsvg%3E");
     animation: grain 8s steps(10) infinite;
   }
 
-  /* ── Scrollbar — warm tones ── */
+  /* ── Scrollbar — teal on dark ── */
   ::-webkit-scrollbar       { width: 4px; height: 4px; }
-  ::-webkit-scrollbar-track { background: rgba(168,160,152,0.25); }
-  ::-webkit-scrollbar-thumb { background: rgba(106,154,156,0.45); border-radius: 2px; }
-  ::-webkit-scrollbar-thumb:hover { background: #6A9A9C; }
+  ::-webkit-scrollbar-track { background: rgba(30,53,84,0.40); }
+  ::-webkit-scrollbar-thumb { background: rgba(0,207,192,0.35); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: #00CFC0; }
 }
 
 @layer components {
 
-  /* ── Glass card — warm frosted stone ── */
+  /* ── Glass card — dark ocean glass ── */
   .card {
-    background: rgba(237, 231, 223, 0.72);
+    background: rgba(14,30,56,0.88);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border-radius: 18px;
-    border: 1px solid rgba(255, 248, 240, 0.65);
+    border-radius: 16px;
+    border: 1px solid rgba(0,207,192,0.12);
     box-shadow:
-      0 8px 32px rgba(50, 38, 28, 0.10),
-      0 2px 8px  rgba(50, 38, 28, 0.07),
-      inset 0 1px 0 rgba(255, 248, 240, 0.70);
+      0 8px 32px rgba(0,0,0,0.28),
+      0 2px 8px  rgba(0,0,0,0.18),
+      inset 0 1px 0 rgba(0,207,192,0.08);
   }
 
   /* ── Hero card — slightly more elevated ── */
   .card-glow {
-    background: rgba(237, 231, 223, 0.78);
+    background: rgba(14,30,56,0.92);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
-    border-radius: 20px;
-    border: 1px solid rgba(255, 248, 240, 0.70);
+    border-radius: 18px;
+    border: 1px solid rgba(0,207,192,0.16);
     box-shadow:
-      0 12px 40px rgba(50, 38, 28, 0.12),
-      0 4px  16px rgba(50, 38, 28, 0.08),
-      inset 0 1px 0 rgba(255, 248, 240, 0.80);
+      0 12px 40px rgba(0,0,0,0.35),
+      0 4px  16px rgba(0,0,0,0.22),
+      inset 0 1px 0 rgba(0,207,192,0.12);
   }
 
   /* ── Type helpers ── */
   .stat-label {
-    @apply text-[10px] font-semibold uppercase tracking-[0.12em] text-ocean-500;
+    @apply text-[10px] font-semibold uppercase tracking-[0.14em] text-ocean-500;
   }
   .stat-value {
     @apply font-bold text-ocean-50;
   }
 
+  /* ── Surf display font — Bebas Neue for hero numbers & headings ── */
+  .font-surf {
+    font-family: 'Bebas Neue', system-ui, sans-serif;
+    letter-spacing: 0.02em;
+  }
+
   /* ── Buttons ── */
   .btn-primary {
-    @apply bg-wave-400 hover:bg-wave-500 text-ocean-950 font-semibold rounded-xl px-4 py-2
+    @apply bg-wave-400 hover:bg-wave-300 text-ocean-950 font-bold rounded-xl px-4 py-2
            transition-all duration-200 active:scale-95;
-    box-shadow: 0 3px 14px rgba(106,154,156,0.40);
+    box-shadow: 0 3px 16px rgba(0,207,192,0.40);
   }
   .btn-ghost {
-    @apply border border-ocean-700 text-ocean-500 font-medium rounded-xl px-4 py-2
+    @apply border border-ocean-700 text-ocean-400 font-medium rounded-xl px-4 py-2
            transition-all duration-200;
-    background: rgba(237,231,223,0.50);
+    background: rgba(14,30,56,0.50);
   }
   .btn-ghost:hover {
-    @apply border-wave-400 text-ocean-200;
+    @apply border-wave-400 text-ocean-50;
   }
 
   /* ── Ask Swello pill ── */
   .ask-swello-btn {
-    background: linear-gradient(135deg, #7ABCA0 0%, #7AAEC8 100%);
-    border: 1px solid rgba(255,248,240,0.70);
-    box-shadow: 0 4px 20px rgba(106,154,156,0.40), 0 2px 8px rgba(122,174,200,0.25);
+    background: linear-gradient(135deg, #00CFC0 0%, #0080FF 100%);
+    border: 1px solid rgba(0,207,192,0.40);
+    box-shadow: 0 4px 20px rgba(0,207,192,0.35), 0 2px 8px rgba(0,128,255,0.20);
     transition: box-shadow 0.3s ease, transform 0.15s ease;
   }
   .ask-swello-btn:hover {
-    animation: sunFlare 2.5s ease-in-out infinite;
+    animation: tealFlare 2.5s ease-in-out infinite;
     transform: translateY(-1px);
   }
   .ask-swello-btn:active { transform: scale(0.97); }
@@ -126,10 +131,12 @@
 .leaflet-popup-content { margin: 0 !important; }
 .leaflet-container { font-family: 'Inter', system-ui, sans-serif; }
 
-/* ── Tabular numerals for wave heights ── */
+/* ── Wave height display — tabular numerals + Bebas Neue ── */
 .wave-height-display {
+  font-family: 'Bebas Neue', system-ui, sans-serif;
   font-feature-settings: 'tnum';
   font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
 }
 
 /* ── Swell bar ── */
@@ -156,7 +163,7 @@
   90% { transform: translate(-2%, 4%); }
 }
 
-@keyframes sunFlare {
-  0%, 100% { box-shadow: 0 4px 20px rgba(106,154,156,0.40), 0 2px 8px rgba(122,174,200,0.25); }
-  50%       { box-shadow: 0 6px 30px rgba(106,154,156,0.60), 0 4px 14px rgba(196,144,74,0.30); }
+@keyframes tealFlare {
+  0%, 100% { box-shadow: 0 4px 20px rgba(0,207,192,0.35), 0 2px 8px rgba(0,128,255,0.20); }
+  50%       { box-shadow: 0 6px 32px rgba(0,207,192,0.60), 0 4px 14px rgba(255,96,64,0.20); }
 }

@@ -7,7 +7,7 @@ interface Props {
 }
 
 function ratingColor(r: number) {
-  return r >= 7 ? '#56A0A4' : r >= 5 ? '#52B879' : r >= 3 ? '#F5A44A' : '#91AFAA'
+  return r >= 7 ? '#00CFC0' : r >= 5 ? '#4AE080' : r >= 3 ? '#FF9A40' : '#6A90AC'
 }
 
 export function MobileSpotPicker({ conditions }: Props) {
@@ -16,7 +16,7 @@ export function MobileSpotPicker({ conditions }: Props) {
   if (!conditions || conditions.length === 0) return null
 
   return (
-    <div className="md:hidden flex-shrink-0 overflow-x-auto border-b border-ocean-700/40" style={{ background: 'rgba(255,255,255,0.55)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
+    <div className="md:hidden flex-shrink-0 overflow-x-auto border-b border-ocean-700/60" style={{ background: 'rgba(10,22,40,0.92)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
       <div
         className="flex gap-2 px-4 py-2.5"
         style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}
@@ -32,7 +32,7 @@ export function MobileSpotPicker({ conditions }: Props) {
               style={{
                 scrollSnapAlign: 'start',
                 flexShrink: 0,
-                ...(!selected ? { background: 'rgba(255,255,255,0.55)' } : {}),
+                ...(!selected ? { background: 'rgba(14,30,56,0.60)' } : {}),
               }}
               className={clsx(
                 'flex flex-col items-center px-3 py-1.5 rounded-xl border transition-all text-center min-w-[64px]',

@@ -22,7 +22,7 @@ const SPOT_COORDS: Record<string, [number, number]> = {
 
 // ── Custom SVG marker ─────────────────────────────────────────────────────────
 function ratingColor(r: number) {
-  return r >= 7 ? '#4E7A7C' : r >= 5 ? '#5E9268' : r >= 3 ? '#C4904A' : '#A8A09A'
+  return r >= 7 ? '#00CFC0' : r >= 5 ? '#4AE080' : r >= 3 ? '#FF9A40' : '#6A90AC'
 }
 
 function createMarker(rating: number, selected: boolean) {
@@ -34,14 +34,14 @@ function createMarker(rating: number, selected: boolean) {
     className: '',
     html: `<div style="
       width:${size}px;height:${size}px;
-      background:${selected ? color : 'rgba(237,231,223,0.90)'};
+      background:${selected ? color : 'rgba(14,30,56,0.92)'};
       border:2px solid ${color};
       border-radius:50%;
       display:flex;align-items:center;justify-content:center;
       font-weight:900;font-size:${selected ? 15 : 12}px;
-      color:${selected ? '#F5EEE6' : color};
+      color:${selected ? '#0A1628' : color};
       font-family:Inter,system-ui,sans-serif;
-      box-shadow:${glow},0 2px 8px rgba(50,38,28,0.15);
+      box-shadow:${glow},0 2px 8px rgba(0,0,0,0.30);
       cursor:pointer;
       backdrop-filter:blur(6px);
       transition:all .2s;
@@ -133,19 +133,19 @@ export function SpotMap({ conditions }: Props) {
                 offset={[0, -4]}
               >
                 <div style={{
-                  background: 'rgba(237,231,223,0.92)',
+                  background: 'rgba(14,30,56,0.95)',
                   backdropFilter: 'blur(14px)',
                   WebkitBackdropFilter: 'blur(14px)',
-                  border: '1px solid rgba(255,248,240,0.80)',
+                  border: '1px solid rgba(0,207,192,0.18)',
                   borderRadius: 16,
                   padding: '10px 14px',
                   minWidth: 130,
                   fontFamily: 'Inter, system-ui, sans-serif',
-                  boxShadow: '0 8px 24px rgba(50,38,28,0.12)',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
                 }}>
-                  <p style={{ color: '#12100C', fontWeight: 700, fontSize: 13, margin: '0 0 4px' }}>{name}</p>
+                  <p style={{ color: '#E0EEF8', fontWeight: 700, fontSize: 13, margin: '0 0 4px' }}>{name}</p>
                   <p style={{ color, fontWeight: 900, fontSize: 15, margin: '0 0 2px' }}>{wave}</p>
-                  <p style={{ color: '#5E5650', fontSize: 11, margin: 0 }}>Rating {rating}/10</p>
+                  <p style={{ color: '#4A7090', fontSize: 11, margin: 0 }}>Rating {rating}/10</p>
                   <button
                     onClick={() => { setSelectedSpot(spotId); setMobileTab('waves') }}
                     style={{
@@ -168,19 +168,19 @@ export function SpotMap({ conditions }: Props) {
       {/* Legend */}
       <div style={{
         position: 'absolute', bottom: 16, left: 16, zIndex: 1000,
-        background: 'rgba(237,231,223,0.88)',
+        background: 'rgba(14,30,56,0.92)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
-        border: '1px solid rgba(255,248,240,0.75)',
+        border: '1px solid rgba(0,207,192,0.15)',
         borderRadius: 14, padding: '8px 12px',
         fontFamily: 'Inter, system-ui, sans-serif',
-        boxShadow: '0 4px 16px rgba(50,38,28,0.10)',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.30)',
       }}>
-        <p style={{ color: '#5E5650', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 6px' }}>Rating</p>
-        {[['7–10', '#4E7A7C'], ['5–6', '#5E9268'], ['3–4', '#C4904A'], ['0–2', '#A8A09A']].map(([label, color]) => (
+        <p style={{ color: '#4A7090', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 6px' }}>Rating</p>
+        {[['7–10', '#00CFC0'], ['5–6', '#4AE080'], ['3–4', '#FF9A40'], ['0–2', '#6A90AC']].map(([label, color]) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
             <div style={{ width: 10, height: 10, borderRadius: '50%', background: color }} />
-            <span style={{ color: '#3C3630', fontSize: 11 }}>{label}</span>
+            <span style={{ color: '#A8C4D8', fontSize: 11 }}>{label}</span>
           </div>
         ))}
       </div>

@@ -42,12 +42,12 @@ export function SurfOMeter({ rating }: Props) {
   const [tipX, tipY]   = pt(needleDeg, R - 8)
   const [tailX, tailY] = pt(needleDeg, -16)
 
-  // Muted coastal palette
+  // Electric deep-ocean palette
   const color =
-    rating >= 8 ? '#4E7A7C' :
-    rating >= 6 ? '#5E9268' :
-    rating >= 4 ? '#C4904A' :
-    '#B07860'
+    rating >= 8 ? '#00CFC0' :
+    rating >= 6 ? '#4AE080' :
+    rating >= 4 ? '#FF9A40' :
+    '#FF6040'
 
   const label =
     rating >= 8 ? 'Excellent' :
@@ -63,11 +63,11 @@ export function SurfOMeter({ rating }: Props) {
 
       <svg viewBox="0 0 150 92" width="162" height="99" style={{ overflow: 'visible' }}>
         <defs>
-          {/* Gauge face gradient — frosted glass with teal ambient glow */}
+          {/* Gauge face gradient — dark ocean glass */}
           <radialGradient id="faceGrad" cx="50%" cy="55%" r="55%">
-            <stop offset="0%"   stopColor="rgba(245,240,234,0.92)" />
-            <stop offset="65%"  stopColor="rgba(237,231,223,0.82)" />
-            <stop offset="100%" stopColor="rgba(225,218,208,0.65)" />
+            <stop offset="0%"   stopColor="rgba(20,37,64,0.96)" />
+            <stop offset="65%"  stopColor="rgba(14,30,56,0.92)" />
+            <stop offset="100%" stopColor="rgba(10,22,40,0.85)" />
           </radialGradient>
 
           {/* Soft ambient glow behind active arc */}
@@ -76,20 +76,20 @@ export function SurfOMeter({ rating }: Props) {
             <stop offset="100%" stopColor={color} stopOpacity="0" />
           </radialGradient>
 
-          {/* Glass face filter — soft inner shadow */}
+          {/* Dark glass face filter */}
           <filter id="glassFace" x="-10%" y="-10%" width="120%" height="120%">
-            <feDropShadow dx="0" dy="1" stdDeviation="2" floodColor="rgba(168,218,220,0.25)" />
+            <feDropShadow dx="0" dy="1" stdDeviation="2" floodColor="rgba(0,207,192,0.15)" />
           </filter>
         </defs>
 
         {/* ── Ambient glow halo ── */}
         <circle cx={CX} cy={CY} r={R + TW / 2 + 6} fill="url(#glowGrad)" />
 
-        {/* ── Gauge face — frosted glass circle ── */}
+        {/* ── Gauge face — dark ocean glass ── */}
         <circle
           cx={CX} cy={CY} r={R + TW / 2 + 4}
           fill="url(#faceGrad)"
-          stroke="rgba(255,255,255,0.85)"
+          stroke="rgba(0,207,192,0.18)"
           strokeWidth={1.5}
           filter="url(#glassFace)"
         />
@@ -98,15 +98,15 @@ export function SurfOMeter({ rating }: Props) {
         <path
           d={arcCW(START, END, R, 1)}
           fill="none"
-          stroke="rgba(192,213,204,0.45)"
+          stroke="rgba(30,53,84,0.70)"
           strokeWidth={TW}
           strokeLinecap="round"
         />
 
         {/* ── Zone tints — always visible, soft ── */}
-        <path d={arcCW(START, R3,  R, 0)} fill="none" stroke="rgba(176,120,96,0.20)"  strokeWidth={TW} />
-        <path d={arcCW(R3,   R7,  R, 0)} fill="none" stroke="rgba(196,144,74,0.18)"  strokeWidth={TW} />
-        <path d={arcCW(R7,   END, R, 0)} fill="none" stroke="rgba(94,146,104,0.18)"  strokeWidth={TW} />
+        <path d={arcCW(START, R3,  R, 0)} fill="none" stroke="rgba(255,96,64,0.18)"   strokeWidth={TW} />
+        <path d={arcCW(R3,   R7,  R, 0)} fill="none" stroke="rgba(255,154,64,0.16)"  strokeWidth={TW} />
+        <path d={arcCW(R7,   END, R, 0)} fill="none" stroke="rgba(0,207,192,0.16)"   strokeWidth={TW} />
 
         {/* ── Active arc with glow ── */}
         {clamped > 0 && (
@@ -131,7 +131,7 @@ export function SurfOMeter({ rating }: Props) {
               key={v}
               x1={ox.toFixed(2)} y1={oy.toFixed(2)}
               x2={ix.toFixed(2)} y2={iy.toFixed(2)}
-              stroke={isMajor ? 'rgba(78,130,128,0.55)' : 'rgba(168,218,220,0.40)'}
+              stroke={isMajor ? 'rgba(0,207,192,0.50)' : 'rgba(0,207,192,0.22)'}
               strokeWidth={isMajor ? 2 : 1.2}
               strokeLinecap="round"
             />
@@ -142,13 +142,13 @@ export function SurfOMeter({ rating }: Props) {
         <text
           x={elx.toFixed(2)} y={ely.toFixed(2)}
           textAnchor="middle" dominantBaseline="middle"
-          fill="#B07860" fontSize="9" fontWeight="700"
+          fill="#FF6040" fontSize="9" fontWeight="700"
           fontFamily="system-ui, sans-serif" opacity="0.85"
         >0</text>
         <text
           x={erx.toFixed(2)} y={ery.toFixed(2)}
           textAnchor="middle" dominantBaseline="middle"
-          fill="#5E9268" fontSize="9" fontWeight="700"
+          fill="#00CFC0" fontSize="9" fontWeight="700"
           fontFamily="system-ui, sans-serif" opacity="0.9"
         >10</text>
 
@@ -168,11 +168,11 @@ export function SurfOMeter({ rating }: Props) {
         />
 
         {/* ── Pivot ── */}
-        <circle cx={CX} cy={CY} r={6}   fill="rgba(255,255,255,0.92)" stroke="rgba(192,213,204,0.6)" strokeWidth={1} />
+        <circle cx={CX} cy={CY} r={6}   fill="rgba(20,37,64,0.95)" stroke="rgba(0,207,192,0.35)" strokeWidth={1} />
         <circle cx={CX} cy={CY} r={3.5} fill={color} style={{ filter: `drop-shadow(0 0 3px ${color}cc)` }} />
       </svg>
 
-      <p className="text-2xl font-black -mt-2 tracking-tight" style={{ color }}>{label}</p>
+      <p className="font-surf text-3xl -mt-2" style={{ color }}>{label}</p>
     </div>
   )
 }
