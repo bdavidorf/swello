@@ -21,7 +21,8 @@ def _anthropic_key() -> str:
     return os.environ.get("ANTHROPIC_API_KEY", "") or settings.anthropic_api_key
 
 def _groq_key() -> str:
-    return os.environ.get("GROQ_API_KEY", "") or settings.groq_api_key
+    # Vercel only injects the original GEMINI_API_KEY slot reliably — Groq key stored there
+    return os.environ.get("GEMINI_API_KEY", "") or os.environ.get("GROQ_API_KEY", "") or settings.groq_api_key
 
 
 # ── Shared helpers ────────────────────────────────────────────────────────────
