@@ -19,10 +19,10 @@ export function MobileNav() {
       className="md:hidden fixed bottom-0 left-0 right-0 z-50"
       style={{
         paddingBottom: 'env(safe-area-inset-bottom)',
-        background: 'rgba(20,18,16,0.95)',
+        background: 'rgba(13,28,42,0.95)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
-        borderTop: '1px solid rgba(240,226,200,0.08)',
+        borderTop: '1px solid rgba(168,200,220,0.08)',
       }}
     >
       <div className="grid grid-cols-4">
@@ -33,15 +33,15 @@ export function MobileNav() {
               key={id}
               onClick={() => setMobileTab(id)}
               className="flex flex-col items-center justify-center gap-1 py-3 transition-colors"
-              style={{ color: active ? '#E07A5F' : '#4A4440', border: 'none', background: 'transparent', cursor: 'pointer' }}
+              style={{ color: active ? '#78B8D8' : '#3A5A78', border: 'none', background: 'transparent', cursor: 'pointer' }}
             >
               <Icon size={20} />
               <span style={{
-                fontFamily: "'Syne', system-ui",
-                fontWeight: 800,
-                fontSize: 8,
+                fontFamily: "'Bangers', Impact, system-ui",
+                fontWeight: 400,
+                fontSize: 9,
                 letterSpacing: '0.16em',
-                color: active ? '#E07A5F' : '#4A4440',
+                color: active ? '#78B8D8' : '#3A5A78',
               }}>
                 {label}
               </span>

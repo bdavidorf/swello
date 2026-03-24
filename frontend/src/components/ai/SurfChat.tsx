@@ -13,12 +13,12 @@ const GREETING: Message = {
   content: "Hey! I'm your Swello Surf Advisor 🤙 Tell me your skill level and what you're after, and I'll find you the best spots and windows across all 11 LA breaks.",
 }
 
-const BOARD_W = 320
-const BOARD_H = 470
+const BOARD_W = 300
+const BOARD_H = 520
 
-// ── Surfboard shape via clip-path (shortboard silhouette) ───────────────────
-// The path tapers at nose (top) and tail (bottom) while keeping the body wide
-const BOARD_CLIP = `path('M 160 0 C 210 0 302 42 314 108 L 316 364 C 316 432 256 470 160 470 C 64 470 4 432 4 364 L 6 108 C 18 42 110 0 160 0 Z')`
+// ── Surfboard shape — classic shortboard silhouette ─────────────────────────
+// Wide in the chest, tapers to nose (top) and tail (bottom)
+const BOARD_CLIP = `path('M 150 0 C 205 0 290 48 294 120 L 296 390 C 296 458 240 520 150 520 C 60 520 4 458 4 390 L 6 120 C 10 48 95 0 150 0 Z')`
 
 function ChatWindow({ onClose }: { onClose: () => void }) {
   const { selectedSpotId } = useSpotStore()
@@ -34,8 +34,7 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
 
   useEffect(() => {
     const safeBottom = 76 + 16
-    // Account for nose (32px) + fin (24px) decorations
-    const totalH = BOARD_H + 32 + 24
+    const totalH = BOARD_H + 32 + 28
     setPos({
       x: window.innerWidth - BOARD_W - 16,
       y: window.innerHeight - totalH - safeBottom,
@@ -51,7 +50,7 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
 
   const onDragMove = useCallback((clientX: number, clientY: number) => {
     if (!dragging.current) return
-    const totalH = BOARD_H + 56
+    const totalH = BOARD_H + 60
     const x = Math.max(0, Math.min(window.innerWidth - BOARD_W, clientX - dragOffset.current.x))
     const y = Math.max(0, Math.min(window.innerHeight - totalH, clientY - dragOffset.current.y))
     setPos({ x, y })
@@ -117,17 +116,17 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
       className="fixed z-50 select-none"
       style={{ left: pos.x, top: pos.y, width: BOARD_W }}
     >
-      {/* ── Surfboard nose (decorative) ── */}
+      {/* ── Surfboard nose tip (decorative) ── */}
       <div style={{
-        width: 68, height: 32,
+        width: 56, height: 32,
         margin: '0 auto',
         position: 'relative',
         bottom: -2,
-        background: 'linear-gradient(to bottom, rgba(224,122,95,0.20), rgba(15,30,46,0.93))',
+        background: 'linear-gradient(to bottom, rgba(120,184,216,0.25), rgba(13,28,42,0.95))',
         borderRadius: '50% 50% 0 0 / 100% 100% 0 0',
         backdropFilter: 'blur(10px)',
         WebkitBackdropFilter: 'blur(10px)',
-        border: '1px solid rgba(224,122,95,0.20)',
+        border: '1px solid rgba(120,184,216,0.25)',
         borderBottom: 'none',
       }} />
 
@@ -138,33 +137,52 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
           height: BOARD_H,
           clipPath: BOARD_CLIP,
           position: 'relative',
-          // Dark ocean glass
-          background: 'linear-gradient(165deg, rgba(26,24,22,0.97) 0%, rgba(30,28,26,0.95) 40%, rgba(20,18,16,0.94) 100%)',
+          background: 'linear-gradient(165deg, rgba(13,28,42,0.97) 0%, rgba(18,42,66,0.95) 40%, rgba(10,22,34,0.94) 100%)',
           backdropFilter: 'blur(18px)',
           WebkitBackdropFilter: 'blur(18px)',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.40), 0 8px 24px rgba(224,122,95,0.20)',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.50), 0 8px 24px rgba(120,184,216,0.15)',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
         }}
       >
-        {/* Board outline highlight */}
+        {/* Board outline highlight — gives the board a glassy edge */}
         <div style={{
           position: 'absolute', inset: 0,
           clipPath: BOARD_CLIP,
-          border: '1.5px solid rgba(255,255,255,0.88)',
+          border: '1.5px solid rgba(168,200,220,0.20)',
           borderRadius: 0,
           pointerEvents: 'none',
           zIndex: 10,
         }} />
 
-        {/* Stringer — thin teal center line */}
+        {/* Stringer — thin center line down the board */}
         <div style={{
           position: 'absolute',
           left: '50%', top: '6%', bottom: '6%',
           width: 1,
-          background: 'linear-gradient(to bottom, transparent, rgba(224,122,95,0.20) 20%, rgba(224,122,95,0.20) 80%, transparent)',
+          background: 'linear-gradient(to bottom, transparent, rgba(120,184,216,0.25) 20%, rgba(120,184,216,0.25) 80%, transparent)',
           transform: 'translateX(-50%)',
+          pointerEvents: 'none',
+          zIndex: 1,
+        }} />
+
+        {/* Rail stripe — subtle color band on left edge */}
+        <div style={{
+          position: 'absolute',
+          left: 18, top: '12%', bottom: '12%',
+          width: 3,
+          background: 'linear-gradient(to bottom, transparent, rgba(120,184,216,0.30) 30%, rgba(90,170,200,0.20) 70%, transparent)',
+          borderRadius: 2,
+          pointerEvents: 'none',
+          zIndex: 1,
+        }} />
+        <div style={{
+          position: 'absolute',
+          right: 18, top: '12%', bottom: '12%',
+          width: 3,
+          background: 'linear-gradient(to bottom, transparent, rgba(120,184,216,0.30) 30%, rgba(90,170,200,0.20) 70%, transparent)',
+          borderRadius: 2,
           pointerEvents: 'none',
           zIndex: 1,
         }} />
@@ -172,21 +190,21 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
         {/* Leash plug dot */}
         <div style={{
           position: 'absolute',
-          bottom: 38, left: '50%',
+          bottom: 42, left: '50%',
           transform: 'translateX(-50%)',
-          width: 7, height: 7,
+          width: 8, height: 8,
           borderRadius: '50%',
-          background: 'rgba(224,122,95,0.20)',
-          border: '1px solid rgba(224,122,95,0.20)',
+          background: 'rgba(120,184,216,0.25)',
+          border: '1px solid rgba(120,184,216,0.30)',
           pointerEvents: 'none',
           zIndex: 2,
         }} />
 
-        {/* ── Header — drag handle, positioned in the board body ── */}
+        {/* ── Header — drag handle ── */}
         <div
           className="flex items-center justify-between flex-shrink-0 cursor-grab active:cursor-grabbing"
           style={{
-            padding: '20px 24px 12px',
+            padding: '22px 24px 12px',
             touchAction: 'none',
             zIndex: 3,
             position: 'relative',
@@ -196,15 +214,15 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
         >
           <div className="flex items-center gap-2.5">
             <div style={{
-              width: 28, height: 28, borderRadius: 8,
-              background: 'rgba(224,122,95,0.20)',
-              border: '1px solid rgba(0,207,192,0.30)',
+              width: 30, height: 30, borderRadius: 9,
+              background: 'rgba(120,184,216,0.18)',
+              border: '1px solid rgba(120,184,216,0.35)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <Waves size={13} style={{ color: '#E07A5F' }} />
+              <Waves size={14} style={{ color: '#78B8D8' }} />
             </div>
             <div>
-              <p style={{ fontFamily: "'Bebas Neue', system-ui", fontSize: 18, color: '#F0E2C8', lineHeight: 1, letterSpacing: '0.04em' }}>
+              <p style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 20, color: '#D8EEF8', lineHeight: 1, letterSpacing: '0.06em' }}>
                 Ask Swello 🤙
               </p>
             </div>
@@ -215,8 +233,8 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
             style={{
               width: 28, height: 28, borderRadius: '50%',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#4A4440', border: '1px solid rgba(48,44,40,0.70)',
-              background: 'rgba(20,18,16,0.65)',
+              color: '#3A5A78', border: '1px solid rgba(26,48,72,0.70)',
+              background: 'rgba(13,28,42,0.65)',
               cursor: 'pointer',
               transition: 'all 0.15s',
             }}
@@ -226,7 +244,7 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* Divider */}
-        <div style={{ height: 1, background: 'rgba(224,122,95,0.20)', margin: '0 20px', flexShrink: 0 }} />
+        <div style={{ height: 1, background: 'rgba(120,184,216,0.15)', margin: '0 20px', flexShrink: 0 }} />
 
         {/* ── Messages ── */}
         <div
@@ -246,15 +264,16 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
                 padding: '8px 12px',
                 fontSize: 13,
                 lineHeight: 1.5,
+                fontFamily: 'Inter, system-ui, sans-serif',
                 ...(msg.role === 'user' ? {
-                  background: 'linear-gradient(135deg, #00CFC0 0%, #0080FF 100%)',
-                  color: '#1A1A1B',
+                  background: 'linear-gradient(135deg, #5AAAC8 0%, #3A88B8 100%)',
+                  color: '#0D1C2A',
                   fontWeight: 600,
-                  boxShadow: '0 2px 10px rgba(0,207,192,0.30)',
+                  boxShadow: '0 2px 10px rgba(90,170,200,0.30)',
                 } : {
-                  background: 'rgba(30,28,26,0.88)',
-                  color: '#C8B090',
-                  border: '1px solid rgba(224,122,95,0.20)',
+                  background: 'rgba(18,37,52,0.88)',
+                  color: '#A0C0D8',
+                  border: '1px solid rgba(120,184,216,0.15)',
                   backdropFilter: 'blur(8px)',
                   WebkitBackdropFilter: 'blur(8px)',
                 }),
@@ -267,8 +286,8 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
           {loading && (
             <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
               <div style={{
-                background: 'rgba(30,28,26,0.88)',
-                border: '1px solid rgba(224,122,95,0.20)',
+                background: 'rgba(18,37,52,0.88)',
+                border: '1px solid rgba(120,184,216,0.15)',
                 borderRadius: '16px 16px 16px 4px',
                 padding: '10px 14px',
               }}>
@@ -276,7 +295,7 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
                   {[0, 150, 300].map((delay) => (
                     <span key={delay} style={{
                       width: 6, height: 6, borderRadius: '50%',
-                      background: '#00CFC0',
+                      background: '#78B8D8',
                       display: 'inline-block',
                       animation: `bounce 1.2s ${delay}ms ease-in-out infinite`,
                     }} />
@@ -291,10 +310,10 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
         {/* ── Input ── */}
         <div style={{
           flexShrink: 0,
-          borderTop: '1px solid rgba(224,122,95,0.20)',
-          padding: '10px 20px 14px',
+          borderTop: '1px solid rgba(120,184,216,0.12)',
+          padding: '10px 20px 16px',
           display: 'flex', alignItems: 'flex-end', gap: 8,
-          background: 'rgba(10,8,6,0.30)',
+          background: 'rgba(8,16,26,0.30)',
           zIndex: 3, position: 'relative',
         }}>
           <textarea
@@ -305,12 +324,12 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
             rows={1}
             style={{
               flex: 1,
-              background: 'rgba(12,20,32,0.85)',
-              border: '1px solid rgba(224,122,95,0.20)',
+              background: 'rgba(13,28,42,0.85)',
+              border: '1px solid rgba(120,184,216,0.18)',
               borderRadius: 14,
               padding: '8px 12px',
               fontSize: 13,
-              color: '#C8B090',
+              color: '#A0C0D8',
               resize: 'none',
               outline: 'none',
               maxHeight: 72,
@@ -324,31 +343,51 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
             disabled={!input.trim() || loading}
             style={{
               width: 36, height: 36, borderRadius: 12, flexShrink: 0,
-              background: 'linear-gradient(135deg, #7ABCA0 0%, #7AAEC8 100%)',
+              background: 'linear-gradient(135deg, #78B8D8 0%, #5AAAC8 100%)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               border: 'none', cursor: 'pointer',
-              boxShadow: '0 2px 10px rgba(106,154,156,0.40)',
+              boxShadow: '0 2px 10px rgba(120,184,216,0.35)',
               opacity: !input.trim() || loading ? 0.45 : 1,
               transition: 'all 0.15s',
             }}
           >
-            <Send size={14} style={{ color: '#F5EEE6' }} />
+            <Send size={14} style={{ color: '#0D1C2A' }} />
           </button>
         </div>
       </div>
 
-      {/* ── Surfboard fin (decorative) ── */}
-      <div style={{
-        width: 44, height: 24,
-        margin: '0 auto',
-        position: 'relative',
-        top: -2,
-        clipPath: 'polygon(18% 0%, 82% 0%, 100% 100%, 0% 100%)',
-        background: 'linear-gradient(to bottom, rgba(15,30,46,0.93), rgba(224,122,95,0.20))',
-        backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)',
-        border: '1px solid rgba(224,122,95,0.20)',
-      }} />
+      {/* ── Surfboard tail / fin cluster ── */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 10, position: 'relative', top: -2 }}>
+        {/* Side fins */}
+        <div style={{
+          width: 20, height: 22,
+          clipPath: 'polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%)',
+          background: 'linear-gradient(to bottom, rgba(13,28,42,0.95), rgba(120,184,216,0.15))',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          border: '1px solid rgba(120,184,216,0.18)',
+          transform: 'rotate(-8deg)',
+        }} />
+        {/* Center fin */}
+        <div style={{
+          width: 28, height: 28,
+          clipPath: 'polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)',
+          background: 'linear-gradient(to bottom, rgba(13,28,42,0.95), rgba(120,184,216,0.20))',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          border: '1px solid rgba(120,184,216,0.22)',
+        }} />
+        {/* Side fin */}
+        <div style={{
+          width: 20, height: 22,
+          clipPath: 'polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%)',
+          background: 'linear-gradient(to bottom, rgba(13,28,42,0.95), rgba(120,184,216,0.15))',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          border: '1px solid rgba(120,184,216,0.18)',
+          transform: 'rotate(8deg)',
+        }} />
+      </div>
     </div>
   )
 }
@@ -367,11 +406,11 @@ export function SurfChatWidget() {
           bottom: 'calc(env(safe-area-inset-bottom) + 76px)',
           right: 16,
           display: open ? 'none' : 'flex',
-          color: '#1A1A1B',
+          color: '#0D1C2A',
         }}
       >
-        <Waves size={18} style={{ color: '#1A1A1B' }} />
-        <span style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.01em' }}>
+        <Waves size={18} style={{ color: '#0D1C2A' }} />
+        <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontWeight: 400, fontSize: 16, letterSpacing: '0.06em' }}>
           Ask Swello 🤙
         </span>
       </button>

@@ -5,7 +5,7 @@ import type { SurfCondition } from '../../types/surf'
 interface Props { conditions: SurfCondition[] | undefined }
 
 function ratingColor(r: number) {
-  return r >= 7 ? '#D4A853' : r >= 5 ? '#3D5A80' : r >= 3 ? '#E07A5F' : '#4A4440'
+  return r >= 7 ? '#88C8E8' : r >= 5 ? '#5AAAC8' : r >= 3 ? '#78B8D8' : '#3A5A78'
 }
 
 export function MobileSpotPicker({ conditions }: Props) {
@@ -16,10 +16,10 @@ export function MobileSpotPicker({ conditions }: Props) {
     <div
       className="flex-shrink-0 overflow-x-auto"
       style={{
-        background: 'rgba(20,18,16,0.90)',
+        background: 'rgba(13,28,42,0.90)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
-        borderBottom: '1px solid rgba(240,226,200,0.07)',
+        borderBottom: '1px solid rgba(168,200,220,0.07)',
       }}
     >
       <div
@@ -38,8 +38,8 @@ export function MobileSpotPicker({ conditions }: Props) {
               style={{
                 scrollSnapAlign: 'start',
                 flexShrink: 0,
-                background: selected ? 'rgba(224,122,95,0.14)' : 'rgba(30,28,26,0.70)',
-                border: `1px solid ${selected ? 'rgba(224,122,95,0.40)' : 'rgba(240,226,200,0.08)'}`,
+                background: selected ? 'rgba(120,184,216,0.14)' : 'rgba(18,37,52,0.70)',
+                border: `1px solid ${selected ? 'rgba(120,184,216,0.40)' : 'rgba(168,200,220,0.08)'}`,
                 borderRadius: 16,
                 padding: '6px 14px',
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
@@ -47,9 +47,9 @@ export function MobileSpotPicker({ conditions }: Props) {
               }}
             >
               <span style={{
-                fontFamily: "'Syne', system-ui", fontWeight: 700,
-                fontSize: 10, lineHeight: 1.2, letterSpacing: '0.04em',
-                color: selected ? '#F0E2C8' : '#8A7868',
+                fontFamily: "'Bangers', Impact, system-ui", fontWeight: 400,
+                fontSize: 11, lineHeight: 1.2, letterSpacing: '0.06em',
+                color: selected ? '#D8EEF8' : '#4A7090',
               }}>
                 {c.spot_short_name}
               </span>

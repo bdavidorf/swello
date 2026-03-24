@@ -11,12 +11,12 @@ import { AISpotAnalysis } from '../ai/AISpotAnalysis'
 interface Props { condition: SurfCondition }
 
 function ratingAccent(r: number) {
-  return r >= 8 ? '#D4A853' : r >= 6 ? '#3D5A80' : r >= 4 ? '#E07A5F' : '#C05A40'
+  return r >= 8 ? '#88C8E8' : r >= 6 ? '#5AAAC8' : r >= 4 ? '#78B8D8' : '#4A7090'
 }
 function windAccent(q?: string) {
-  if (q === 'offshore' || q === 'cross-offshore') return '#3D5A80'
-  if (q === 'cross') return '#D4A853'
-  return '#E07A5F'
+  if (q === 'offshore' || q === 'cross-offshore') return '#5AAAC8'
+  if (q === 'cross') return '#88C8E8'
+  return '#78B8D8'
 }
 
 // ── Retro Sun SVG ─────────────────────────────────────────────────────────
@@ -32,7 +32,7 @@ function RetroSun({ color }: { color: string }) {
         width: 180,
         height: 180,
         pointerEvents: 'none',
-        opacity: 0.18,
+        opacity: 0.14,
       }}
     >
       {/* Rays */}
@@ -82,7 +82,7 @@ export function ConditionsCard({ condition }: Props) {
           position: 'relative',
           padding: '20px 22px 16px',
           overflow: 'hidden',
-          borderBottom: '1px solid rgba(240,226,200,0.08)',
+          borderBottom: '1px solid rgba(168,200,220,0.08)',
         }}
       >
         <RetroSun color={accent} />
@@ -95,8 +95,8 @@ export function ConditionsCard({ condition }: Props) {
             </h2>
             {breaking && (
               <p className="mt-1" style={{
-                fontFamily: "'Syne', system-ui", fontWeight: 700,
-                fontSize: 10, letterSpacing: '0.16em', color: '#4A4440',
+                fontFamily: "'Bangers', Impact, system-ui", fontWeight: 400,
+                fontSize: 11, letterSpacing: '0.16em', color: '#3A5A78',
                 textTransform: 'uppercase',
               }}>
                 {breaking.swell_type_short} · {breaking.buoy_period_s.toFixed(0)}s period
@@ -106,7 +106,7 @@ export function ConditionsCard({ condition }: Props) {
           <div className="flex items-center gap-2">
             <CrowdReportButton condition={condition} />
             <div className="flex items-center gap-1" style={{
-              fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: '#4A4440',
+              fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: '#3A5A78',
             }}>
               <Clock size={9} />
               {buoy.data_age_minutes != null
@@ -122,18 +122,18 @@ export function ConditionsCard({ condition }: Props) {
             <div className="flex items-end gap-2 leading-none">
               <span
                 className="wave-height-display"
-                style={{ fontSize: 'clamp(5rem, 16vw, 7.5rem)', lineHeight: 0.85, color: '#F0E2C8' }}
+                style={{ fontSize: 'clamp(5rem, 16vw, 7.5rem)', lineHeight: 0.85, color: '#D8EEF8' }}
               >
                 {heroNum}
               </span>
-              <span className="font-display mb-1.5" style={{ fontSize: 28, color: '#4A4440', letterSpacing: '0.06em' }}>
+              <span className="font-display mb-1.5" style={{ fontSize: 28, color: '#3A5A78', letterSpacing: '0.06em' }}>
                 FT
               </span>
             </div>
             {breaking && (
               <p className="mt-1.5" style={{
-                fontFamily: "'Syne', system-ui", fontWeight: 600, fontSize: 10,
-                color: '#4A4440', letterSpacing: '0.08em',
+                fontFamily: "'Bangers', Impact, system-ui", fontWeight: 400, fontSize: 11,
+                color: '#3A5A78', letterSpacing: '0.10em',
               }}>
                 {breaking.face_height_label} · {Math.round(breaking.direction_pct * 100)}% reaching shore
               </p>
@@ -149,11 +149,11 @@ export function ConditionsCard({ condition }: Props) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr 1fr', gap: 10, padding: '14px 16px' }}>
 
         {/* Period */}
-        <BentoTile label="PERIOD" accent={buoy.dpd_s != null && buoy.dpd_s >= 12 ? '#D4A853' : undefined}>
-          <span className="font-display" style={{ fontSize: 36, color: '#F0E2C8', lineHeight: 1, letterSpacing: '0.04em' }}>
+        <BentoTile label="PERIOD" accent={buoy.dpd_s != null && buoy.dpd_s >= 12 ? '#88C8E8' : undefined}>
+          <span className="font-display" style={{ fontSize: 36, color: '#D8EEF8', lineHeight: 1, letterSpacing: '0.04em' }}>
             {buoy.dpd_s != null ? buoy.dpd_s.toFixed(0) : '--'}
           </span>
-          <span style={{ fontFamily: "'Syne', system-ui", fontWeight: 700, fontSize: 11, color: '#4A4440', letterSpacing: '0.10em' }}>
+          <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 11, color: '#3A5A78', letterSpacing: '0.10em' }}>
             SECONDS
           </span>
         </BentoTile>
@@ -174,7 +174,7 @@ export function ConditionsCard({ condition }: Props) {
           <span className="font-display" style={{ fontSize: 30, color: wColor, lineHeight: 1, letterSpacing: '0.04em' }}>
             {wind ? `${wind.speed_mph.toFixed(0)}` : '--'}
           </span>
-          <span style={{ fontFamily: "'Syne', system-ui", fontWeight: 700, fontSize: 10, color: '#4A4440', letterSpacing: '0.10em' }}>
+          <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 10, color: '#3A5A78', letterSpacing: '0.10em' }}>
             MPH {wind?.direction_label ?? ''}
           </span>
           {wind && (
@@ -183,9 +183,9 @@ export function ConditionsCard({ condition }: Props) {
               border: `1px solid ${wColor}44`,
               borderRadius: 20,
               padding: '3px 10px',
-              fontFamily: "'Syne', system-ui",
-              fontWeight: 700,
-              fontSize: 9,
+              fontFamily: "'Bangers', Impact, system-ui",
+              fontWeight: 400,
+              fontSize: 10,
               color: wColor,
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
@@ -197,21 +197,21 @@ export function ConditionsCard({ condition }: Props) {
 
         {/* Water temp */}
         <BentoTile label="WATER">
-          <span className="font-display" style={{ fontSize: 32, color: '#3D5A80', lineHeight: 1, letterSpacing: '0.04em' }}>
+          <span className="font-display" style={{ fontSize: 32, color: '#5AAAC8', lineHeight: 1, letterSpacing: '0.04em' }}>
             {buoy.wtmp_f != null ? `${buoy.wtmp_f.toFixed(0)}°` : '--'}
           </span>
-          <span style={{ fontFamily: "'Syne', system-ui", fontWeight: 700, fontSize: 11, color: '#4A4440', letterSpacing: '0.10em' }}>
+          <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 11, color: '#3A5A78', letterSpacing: '0.10em' }}>
             FAHRENHEIT
           </span>
         </BentoTile>
 
         {/* Swell dir */}
         <BentoTile label="SWELL">
-          <span className="font-display" style={{ fontSize: 30, color: '#F0E2C8', lineHeight: 1, letterSpacing: '0.04em' }}>
+          <span className="font-display" style={{ fontSize: 30, color: '#D8EEF8', lineHeight: 1, letterSpacing: '0.04em' }}>
             {buoy.mwd_label ?? '--'}
           </span>
           {buoy.mwd_deg != null && (
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: '#4A4440' }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: '#3A5A78' }}>
               {buoy.mwd_deg.toFixed(0)}°
             </span>
           )}
@@ -221,15 +221,15 @@ export function ConditionsCard({ condition }: Props) {
         <BentoTile label="CROWD">
           {crowd ? (
             <>
-              <span className="font-display" style={{ fontSize: 26, color: '#F0E2C8', lineHeight: 1, letterSpacing: '0.04em' }}>
+              <span className="font-display" style={{ fontSize: 26, color: '#D8EEF8', lineHeight: 1, letterSpacing: '0.04em' }}>
                 {crowd.level.toUpperCase()}
               </span>
-              <span style={{ fontFamily: "'Syne', system-ui", fontWeight: 700, fontSize: 10, color: '#4A4440', letterSpacing: '0.08em' }}>
+              <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 10, color: '#3A5A78', letterSpacing: '0.08em' }}>
                 {crowd.score.toFixed(0)}/100
               </span>
             </>
           ) : (
-            <span className="font-display" style={{ fontSize: 26, color: '#4A4440', letterSpacing: '0.04em' }}>N/A</span>
+            <span className="font-display" style={{ fontSize: 26, color: '#3A5A78', letterSpacing: '0.04em' }}>N/A</span>
           )}
         </BentoTile>
 
@@ -240,22 +240,22 @@ export function ConditionsCard({ condition }: Props) {
         <div style={{
           display: 'flex', alignItems: 'center', gap: 16, justifyContent: 'center',
           padding: '8px 16px 10px',
-          borderTop: '1px solid rgba(240,226,200,0.06)',
+          borderTop: '1px solid rgba(168,200,220,0.06)',
         }}>
-          <div className="flex items-center gap-1.5" style={{ fontFamily: "'Syne', system-ui", fontWeight: 600, fontSize: 11, color: '#4A4440' }}>
-            <Sunrise size={11} style={{ color: '#D4A853' }} />
+          <div className="flex items-center gap-1.5" style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 11, color: '#3A5A78', letterSpacing: '0.08em' }}>
+            <Sunrise size={11} style={{ color: '#88C8E8' }} />
             {sun.sunrise_display}
           </div>
-          <div className="flex items-center gap-1.5" style={{ fontFamily: "'Syne', system-ui", fontWeight: 600, fontSize: 11, color: '#4A4440' }}>
-            <Sunset size={11} style={{ color: '#E07A5F' }} />
+          <div className="flex items-center gap-1.5" style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 11, color: '#3A5A78', letterSpacing: '0.08em' }}>
+            <Sunset size={11} style={{ color: '#78B8D8' }} />
             {sun.sunset_display}
           </div>
           {sun.is_dawn_patrol_window && (
             <span style={{
-              fontFamily: "'Syne', system-ui", fontWeight: 800, fontSize: 9,
-              color: '#D4A853',
-              background: 'rgba(212,168,83,0.12)',
-              border: '1px solid rgba(212,168,83,0.30)',
+              fontFamily: "'Bangers', Impact, system-ui", fontSize: 10,
+              color: '#88C8E8',
+              background: 'rgba(136,200,232,0.12)',
+              border: '1px solid rgba(136,200,232,0.30)',
               borderRadius: 20, padding: '3px 10px', letterSpacing: '0.12em',
               textTransform: 'uppercase',
             }}>
@@ -265,7 +265,7 @@ export function ConditionsCard({ condition }: Props) {
         </div>
       )}
 
-      {/* ── Forecaster's Log (post-it) ── */}
+      {/* ── Forecaster's Log (sky note) ── */}
       <div style={{ padding: '0 16px 18px' }}>
         <AISpotAnalysis condition={condition} />
       </div>

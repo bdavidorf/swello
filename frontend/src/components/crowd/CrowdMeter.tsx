@@ -2,11 +2,11 @@ import { motion } from 'framer-motion'
 import type { CrowdLevel } from '../../types/surf'
 
 const LEVEL_COLOR: Record<CrowdLevel, string> = {
-  empty:     '#6BAA6B',
-  uncrowded: '#8BC050',
-  moderate:  '#D4A853',
-  crowded:   '#E07A5F',
-  packed:    '#C040A0',
+  empty:     '#60C8B0',
+  uncrowded: '#78D0B8',
+  moderate:  '#88C8E8',
+  crowded:   '#78B8D8',
+  packed:    '#4A68A8',
 }
 
 const LEVEL_TEXT: Record<CrowdLevel, string> = {
@@ -77,12 +77,12 @@ export function CrowdMeter({ score, level, confidence, peakHour }: Props) {
               const ix = cx + (r - strokeW / 2 - 2) * Math.cos(a)
               const iy = cy + (r - strokeW / 2 - 2) * Math.sin(a)
               return <line key={t} x1={ox} y1={oy} x2={ix} y2={iy}
-                stroke="rgba(240,226,200,0.30)" strokeWidth="1.5" strokeLinecap="round" />
+                stroke="rgba(168,200,220,0.30)" strokeWidth="1.5" strokeLinecap="round" />
             })}
 
             {/* Track */}
             <path d={arcPath(startAngle, sweepDeg)} fill="none"
-              stroke="rgba(48,44,40,0.90)" strokeWidth={strokeW} strokeLinecap="round" />
+              stroke="rgba(26,48,72,0.90)" strokeWidth={strokeW} strokeLinecap="round" />
 
             {/* Colored fill arc */}
             <motion.path
@@ -111,7 +111,7 @@ export function CrowdMeter({ score, level, confidence, peakHour }: Props) {
 
             {/* Hub */}
             <circle cx={cx} cy={cy} r={7}
-              fill="rgba(30,28,26,0.95)" stroke="rgba(240,226,200,0.20)" strokeWidth={1} />
+              fill="rgba(18,37,52,0.95)" stroke="rgba(168,200,220,0.20)" strokeWidth={1} />
             <circle cx={cx} cy={cy} r={4} fill={color}
               style={{ filter: `drop-shadow(0 0 3px ${color}cc)` }} />
 
@@ -133,15 +133,15 @@ export function CrowdMeter({ score, level, confidence, peakHour }: Props) {
           </p>
           {peakHour != null && (
             <p className="mt-1.5" style={{
-              fontFamily: "'Syne', system-ui", fontWeight: 600, fontSize: 11,
-              color: '#4A4440', letterSpacing: '0.08em',
+              fontFamily: "'Bangers', Impact, system-ui", fontSize: 11,
+              color: '#3A5A78', letterSpacing: '0.10em',
             }}>
               PEAK ~{peakHour > 12 ? `${peakHour - 12}PM` : `${peakHour}AM`}
             </p>
           )}
           {confidence != null && (
             <p className="mt-1" style={{
-              fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: '#4A4440',
+              fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: '#3A5A78',
             }}>
               {Math.round(confidence * 100)}% conf.
             </p>

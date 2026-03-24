@@ -5,54 +5,55 @@ export default {
   theme: {
     extend: {
       colors: {
-        // ── Golden Hour Charcoal — warm, textured dark ──
+        // ── Pastel Ocean Blue — beach at dawn ──
         ocean: {
-          950: '#1A1A1B',  // deep charcoal body
-          900: '#1E1C1A',  // card bg
-          800: '#252220',  // elevated surface
-          700: '#302C28',  // borders
-          600: '#4A4440',  // muted borders
-          500: '#8A7868',  // muted icons / placeholder
-          400: '#A89880',  // secondary text
-          200: '#C8B090',  // body text
-          50:  '#F0E2C8',  // warm cream — headings
+          950: '#0D1C2A',  // deep ocean — body background
+          900: '#122534',  // card glass
+          800: '#1A3048',  // elevated surface
+          700: '#224060',  // borders
+          600: '#2E5275',  // muted borders
+          500: '#4A7090',  // muted icons / placeholder
+          400: '#6A90AA',  // secondary text
+          200: '#A0C0D8',  // body text
+          50:  '#D8EEF8',  // headings — pale sky
         },
-        // ── Burnt Orange — primary energy accent ──
+        // ── Powder Blue — primary accent ──
         wave: {
-          300: '#EC9A84',
-          400: '#E07A5F',  // Burnt Orange
-          500: '#C05A40',
-          600: '#A04030',
+          300: '#A8D8F0',
+          400: '#78B8D8',  // powder blue
+          500: '#5AAAC8',
+          600: '#3A8AAA',
         },
-        // ── Muted Teal — secondary accent ──
+        // ── Ocean Blue — secondary accent ──
         coral: {
-          300: '#6A9AC0',
-          400: '#3D5A80',  // Muted Teal
-          500: '#2A4060',
-          600: '#1A2E48',
+          300: '#88C8E0',
+          400: '#5AAAC8',  // ocean blue
+          500: '#3A8AAA',
+          600: '#2A6A8A',
         },
-        // ── Sandy Gold — tertiary warmth ──
+        // ── Sky Light — tertiary highlight ──
         sand: {
-          200: '#E8D4A0',
-          300: '#D4B870',
-          400: '#D4A853',  // Sandy Gold
-          500: '#B08030',
-          600: '#886018',
+          200: '#C8E8F8',
+          300: '#A8D8F0',
+          400: '#88C8E8',  // sky light blue
+          500: '#60A8D0',
+          600: '#3A88B8',
         },
         // ── Crowd ──
         crowd: {
-          empty:    '#6BAA6B',
-          light:    '#8BC050',
-          moderate: '#D4A853',
-          crowded:  '#E07A5F',
-          packed:   '#C040A0',
+          empty:    '#78D0B8',
+          light:    '#88C8E0',
+          moderate: '#78B8D8',
+          crowded:  '#5888B8',
+          packed:   '#4A68A8',
         },
       },
       fontFamily: {
         display: ['Bangers', 'Impact', 'system-ui', 'sans-serif'],
-        marker:  ['Permanent Marker', 'cursive'],
-        syne:    ['Syne', 'system-ui', 'sans-serif'],
-        sans:    ['Inter', 'system-ui', 'sans-serif'],
+        marker:  ['Bangers', 'Impact', 'system-ui', 'sans-serif'],
+        syne:    ['Bangers', 'Impact', 'system-ui', 'sans-serif'],
+        sans:    ['Bangers', 'Impact', 'system-ui', 'sans-serif'],
+        body:    ['Inter', 'system-ui', 'sans-serif'],
         mono:    ['JetBrains Mono', 'Menlo', 'monospace'],
       },
       borderRadius: {
@@ -62,10 +63,9 @@ export default {
       boxShadow: {
         'warm':    '0 8px 40px rgba(0,0,0,0.45), 0 2px 12px rgba(0,0,0,0.30)',
         'warm-lg': '0 20px 64px rgba(0,0,0,0.55), 0 4px 20px rgba(0,0,0,0.35)',
-        'orange':  '0 4px 20px rgba(224,122,95,0.35)',
-        'teal':    '0 4px 20px rgba(61,90,128,0.35)',
-        'gold':    '0 4px 20px rgba(212,168,83,0.30)',
-        'float':   '0 12px 40px rgba(0,0,0,0.50), 0 4px 16px rgba(0,0,0,0.30)',
+        'blue':    '0 4px 20px rgba(120,184,216,0.30)',
+        'sky':     '0 4px 20px rgba(136,200,232,0.28)',
+        'float':   '0 12px 40px rgba(0,0,0,0.45), 0 4px 16px rgba(0,0,0,0.25)',
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
