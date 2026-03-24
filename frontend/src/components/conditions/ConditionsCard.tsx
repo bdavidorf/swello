@@ -192,17 +192,6 @@ export function ConditionsCard({ condition }: Props) {
         </div>
       )}
 
-      {/* Interpretation */}
-      {breaking?.interpretation && (
-        <div className="bg-ocean-800/40 rounded-xl px-4 py-3 border border-ocean-700/40 mb-4">
-          <p className="text-ocean-300 text-sm leading-relaxed">{breaking.interpretation}</p>
-          {breaking.spot_context && (
-            <p className="text-ocean-500 text-xs mt-2 pt-2 border-t border-ocean-700/40">
-              <span className="text-ocean-400 font-medium">Spot note: </span>{breaking.spot_context}
-            </p>
-          )}
-        </div>
-      )}
 
       {/* Wind compass + badges */}
       <div className="flex items-center justify-between border-t border-ocean-700/60 pt-4">
