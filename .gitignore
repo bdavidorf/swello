@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# Environment / secrets
+.env
+.env.*
+*.env
+.surfline_token.json
+
+# Node
+node_modules/
+frontend/dist/
+
+# ML models (large binary files)
+backend/app/ml/models/*.pkl
+backend/app/ml/models/*.joblib
+
+# SQLite DB (contains generated data, not source)
+backend/app/data/*.db
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log

@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Prevent bounce scroll on iOS */
+    overflow: hidden;
+    height: 100%;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background-color: #030b17;
+    color: #e8f4ff;
+    height: 100%;
+    overflow: hidden;
+    /* Prevent iOS tap highlight */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #root {
+    height: 100%;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #071428;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #123055;
+    border-radius: 2px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #00d4c8;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-ocean-900 border border-ocean-700 rounded-2xl shadow-card;
+  }
+
+  .card-glow {
+    @apply card shadow-wave;
+  }
+
+  .stat-label {
+    @apply text-xs font-medium uppercase tracking-widest text-ocean-400;
+  }
+
+  .stat-value {
+    @apply font-bold text-ocean-50;
+  }
+
+  .btn-primary {
+    @apply bg-wave-400 hover:bg-wave-300 text-ocean-950 font-semibold rounded-xl px-4 py-2
+           transition-all duration-200 active:scale-95;
+  }
+
+  .btn-ghost {
+    @apply border border-ocean-700 hover:border-wave-400 hover:text-wave-400 text-ocean-200
+           font-medium rounded-xl px-4 py-2 transition-all duration-200;
+  }
+}
+
+/* Wave height display */
+.wave-height-display {
+  font-feature-settings: 'tnum';
+  font-variant-numeric: tabular-nums;
+}
+
+/* Animated wave bar */
+@keyframes swell {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.15); }
+}
+
+.swell-bar {
+  animation: swell 2s ease-in-out infinite;
+  transform-origin: bottom;
+}

@@ -1,0 +1,68 @@
+{
+  "34.016,-118.822": {
+    "office": "LOX",
+    "gridX": 134,
+    "gridY": 47,
+    "forecast_hourly_url": "https://api.weather.gov/gridpoints/LOX/134,47/forecast/hourly"
+  },
+  "34.034,-118.678": {
+    "office": "LOX",
+    "gridX": 139,
+    "gridY": 47,
+    "forecast_hourly_url": "https://api.weather.gov/gridpoints/LOX/139,47/forecast/hourly"
+  },
+  "34.001,-118.807": {
+    "office": "LOX",
+    "gridX": 134,
+    "gridY": 46,
+    "forecast_hourly_url": "https://api.weather.gov/gridpoints/LOX/134,46/forecast/hourly"
+  },
+  "34.037,-118.712": {
+    "office": "LOX",
+    "gridX": 138,
+    "gridY": 47,
+    "forecast_hourly_url": "https://api.weather.gov/gridpoints/LOX/138,47/forecast/hourly"
+  },
+  "33.985,-118.469": {
+    "office": "LOX",
+    "gridX": 146,
+    "gridY": 43,
+    "forecast_hourly_url": "https://api.weather.gov/gridpoints/LOX/146,43/forecast/hourly"
+  },
+  "34.04,-118.612": {
+    "office": "LOX",
+    "gridX": 142,
+    "gridY": 47,
+    "forecast_hourly_url": "https://api.weather.gov/gridpoints/LOX/142,47/forecast/hourly"
+  },
+  "34.045,-118.936": {
+    "office": "LOX",
+    "gridX": 130,
+    "gridY": 49,
+    "forecast_hourly_url": "https://api.weather.gov/gridpoints/LOX/130,49/forecast/hourly"
+  },
+  "33.885,-118.411": {
+    "office": "LOX",
+    "gridX": 148,
+    "gridY": 39,
+    "forecast_hourly_url": "https://api.weather.gov/gridpoints/LOX/148,39/forecast/hourly"
+  },
+  "33.903,-118.424": {
+    "office": "LOX",
+    "gridX": 147,
+    "gridY": 40,
+    "forecast_hourly_url": "https://api.weather.gov/gridpoints/LOX/147,40/forecast/hourly"
+  },
+  "33.839,-118.392": {
+    "office": "LOX",
+    "gridX": 148,
+    "gridY": 37,
+    "forecast_hourly_url": "https://api.weather.gov/gridpoints/LOX/148,37/forecast/hourly"
+  },
+  "33.862,-118.399": {
+    "office": "LOX",
+    "gridX": 148,
+    "gridY": 38,
+    "forecast_hourly_url": "https://api.weather.gov/gridpoints/LOX/148,38/forecast/hourly"
+  }
+}
