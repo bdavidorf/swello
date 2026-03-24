@@ -67,7 +67,7 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
     <div
       className="fixed z-50"
       style={{
-        bottom: 'calc(env(safe-area-inset-bottom) + 96px)',
+        bottom: 'calc(env(safe-area-inset-bottom) + 240px)',
         right: 16,
         width: 340,
         background: 'rgba(18,42,66,0.95)',
@@ -220,7 +220,7 @@ function SurfboardButton({ onClick }: { onClick: () => void }) {
       title="Ask Swello"
       style={{
         position: 'fixed',
-        bottom: 'calc(env(safe-area-inset-bottom) + 88px)',
+        bottom: 'calc(env(safe-area-inset-bottom) + 178px)',
         right: 16,
         width: BOARD_W,
         height: BOARD_H,

@@ -29,7 +29,7 @@ export function MapFAB() {
       style={{
         position: 'fixed',
         bottom: 'calc(env(safe-area-inset-bottom) + 88px)',
-        right: 252,
+        right: 74,
         width: W, height: H,
         border: 'none', background: 'none',
         cursor: 'pointer', padding: 0, zIndex: 50,
