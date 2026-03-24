@@ -132,7 +132,7 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
             <Waves size={13} className="text-wave-400" />
           </div>
           <div>
-            <p className="font-bold text-sm text-ocean-50 leading-none">Ask Swello</p>
+            <p className="font-bold text-sm text-ocean-50 leading-none">Ask Swello 🤙</p>
             <p className="text-[10px] text-wave-400 mt-0.5">Powered by Gemini</p>
           </div>
         </div>
@@ -210,7 +210,7 @@ export function SurfChatWidget() {
 
       <button
         onClick={() => setOpen(o => !o)}
-        className="fixed z-50 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-lg transition-all active:scale-95"
+        className="fixed z-50 flex items-center gap-2.5 px-5 py-4 rounded-2xl shadow-lg transition-all active:scale-95"
         style={{
           bottom: 'calc(env(safe-area-inset-bottom) + 76px)',
           right: 16,
@@ -218,8 +218,8 @@ export function SurfChatWidget() {
           display: open ? 'none' : 'flex',
         }}
       >
-        <Waves size={16} className="text-ocean-950" />
-        <span className="text-ocean-950 font-bold text-sm">Ask Swello</span>
+        <Waves size={20} className="text-ocean-950" />
+        <span className="text-ocean-950 font-black text-base">Ask Swello 🤙</span>
       </button>
     </>
   )
