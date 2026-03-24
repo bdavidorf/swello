@@ -20,7 +20,7 @@ export function CompassRose({ deg, size = 56, color = '#78B8D8', label }: Props)
           </text>
         ))}
         {/* Needle — rotated using SVG transform so origin is exact center */}
-        <g transform={`rotate(${deg}, 28, 28)`}>
+        <g transform={`rotate(${deg + 180}, 28, 28)`}>
           {/* Arrow head (colored, points in wind direction) */}
           <polygon points="28,10 31,28 28,26 25,28" fill={color} opacity="0.95" />
           {/* Tail */}
