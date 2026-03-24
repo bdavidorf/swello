@@ -31,7 +31,7 @@ export default function App() {
           <MobileSpotPicker conditions={allConditions.data} />
         )}
 
-        <div className="flex flex-1 min-h-0 overflow-hidden justify-center">
+        <div className="flex flex-1 min-h-0 overflow-hidden">
           {mobileTab === 'spots' ? (
             <div className="flex-1 flex flex-col overflow-hidden"
                  style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)' }}>

@@ -55,7 +55,7 @@ export function DashboardContent() {
 
   return (
     <main
-      className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5 max-w-2xl w-full mx-auto"
+      className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5 w-full"
       style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 80px)' }}
     >
       {/* ── Waves tab ── */}
