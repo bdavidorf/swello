@@ -5,11 +5,23 @@ Priority: Gemini (Google Cloud) → Groq → Anthropic Claude → mock fallback.
 """
 
 import json
+import os
 from datetime import datetime, timezone
 from app.config import get_settings
 from app.models.ai import AIRankingRequest, AIRankingResponse, SpotWindow
 
 settings = get_settings()
+
+# Read API keys directly from os.environ so Vercel runtime injection is respected.
+# pydantic-settings with lru_cache may evaluate before env vars are injected.
+def _gemini_key() -> str:
+    return os.environ.get("GEMINI_API_KEY", "") or settings.gemini_api_key
+
+def _anthropic_key() -> str:
+    return os.environ.get("ANTHROPIC_API_KEY", "") or settings.anthropic_api_key
+
+def _groq_key() -> str:
+    return os.environ.get("GROQ_API_KEY", "") or settings.groq_api_key
 
 
 # ── Shared helpers ────────────────────────────────────────────────────────────
@@ -87,7 +99,7 @@ Return top 5 windows. Weigh crowd heavily."""
 
 def _get_gemini_model(json_mode: bool = False):
     import google.generativeai as genai
-    genai.configure(api_key=settings.gemini_api_key)
+    genai.configure(api_key=_gemini_key())
     config = {"temperature": 0.4, "max_output_tokens": 2048}
     if json_mode:
         config["response_mime_type"] = "application/json"
@@ -115,10 +127,10 @@ async def get_chat_reply(
 Be conversational, knowledgeable, and use surf lingo naturally. Give specific spot recommendations based on what the user tells you about their skill level and preferences. Keep replies concise (2-4 sentences) unless the user asks for detail. Today is {datetime.now().strftime('%A, %B %d %Y')}."""
 
     # Try Gemini first
-    if settings.gemini_api_key:
+    if _gemini_key():
         try:
             import google.generativeai as genai
-            genai.configure(api_key=settings.gemini_api_key)
+            genai.configure(api_key=_gemini_key())
             model = genai.GenerativeModel(
                 model_name="gemini-2.0-flash",
                 system_instruction=system,
@@ -137,9 +149,9 @@ Be conversational, knowledgeable, and use surf lingo naturally. Give specific sp
             pass  # fall through to Claude
 
     # Fallback: Claude
-    if settings.anthropic_api_key:
+    if _anthropic_key():
         from anthropic import AsyncAnthropic
-        client = AsyncAnthropic(api_key=settings.anthropic_api_key)
+        client = AsyncAnthropic(api_key=_anthropic_key())
         claude_msgs = [{"role": m["role"], "content": m["content"]} for m in messages]
         message = await client.messages.create(
             model="claude-haiku-4-5-20251001",
@@ -156,7 +168,7 @@ Be conversational, knowledgeable, and use surf lingo naturally. Give specific sp
 
 async def _call_groq(prompt: str) -> dict:
     from groq import AsyncGroq
-    client = AsyncGroq(api_key=settings.groq_api_key)
+    client = AsyncGroq(api_key=_groq_key())
     resp = await client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[{"role": "user", "content": prompt}],
@@ -168,7 +180,7 @@ async def _call_groq(prompt: str) -> dict:
 
 async def _call_claude(prompt: str) -> dict:
     from anthropic import AsyncAnthropic
-    client = AsyncAnthropic(api_key=settings.anthropic_api_key)
+    client = AsyncAnthropic(api_key=_anthropic_key())
     message = await client.messages.create(
         model="claude-sonnet-4-6",
         max_tokens=2048,
@@ -233,7 +245,7 @@ async def get_spot_analysis(condition: dict) -> str:
     """Generate a Gemini surf session briefing for a spot using all live data."""
     prompt = _build_analysis_prompt(condition)
 
-    if settings.gemini_api_key:
+    if _gemini_key():
         try:
             model = _get_gemini_model(json_mode=False)
             response = await model.generate_content_async(prompt)
@@ -255,19 +267,19 @@ async def get_ai_ranking(
     prompt = _build_ranking_prompt(request, forecast_data)
     errors = []
 
-    if settings.gemini_api_key:
+    if _gemini_key():
         try:
             return _parse_windows(await _call_gemini_ranking(prompt), "gemini-2.0-flash")
         except Exception as e:
             errors.append(f"Gemini: {e}")
 
-    if settings.groq_api_key:
+    if _groq_key():
         try:
             return _parse_windows(await _call_groq(prompt), "llama-3.3-70b (Groq)")
         except Exception as e:
             errors.append(f"Groq: {e}")
 
-    if settings.anthropic_api_key:
+    if _anthropic_key():
         try:
             return _parse_windows(await _call_claude(prompt), "claude-sonnet-4-6")
         except Exception as e:

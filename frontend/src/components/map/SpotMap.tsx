@@ -55,10 +55,12 @@ function MapController({ spotId }: { spotId: string }) {
   const map    = useMap()
   const coords = SPOT_COORDS[spotId]
   useEffect(() => {
-    // Force Leaflet to recalculate container size on mount — try multiple times
+    // Use ResizeObserver to call invalidateSize whenever the container gets real dimensions
+    const container = map.getContainer()
+    const ro = new ResizeObserver(() => map.invalidateSize())
+    ro.observe(container)
     map.invalidateSize()
-    setTimeout(() => map.invalidateSize(), 100)
-    setTimeout(() => map.invalidateSize(), 400)
+    return () => ro.disconnect()
   }, [map])
   useEffect(() => {
     if (coords) map.panTo(coords, { animate: true, duration: 0.5 })
