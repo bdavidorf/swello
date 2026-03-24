@@ -7,6 +7,7 @@ import { CrowdBadge, WindBadge, SurfRatingBadge } from '../shared/Badge'
 import { WavePowerMeter } from './WavePowerMeter'
 import { SurfOMeter } from './SurfOMeter'
 import { CrowdReportButton } from '../crowd/CrowdReportButton'
+import { AISpotAnalysis } from '../ai/AISpotAnalysis'
 import clsx from 'clsx'
 
 const PERIOD_COLORS: Record<string, string> = {
@@ -192,6 +193,11 @@ export function ConditionsCard({ condition }: Props) {
         </div>
       )}
 
+
+      {/* AI Analysis — replaces rule-based interpretation */}
+      <div className="mb-4">
+        <AISpotAnalysis condition={condition} />
+      </div>
 
       {/* Wind compass + badges */}
       <div className="flex items-center justify-between border-t border-ocean-700/60 pt-4">

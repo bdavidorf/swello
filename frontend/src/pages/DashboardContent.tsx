@@ -5,7 +5,6 @@ import {
   fetchConditions, fetchForecast, fetchTides, fetchCrowdToday
 } from '../api/client'
 import { ConditionsCard } from '../components/conditions/ConditionsCard'
-import { AISpotAnalysis } from '../components/ai/AISpotAnalysis'
 import { CrowdMeter } from '../components/crowd/CrowdMeter'
 import { CrowdTimeline } from '../components/crowd/CrowdTimeline'
 import { TideChart } from '../components/forecast/TideChart'
@@ -63,12 +62,7 @@ export function DashboardContent() {
         {spotCondition.isLoading ? (
           <SkeletonCard height="h-64" />
         ) : condition ? (
-          <>
-            <ConditionsCard condition={condition} />
-            <div className="mt-4">
-              <AISpotAnalysis condition={condition} />
-            </div>
-          </>
+          <ConditionsCard condition={condition} />
         ) : (
           <div className="card p-6 border-red-500/30">
             <p className="text-ocean-400 text-sm">
