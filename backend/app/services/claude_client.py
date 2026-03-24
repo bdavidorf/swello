@@ -126,30 +126,7 @@ async def get_chat_reply(
 
 Be conversational, knowledgeable, and use surf lingo naturally. Give specific spot recommendations based on what the user tells you about their skill level and preferences. Keep replies concise (2-4 sentences) unless the user asks for detail. Today is {datetime.now().strftime('%A, %B %d %Y')}."""
 
-    gemini_error = None
-    # Try Gemini first
-    if _gemini_key():
-        try:
-            import google.generativeai as genai
-            genai.configure(api_key=_gemini_key())
-            model = genai.GenerativeModel(
-                model_name="gemini-2.0-flash",
-                system_instruction=system,
-                generation_config={"temperature": 0.7, "max_output_tokens": 512},
-            )
-            history = []
-            for msg in messages[:-1]:
-                history.append({
-                    "role": "user" if msg["role"] == "user" else "model",
-                    "parts": [msg["content"]],
-                })
-            chat = model.start_chat(history=history)
-            response = await chat.send_message_async(messages[-1]["content"])
-            return response.text
-        except Exception as e:
-            gemini_error = str(e)  # fall through to Claude
-
-    # Fallback: Claude
+    # Use Claude as primary for chat (Gemini free tier quota is unreliable)
     if _anthropic_key():
         from anthropic import AsyncAnthropic
         client = AsyncAnthropic(api_key=_anthropic_key())
@@ -162,7 +139,7 @@ Be conversational, knowledgeable, and use surf lingo naturally. Give specific sp
         )
         return message.content[0].text
 
-    raise RuntimeError(f"No AI API key configured. Gemini error: {gemini_error}")
+    raise RuntimeError("No ANTHROPIC_API_KEY configured")
 
 
 # ── Groq / Claude fallbacks ───────────────────────────────────────────────────
