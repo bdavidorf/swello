@@ -117,7 +117,7 @@ export function ConditionsCard({ condition }: Props) {
         </div>
 
         {/* Wave height + energy bar */}
-        <div className="flex items-center gap-6 mt-2 relative" style={{ zIndex: 2 }}>
+        <div className="flex items-center justify-between mt-2 relative" style={{ zIndex: 2 }}>
           <div>
             <div className="flex items-end gap-2 leading-none">
               <span
