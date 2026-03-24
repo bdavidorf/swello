@@ -51,9 +51,8 @@ async def health():
         "model_loaded": _model is not None,
         "env": settings.app_env,
         "has_anthropic_key": bool(os.environ.get("ANTHROPIC_API_KEY")),
+        "has_swello_claude_key": bool(os.environ.get("SWELLO_CLAUDE_KEY")),
         "has_gemini_key": bool(os.environ.get("GEMINI_API_KEY")),
-        "settings_anthropic": bool(settings.anthropic_api_key),
-        "settings_gemini": bool(settings.gemini_api_key),
         "env_keys": [k for k in os.environ if "API" in k or "KEY" in k],
     }
 
