@@ -1,8 +1,9 @@
 import { useSpotStore } from '../../store/spotStore'
 
-// Location-pin clip-path: rounded top, pointed bottom
-// 64px wide × 82px tall
-const PIN_CLIP = `path('M 32 80 C 14 60 2 48 2 30 A 30 30 0 0 0 62 30 C 62 48 50 60 32 80 Z')`
+// Folded paper map shape: rectangle with dog-eared top-right corner
+// 92px wide × 80px tall, fold at 68px across / 24px down
+const W = 92, H = 80, FX = 68, FY = 24
+const MAP_CLIP = `polygon(0px 0px, ${FX}px 0px, ${W}px ${FY}px, ${W}px ${H}px, 0px ${H}px)`
 
 export function MapFAB() {
   const { mobileTab, setMobileTab } = useSpotStore()
@@ -15,72 +16,87 @@ export function MapFAB() {
       style={{
         position: 'fixed',
         bottom: 'calc(env(safe-area-inset-bottom) + 88px)',
-        right: 256,   // left of the surfboard button
-        width: 64,
-        height: 82,
-        clipPath: PIN_CLIP,
+        right: 252,
+        width: W,
+        height: H,
+        clipPath: MAP_CLIP,
         border: 'none',
         cursor: 'pointer',
         zIndex: 50,
-        // Parchment / nautical-chart paper
-        background: active
-          ? 'linear-gradient(160deg, #C8E890 0%, #88B840 35%, #507820 65%, #88B840 100%)'
-          : 'linear-gradient(160deg, #E8D890 0%, #C4A840 35%, #8A6820 65%, #C4A840 100%)',
-        boxShadow: active
-          ? '0 8px 28px rgba(0,0,0,0.50), 0 3px 10px rgba(80,120,30,0.40), inset 0 1px 0 rgba(255,240,160,0.30)'
-          : '0 8px 28px rgba(0,0,0,0.50), 0 3px 10px rgba(100,70,10,0.40), inset 0 1px 0 rgba(255,240,160,0.30)',
-        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 4,
-        paddingBottom: 16,  // shift content up (away from the point)
+        padding: 0,
+        background: 'none',
+        transition: 'transform 0.2s ease, filter 0.2s ease',
       }}
-      onMouseEnter={e => {
-        (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-4px)'
-        ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 16px 40px rgba(0,0,0,0.60), 0 5px 16px rgba(100,70,10,0.40)'
-      }}
-      onMouseLeave={e => {
-        (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'
-        ;(e.currentTarget as HTMLButtonElement).style.boxShadow = active
-          ? '0 8px 28px rgba(0,0,0,0.50), 0 3px 10px rgba(80,120,30,0.40)'
-          : '0 8px 28px rgba(0,0,0,0.50), 0 3px 10px rgba(100,70,10,0.40)'
-      }}
+      onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-4px)' }}
+      onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)' }}
     >
-      {/* Pin outline */}
-      <div style={{
-        position: 'absolute', inset: 0,
-        clipPath: PIN_CLIP,
-        boxShadow: 'inset 0 0 0 2px rgba(30,15,0,0.35)',
-        pointerEvents: 'none',
-      }} />
+      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} style={{ display: 'block' }}>
+        {/* Paper base — parchment */}
+        <polygon
+          points={`0,0 ${FX},0 ${W},${FY} ${W},${H} 0,${H}`}
+          fill={active ? '#C8E890' : '#E2CC88'}
+        />
 
-      {/* Inner hole circle — classic map pin look */}
-      <div style={{
-        position: 'absolute',
-        top: 14, left: '50%',
-        transform: 'translateX(-50%)',
-        width: 16, height: 16,
-        borderRadius: '50%',
-        background: 'rgba(20,10,0,0.30)',
-        border: '1.5px solid rgba(20,10,0,0.25)',
-        pointerEvents: 'none',
-      }} />
+        {/* Fold triangle — slightly darker corner */}
+        <polygon
+          points={`${FX},0 ${W},${FY} ${FX},${FY}`}
+          fill={active ? '#90B850' : '#B8A060'}
+          opacity="0.85"
+        />
 
-      {/* MAP label */}
-      <span style={{
-        fontFamily: "'Bangers', Impact, system-ui",
-        fontSize: 14,
-        letterSpacing: '0.14em',
-        color: active ? 'rgba(10,30,0,0.90)' : 'rgba(40,20,0,0.85)',
-        textShadow: '0 1px 2px rgba(255,240,160,0.40)',
-        position: 'relative',
-        zIndex: 1,
-        marginTop: 8,
-      }}>
-        MAP
-      </span>
+        {/* Fold crease line */}
+        <line x1={FX} y1={0} x2={W} y2={FY}
+          stroke={active ? '#70983A' : '#8A7040'} strokeWidth="0.8" opacity="0.6" />
+
+        {/* Map grid lines — horizontal */}
+        {[22, 34, 46, 58].map(y => (
+          <line key={`h${y}`} x1={4} y1={y} x2={FX - 2} y2={y}
+            stroke={active ? '#507820' : '#8A6820'} strokeWidth="0.7" opacity="0.45" />
+        ))}
+        {/* Grid lines continuing past the fold area */}
+        {[46, 58].map(y => (
+          <line key={`hf${y}`} x1={FX - 2} y1={y} x2={W - 4} y2={y}
+            stroke={active ? '#507820' : '#8A6820'} strokeWidth="0.7" opacity="0.45" />
+        ))}
+
+        {/* Map grid lines — vertical */}
+        {[22, 38, 54].map(x => (
+          <line key={`v${x}`} x1={x} y1={4} x2={x} y2={H - 4}
+            stroke={active ? '#507820' : '#8A6820'} strokeWidth="0.7" opacity="0.45" />
+        ))}
+
+        {/* Simple coastline squiggle */}
+        <path
+          d="M 10 52 C 16 44 22 50 28 42 C 34 34 40 40 46 36 C 52 32 56 38 60 34"
+          fill="none" stroke={active ? '#3A6010' : '#6A4810'}
+          strokeWidth="1.8" strokeLinecap="round" opacity="0.55" />
+
+        {/* Land mass blob */}
+        <ellipse cx="34" cy="48" rx="14" ry="8"
+          fill={active ? '#88C040' : '#C8A040'} opacity="0.35" />
+
+        {/* Small location dot */}
+        <circle cx="34" cy="46" r="2.5"
+          fill={active ? '#205010' : '#5A2A08'} opacity="0.75" />
+        <circle cx="34" cy="46" r="1.2"
+          fill={active ? '#80E040' : '#E8A040'} />
+
+        {/* MAP label — top of the button */}
+        <text x={FX / 2} y={14} textAnchor="middle"
+          fill={active ? '#1A4008' : '#3A2008'}
+          fontSize="13" fontWeight="bold"
+          fontFamily="'Bangers', Impact, system-ui"
+          letterSpacing="0.18em">
+          MAP
+        </text>
+
+        {/* Outer edge shadow */}
+        <polygon
+          points={`0,0 ${FX},0 ${W},${FY} ${W},${H} 0,${H}`}
+          fill="none"
+          stroke={active ? '#3A7010' : '#7A5010'}
+          strokeWidth="1.2" opacity="0.50" />
+      </svg>
     </button>
   )
 }
