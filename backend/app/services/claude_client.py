@@ -18,9 +18,7 @@ def _gemini_key() -> str:
     return os.environ.get("GEMINI_API_KEY", "") or settings.gemini_api_key
 
 def _anthropic_key() -> str:
-    # Vercel only reliably injects the env var that existed in the first deployment (GEMINI_API_KEY slot).
-    # Gemini quota is exhausted so we repurposed that slot for the Anthropic key.
-    return os.environ.get("GEMINI_API_KEY", "") or os.environ.get("ANTHROPIC_API_KEY", "") or settings.anthropic_api_key
+    return os.environ.get("ANTHROPIC_API_KEY", "") or settings.anthropic_api_key
 
 def _groq_key() -> str:
     return os.environ.get("GROQ_API_KEY", "") or settings.groq_api_key
@@ -128,20 +126,27 @@ async def get_chat_reply(
 
 Be conversational, knowledgeable, and use surf lingo naturally. Give specific spot recommendations based on what the user tells you about their skill level and preferences. Keep replies concise (2-4 sentences) unless the user asks for detail. Today is {datetime.now().strftime('%A, %B %d %Y')}."""
 
-    # Use Claude as primary for chat (Gemini free tier quota is unreliable)
-    if _anthropic_key():
-        from anthropic import AsyncAnthropic
-        client = AsyncAnthropic(api_key=_anthropic_key())
-        claude_msgs = [{"role": m["role"], "content": m["content"]} for m in messages]
-        message = await client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=512,
-            system=system,
-            messages=claude_msgs,
-        )
-        return message.content[0].text
-
-    raise RuntimeError("No ANTHROPIC_API_KEY configured")
+    # Try Gemini first
+    if _gemini_key():
+        try:
+            import google.generativeai as genai
+            genai.configure(api_key=_gemini_key())
+            model = genai.GenerativeModel(
+                model_name="gemini-2.0-flash",
+                system_instruction=system,
+                generation_config={"temperature": 0.7, "max_output_tokens": 512},
+            )
+            history = []
+            for msg in messages[:-1]:
+                history.append({
+                    "role": "user" if msg["role"] == "user" else "model",
+                    "parts": [msg["content"]],
+                })
+            chat = model.start_chat(history=history)
+            response = await chat.send_message_async(messages[-1]["content"])
+            return response.text
+        except Exception as e:
+            raise RuntimeError(f"Gemini error: {e}")
 
 
 # ── Groq / Claude fallbacks ───────────────────────────────────────────────────
