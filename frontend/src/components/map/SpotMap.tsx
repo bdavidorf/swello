@@ -93,14 +93,17 @@ export function SpotMap({ conditions }: Props) {
       <MapContainer
         center={[33.97, -118.6]}
         zoom={11}
-        style={{ width: '100%', height: '100%', background: '#030b17' }}
+        style={{ width: '100%', height: '100%' }}
         zoomControl={false}
+        worldCopyJump={false}
+        maxBounds={[[-90, -180], [90, 180]]}
+        maxBoundsViscosity={1.0}
       >
         <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-          attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-          subdomains="abcd"
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           maxZoom={19}
+          noWrap={true}
         />
 
         <MapController spotId={selectedSpotId} />
