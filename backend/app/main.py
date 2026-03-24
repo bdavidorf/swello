@@ -44,11 +44,17 @@ app.include_router(sun.router, prefix="/api/v1")
 
 @app.get("/api/v1/health")
 async def health():
+    import os
     from app.ml.crowd_model import _model
     return {
         "status": "ok",
         "model_loaded": _model is not None,
         "env": settings.app_env,
+        "has_anthropic_key": bool(os.environ.get("ANTHROPIC_API_KEY")),
+        "has_gemini_key": bool(os.environ.get("GEMINI_API_KEY")),
+        "settings_anthropic": bool(settings.anthropic_api_key),
+        "settings_gemini": bool(settings.gemini_api_key),
+        "env_keys": [k for k in os.environ if "API" in k or "KEY" in k],
     }
 
 
