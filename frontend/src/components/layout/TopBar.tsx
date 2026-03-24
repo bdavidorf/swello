@@ -1,9 +1,9 @@
-import { Settings, RefreshCw } from 'lucide-react'
+import { Settings, RefreshCw, Map } from 'lucide-react'
 import { useSpotStore } from '../../store/spotStore'
 import { useQueryClient } from '@tanstack/react-query'
 
 export function TopBar() {
-  const { setPreferencesOpen, preferencesOpen, setMobileTab } = useSpotStore()
+  const { setPreferencesOpen, preferencesOpen, setMobileTab, mobileTab } = useSpotStore()
   const qc = useQueryClient()
 
   return (
@@ -46,6 +46,18 @@ export function TopBar() {
           title="Refresh"
         >
           <RefreshCw size={16} />
+        </button>
+        {/* Desktop Explore/Map button */}
+        <button
+          onClick={() => setMobileTab(mobileTab === 'spots' ? 'waves' : 'spots')}
+          className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all border ${
+            mobileTab === 'spots'
+              ? 'bg-wave-400/15 border-wave-400/40 text-wave-400'
+              : 'border-ocean-700 text-ocean-300 hover:border-wave-400/50 hover:text-ocean-50'
+          }`}
+        >
+          <Map size={13} />
+          Explore
         </button>
         {/* Desktop preferences button */}
         <button

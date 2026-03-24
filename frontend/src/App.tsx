@@ -42,9 +42,9 @@ export default function App() {
             />
           </div>
 
-          {/* Mobile map — only shown on Spots tab */}
+          {/* Map — shown on Spots tab on any screen size */}
           {mobileTab === 'spots' ? (
-            <div className="md:hidden flex-1 flex flex-col overflow-hidden"
+            <div className="flex-1 flex flex-col overflow-hidden"
                  style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)' }}>
               <SpotMap conditions={allConditions.data} />
             </div>
