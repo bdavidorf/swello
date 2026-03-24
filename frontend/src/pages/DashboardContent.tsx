@@ -74,6 +74,10 @@ export function DashboardContent() {
       </Section>
 
       <Section tab="waves">
+        <SurfChat />
+      </Section>
+
+      <Section tab="waves">
         {(condition?.crowd || crowdToday.data?.hourly) && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {condition?.crowd && (
@@ -111,11 +115,6 @@ export function DashboardContent() {
         {forecast.data?.hourly && forecast.data.hourly.length > 0 && (
           <HourlyChart data={forecast.data.hourly} />
         )}
-      </Section>
-
-      {/* ── AI tab ── */}
-      <Section tab="ai">
-        <SurfChat />
       </Section>
 
       <div className="h-2" />
