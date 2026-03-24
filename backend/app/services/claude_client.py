@@ -18,8 +18,9 @@ def _gemini_key() -> str:
     return os.environ.get("GEMINI_API_KEY", "") or settings.gemini_api_key
 
 def _anthropic_key() -> str:
-    # ANTHROPIC_API_KEY is stripped by Vercel at runtime — use SWELLO_CLAUDE_KEY instead
-    return os.environ.get("SWELLO_CLAUDE_KEY", "") or os.environ.get("ANTHROPIC_API_KEY", "") or settings.anthropic_api_key
+    # Vercel only reliably injects the env var that existed in the first deployment (GEMINI_API_KEY slot).
+    # Gemini quota is exhausted so we repurposed that slot for the Anthropic key.
+    return os.environ.get("GEMINI_API_KEY", "") or os.environ.get("ANTHROPIC_API_KEY", "") or settings.anthropic_api_key
 
 def _groq_key() -> str:
     return os.environ.get("GROQ_API_KEY", "") or settings.groq_api_key

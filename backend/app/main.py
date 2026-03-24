@@ -50,10 +50,8 @@ async def health():
         "status": "ok",
         "model_loaded": _model is not None,
         "env": settings.app_env,
-        "has_swello_claude_key": bool(os.environ.get("SWELLO_CLAUDE_KEY")),
-        "has_gemini_key": bool(os.environ.get("GEMINI_API_KEY")),
+        "has_claude_key": bool(os.environ.get("GEMINI_API_KEY")),
         "vercel_env": os.environ.get("VERCEL_ENV", "not set"),
-        "env_keys": [k for k in os.environ if "API" in k or "KEY" in k or "VERCEL" in k],
     }
 
 
