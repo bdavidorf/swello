@@ -74,6 +74,15 @@ export function DashboardContent() {
       </Section>
 
       <Section tab="waves">
+        {tides.data?.predictions && tides.data.predictions.length > 0 && (
+          <TideChart
+            predictions={tides.data.predictions}
+            events={tides.data.events}
+          />
+        )}
+      </Section>
+
+      <Section tab="waves">
         {(condition?.crowd || crowdToday.data?.hourly) && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {condition?.crowd && (

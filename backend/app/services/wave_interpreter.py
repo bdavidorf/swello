@@ -53,42 +53,42 @@ def _swell_type_from_period(dpd_s: float) -> tuple[str, str, str, float]:
             "long-period ground swell",
             "Ground swell",
             "excellent",
-            1.75,
+            1.35,
         )
     elif dpd_s >= 14:
         return (
             "ground swell",
             "Ground swell",
             "excellent",
-            1.45,
+            1.20,
         )
     elif dpd_s >= 11:
         return (
             "medium-period ground swell",
             "Ground swell",
             "good",
-            1.2,
+            1.05,
         )
     elif dpd_s >= 9:
         return (
             "mixed swell",
             "Mixed swell",
             "fair",
-            1.0,
+            0.90,
         )
     elif dpd_s >= 7:
         return (
             "wind swell",
             "Wind swell",
             "poor",
-            0.75,
+            0.70,
         )
     else:
         return (
             "short-period wind swell",
             "Wind swell",
             "poor",
-            0.55,
+            0.50,
         )
 
 

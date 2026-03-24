@@ -52,7 +52,7 @@ function RetroSun({ color }: { color: string }) {
 }
 
 export function ConditionsCard({ condition }: Props) {
-  const { buoy, wave_power, wind, crowd, breaking, sun } = condition
+  const { buoy, wave_power, wind, crowd, breaking, sun, next_tide } = condition
   const updatedAt = new Date(condition.updated_at)
 
   const rating = wave_power?.surf_rating ?? 0
@@ -140,7 +140,7 @@ export function ConditionsCard({ condition }: Props) {
       </div>
 
       {/* ── BENTO GRID ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr 1fr', gap: 10, padding: '14px 16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr 1fr 1fr', gap: 10, padding: '14px 16px' }}>
 
         {/* Period */}
         <BentoTile label="PERIOD" accent={buoy.dpd_s != null && buoy.dpd_s >= 12 ? '#88C8E8' : undefined}>
@@ -211,12 +211,47 @@ export function ConditionsCard({ condition }: Props) {
           )}
         </BentoTile>
 
-        {/* Crowd badge row — bottom right */}
+        {/* Crowd badge row */}
         <BentoTile label="CROWD">
           <span className="font-display" style={{ fontSize: 36, color: crowd ? '#D8EEF8' : '#6AAED0', lineHeight: 1, letterSpacing: '0.04em' }}>
             {crowd ? crowd.level.toUpperCase() : 'N/A'}
           </span>
         </BentoTile>
+
+        {/* Tide — spans 2 rows to match wind */}
+        <motion.div
+          className="bento-tile"
+          style={{ gridRow: 'span 2', padding: '14px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+          whileHover={{ y: -3, scale: 1.02 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+        >
+          <p className="stat-label">TIDE</p>
+          {next_tide ? (
+            <>
+              <span style={{ fontFamily: "'Inter', system-ui", fontWeight: 800, fontSize: 42, color: next_tide.event_type === 'high' ? '#88C8E8' : '#5AAAC8', lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
+                {next_tide.height_ft.toFixed(1)}
+              </span>
+              <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 14, color: '#6AAED0', letterSpacing: '0.10em' }}>FT</span>
+              <div style={{
+                background: next_tide.event_type === 'high' ? 'rgba(136,200,232,0.15)' : 'rgba(90,170,200,0.15)',
+                border: `1px solid ${next_tide.event_type === 'high' ? 'rgba(136,200,232,0.40)' : 'rgba(90,170,200,0.40)'}`,
+                borderRadius: 20, padding: '3px 10px',
+                fontFamily: "'Bangers', Impact, system-ui", fontSize: 13,
+                color: next_tide.event_type === 'high' ? '#88C8E8' : '#5AAAC8',
+                letterSpacing: '0.12em', textTransform: 'uppercase',
+              }}>
+                {next_tide.event_type === 'high' ? '▲ HIGH' : '▼ LOW'}
+              </div>
+              {next_tide.hours_away != null && (
+                <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 12, color: '#6AAED0', letterSpacing: '0.08em' }}>
+                  in {next_tide.hours_away.toFixed(1)}h
+                </span>
+              )}
+            </>
+          ) : (
+            <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 28, color: '#6AAED0' }}>--</span>
+          )}
+        </motion.div>
 
       </div>
 
