@@ -23,7 +23,7 @@
       radial-gradient(ellipse at 85% 5%,  rgba(120,184,216,0.10) 0%, transparent 50%),
       radial-gradient(ellipse at 10% 95%, rgba(90,170,200,0.08) 0%, transparent 50%),
       #0D1C2A;
-    color: #A0C0D8;
+    color: #C8E0F0;
     height: 100%;
     overflow: hidden;
     -webkit-tap-highlight-color: transparent;
@@ -120,14 +120,14 @@
     font-size: 10px;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: #4A7090;
+    color: #6AAAC8;
   }
 
   /* ── Type: stat value ── */
   .stat-value {
     font-family: 'Bangers', Impact, system-ui, sans-serif;
     font-weight: 400;
-    color: #D8EEF8;
+    color: #EAF6FF;
   }
 
   /* ── Display font shortcut ── */

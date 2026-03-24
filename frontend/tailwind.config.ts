@@ -12,10 +12,10 @@ export default {
           800: '#1A3048',  // elevated surface
           700: '#224060',  // borders
           600: '#2E5275',  // muted borders
-          500: '#4A7090',  // muted icons / placeholder
-          400: '#6A90AA',  // secondary text
-          200: '#A0C0D8',  // body text
-          50:  '#D8EEF8',  // headings — pale sky
+          500: '#5A8AAA',  // muted icons / placeholder
+          400: '#7AAAC8',  // secondary text
+          200: '#C0D8EC',  // body text
+          50:  '#EAF6FF',  // headings — pale sky
         },
         // ── Powder Blue — primary accent ──
         wave: {

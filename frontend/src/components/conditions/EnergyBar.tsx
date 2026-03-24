@@ -25,20 +25,20 @@ export function EnergyBar({ rating }: Props) {
             <div
               key={i}
               style={{
-                width: 12, height: 7, borderRadius: 2,
+                width: 18, height: 10, borderRadius: 3,
                 background: active ? color : 'rgba(26,48,72,0.80)',
                 opacity: active ? (0.4 + (i / SEGMENTS) * 0.6) : 1,
                 transition: 'all 0.4s ease',
-                boxShadow: active && i === filled - 1 ? `0 0 8px ${color}99` : 'none',
+                boxShadow: active && i === filled - 1 ? `0 0 10px ${color}bb` : 'none',
               }}
             />
           )
         })}
       </div>
-      <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 26, lineHeight: 1, color }}>
+      <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 36, lineHeight: 1, color, textShadow: `0 0 12px ${color}66` }}>
         {clamped}
       </span>
-      <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 8, color, opacity: 0.75, letterSpacing: '0.14em' }}>
+      <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 11, color, letterSpacing: '0.14em' }}>
         {label}
       </span>
     </div>

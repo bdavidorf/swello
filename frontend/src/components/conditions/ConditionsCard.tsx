@@ -117,31 +117,33 @@ export function ConditionsCard({ condition }: Props) {
         </div>
 
         {/* Wave height + energy bar */}
-        <div className="flex items-end gap-4 mt-2 relative" style={{ zIndex: 2 }}>
+        <div className="flex items-center gap-6 mt-2 relative" style={{ zIndex: 2 }}>
           <div>
             <div className="flex items-end gap-2 leading-none">
               <span
                 className="wave-height-display"
-                style={{ fontSize: 'clamp(5rem, 16vw, 7.5rem)', lineHeight: 0.85, color: '#D8EEF8' }}
+                style={{ fontSize: 'clamp(5rem, 16vw, 8rem)', lineHeight: 0.85, color: '#EAF6FF' }}
               >
                 {heroNum}
               </span>
-              <span className="font-display mb-1.5" style={{ fontSize: 28, color: '#3A5A78', letterSpacing: '0.06em' }}>
+              <span className="font-display mb-1.5" style={{ fontSize: 30, color: '#5A8AAA', letterSpacing: '0.06em' }}>
                 FT
               </span>
             </div>
             {breaking && (
               <p className="mt-1.5" style={{
-                fontFamily: "'Bangers', Impact, system-ui", fontWeight: 400, fontSize: 11,
-                color: '#3A5A78', letterSpacing: '0.10em',
+                fontFamily: "'Bangers', Impact, system-ui", fontWeight: 400, fontSize: 12,
+                color: '#5A8AAA', letterSpacing: '0.10em',
               }}>
                 {breaking.face_height_label} · {Math.round(breaking.direction_pct * 100)}% reaching shore
               </p>
             )}
           </div>
-          <div className="ml-auto mb-2">
-            {wave_power && <EnergyBar rating={wave_power.surf_rating} />}
-          </div>
+          {wave_power && (
+            <div style={{ flexShrink: 0 }}>
+              <EnergyBar rating={wave_power.surf_rating} />
+            </div>
+          )}
         </div>
       </div>
 
