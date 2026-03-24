@@ -14,8 +14,11 @@ const GREETING: Message = {
 }
 
 // ── Surfboard button clip-path ───────────────────────────────────────────────
-// Vertical shortboard: pointed nose top, wide body, rounded tail bottom
-const SURFBOARD_BTN_CLIP = `path('M 40 0 C 58 0 76 14 76 36 L 76 116 C 76 140 62 156 40 156 C 18 156 4 140 4 116 L 4 36 C 4 14 22 0 40 0 Z')`
+// Narrow shortboard: sharp pointed nose at top, wide shoulders, squash tail
+// Board is 56px wide × 200px tall
+const BOARD_W = 56
+const BOARD_H = 200
+const SURFBOARD_BTN_CLIP = `path('M 28 0 C 36 4 54 22 54 58 L 54 148 C 54 174 42 200 28 200 C 14 200 2 174 2 148 L 2 58 C 2 22 20 4 28 0 Z')`
 
 function ChatWindow({ onClose }: { onClose: () => void }) {
   const { selectedSpotId } = useSpotStore()
@@ -218,76 +221,107 @@ function SurfboardButton({ onClick }: { onClick: () => void }) {
         position: 'fixed',
         bottom: 'calc(env(safe-area-inset-bottom) + 80px)',
         right: 16,
-        width: 80,
-        height: 156,
+        width: BOARD_W,
+        height: BOARD_H,
         clipPath: SURFBOARD_BTN_CLIP,
-        background: 'linear-gradient(180deg, rgba(136,200,232,0.22) 0%, rgba(18,42,66,0.97) 30%, rgba(13,28,42,0.97) 70%, rgba(90,170,200,0.18) 100%)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
+        // Warm wood grain gradient — teak/balsa tones
+        background: `
+          linear-gradient(
+            175deg,
+            #E8B06A 0%,
+            #C47832 12%,
+            #8B4820 30%,
+            #6A3010 50%,
+            #8B4820 68%,
+            #C47832 85%,
+            #E8B06A 100%
+          )
+        `,
         border: 'none',
         cursor: 'pointer',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 10,
+        gap: 8,
         zIndex: 50,
-        boxShadow: '0 8px 32px rgba(0,0,0,0.45), 0 2px 12px rgba(120,184,216,0.20)',
+        boxShadow: '0 10px 36px rgba(0,0,0,0.55), 0 3px 12px rgba(100,50,10,0.40), inset 0 1px 0 rgba(255,220,160,0.30)',
         transition: 'transform 0.2s ease, box-shadow 0.2s ease',
       }}
       onMouseEnter={e => {
-        (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-4px)'
-        ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 14px 40px rgba(0,0,0,0.50), 0 4px 16px rgba(120,184,216,0.30)'
+        (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-5px) rotate(-1deg)'
+        ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 18px 48px rgba(0,0,0,0.60), 0 6px 18px rgba(100,50,10,0.40)'
       }}
       onMouseLeave={e => {
-        (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'
-        ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 32px rgba(0,0,0,0.45), 0 2px 12px rgba(120,184,216,0.20)'
+        (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0) rotate(0deg)'
+        ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 10px 36px rgba(0,0,0,0.55), 0 3px 12px rgba(100,50,10,0.40), inset 0 1px 0 rgba(255,220,160,0.30)'
       }}
     >
-      {/* Board outline overlay */}
+      {/* Wood grain lines */}
+      {[20, 30, 38, 44, 50].map((x) => (
+        <div key={x} style={{
+          position: 'absolute',
+          top: '5%', bottom: '5%',
+          left: x,
+          width: 1,
+          background: 'linear-gradient(to bottom, transparent, rgba(0,0,0,0.10) 20%, rgba(0,0,0,0.08) 80%, transparent)',
+          pointerEvents: 'none',
+        }} />
+      ))}
+
+      {/* Stringer — center light line */}
+      <div style={{
+        position: 'absolute',
+        top: '4%', bottom: '4%',
+        left: '50%', width: 1.5,
+        background: 'linear-gradient(to bottom, transparent, rgba(255,210,140,0.55) 15%, rgba(255,210,140,0.55) 85%, transparent)',
+        transform: 'translateX(-50%)',
+        pointerEvents: 'none',
+      }} />
+
+      {/* Board outline — dark edge to give dimension */}
       <div style={{
         position: 'absolute', inset: 0,
         clipPath: SURFBOARD_BTN_CLIP,
-        border: '1.5px solid rgba(168,200,220,0.25)',
+        boxShadow: 'inset 0 0 0 2px rgba(80,30,5,0.40)',
         pointerEvents: 'none',
       }} />
 
-      {/* Stringer */}
+      {/* Content */}
+      <Waves size={15} style={{ color: 'rgba(255,220,160,0.85)', position: 'relative', zIndex: 1, flexShrink: 0 }} />
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, position: 'relative', zIndex: 1 }}>
+        <span style={{
+          fontFamily: "'Bangers', Impact, system-ui",
+          fontSize: 10,
+          letterSpacing: '0.18em',
+          color: 'rgba(255,220,160,0.90)',
+          lineHeight: 1,
+          textShadow: '0 1px 3px rgba(0,0,0,0.50)',
+        }}>
+          ASK
+        </span>
+        <span style={{
+          fontFamily: "'Bangers', Impact, system-ui",
+          fontSize: 10,
+          letterSpacing: '0.18em',
+          color: 'rgba(255,220,160,0.90)',
+          lineHeight: 1,
+          textShadow: '0 1px 3px rgba(0,0,0,0.50)',
+        }}>
+          SWELLO
+        </span>
+      </div>
+
+      {/* Leash plug */}
       <div style={{
         position: 'absolute',
-        top: '8%', bottom: '8%',
-        left: '50%', width: 1,
-        background: 'linear-gradient(to bottom, transparent, rgba(120,184,216,0.30) 25%, rgba(120,184,216,0.30) 75%, transparent)',
+        bottom: 14, left: '50%',
         transform: 'translateX(-50%)',
-        pointerEvents: 'none',
-      }} />
-
-      {/* Icon + text */}
-      <Waves size={18} style={{ color: '#78B8D8', position: 'relative', zIndex: 1 }} />
-      <span style={{
-        fontFamily: "'Bangers', Impact, system-ui",
-        fontSize: 11,
-        letterSpacing: '0.14em',
-        color: '#D8EEF8',
-        writingMode: 'vertical-rl',
-        textOrientation: 'mixed',
-        transform: 'rotate(180deg)',
-        lineHeight: 1,
-        position: 'relative',
-        zIndex: 1,
-      }}>
-        ASK SWELLO
-      </span>
-
-      {/* Fin nub at bottom */}
-      <div style={{
-        position: 'absolute',
-        bottom: 6, left: '50%',
-        transform: 'translateX(-50%)',
-        width: 8, height: 8,
+        width: 7, height: 7,
         borderRadius: '50%',
-        background: 'rgba(120,184,216,0.30)',
-        border: '1px solid rgba(120,184,216,0.35)',
+        background: 'rgba(80,30,5,0.60)',
+        border: '1px solid rgba(255,180,80,0.40)',
+        zIndex: 1,
       }} />
     </button>
   )
