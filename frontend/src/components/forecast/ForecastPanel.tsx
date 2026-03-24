@@ -137,7 +137,7 @@ export function ForecastPanel({ daily, hourly = [] }: Props) {
 
   return (
     <div className="card-glow p-5">
-      <p className="stat-label mb-4">14-Day Swell Forecast</p>
+      <p style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 30, letterSpacing: '0.06em', color: '#D8EEF8', marginBottom: 16 }}>14-Day Swell Forecast</p>
 
       {/* ── Day grid — 7 per row, wraps to second row ── */}
       <div className="grid grid-cols-7 gap-1.5">
@@ -162,7 +162,7 @@ export function ForecastPanel({ daily, hourly = [] }: Props) {
             >
               {/* Day label */}
               <p className={clsx(
-                'text-xs font-bold',
+                'text-sm font-bold',
                 isSelected ? 'text-wave-400' : isToday ? 'text-wave-400' : 'text-ocean-300'
               )}>
                 {day.day_label}
@@ -170,10 +170,10 @@ export function ForecastPanel({ daily, hourly = [] }: Props) {
 
               {/* Face height */}
               <div className="text-center">
-                <p className="text-ocean-50 font-black text-base leading-tight">
-                  {faceStr}<span className="text-ocean-500 font-normal text-xs">ft</span>
+                <p className="text-ocean-50 font-black text-lg leading-tight">
+                  {faceStr}<span className="text-ocean-500 font-normal text-sm">ft</span>
                 </p>
-                <p className="text-ocean-500 text-[10px] leading-tight truncate w-full">
+                <p className="text-ocean-500 text-xs leading-tight truncate w-full">
                   {day.face_height_label}
                 </p>
               </div>
@@ -181,29 +181,29 @@ export function ForecastPanel({ daily, hourly = [] }: Props) {
               {/* Period */}
               {day.swell_period_s && (
                 <div className="text-center">
-                  <p className="text-ocean-200 text-xs font-semibold">{day.swell_period_s.toFixed(0)}s</p>
-                  <p className="text-[10px] text-ocean-500 leading-none">
+                  <p className="text-ocean-200 text-sm font-semibold">{day.swell_period_s.toFixed(0)}s</p>
+                  <p className="text-xs text-ocean-500 leading-none">
                     {PERIOD_STARS[day.period_quality] ?? '★☆☆'}
                   </p>
                 </div>
               )}
 
               {/* Swell direction */}
-              <p className="text-ocean-400 text-[10px] font-medium">{day.swell_dir_label}</p>
+              <p className="text-ocean-400 text-xs font-medium">{day.swell_dir_label}</p>
 
               {/* Wind */}
-              <div className={clsx('flex items-center gap-0.5 text-[10px]', WIND_COLOR[day.best_wind_quality])}>
-                <Wind size={9} />
+              <div className={clsx('flex items-center gap-0.5 text-xs', WIND_COLOR[day.best_wind_quality])}>
+                <Wind size={10} />
                 <span>{day.avg_wind_speed_mph.toFixed(0)}</span>
               </div>
 
               {/* Rating bar + number */}
               <div className="w-full mt-0.5">
                 <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-xs font-black" style={{ color: ratingColor(day.surf_rating) }}>
+                  <span className="text-sm font-black" style={{ color: ratingColor(day.surf_rating) }}>
                     {day.surf_rating}
                   </span>
-                  <span className="text-ocean-600 text-[10px]">/10</span>
+                  <span className="text-ocean-600 text-xs">/10</span>
                 </div>
                 <div className="w-full bg-ocean-700/50 rounded-full h-1.5">
                   <div
@@ -215,7 +215,7 @@ export function ForecastPanel({ daily, hourly = [] }: Props) {
 
               {/* Peak time + crowd + expand indicator */}
               <div className="flex items-center justify-between w-full px-0.5">
-                <span className="text-[9px] text-ocean-600">{fmtHour(day.peak_hour)}</span>
+                <span className="text-xs text-ocean-600">{fmtHour(day.peak_hour)}</span>
                 <div className="flex items-center gap-1">
                   <div
                     className={clsx('w-2 h-2 rounded-full', CROWD_DOT[day.crowd_level])}
@@ -223,7 +223,7 @@ export function ForecastPanel({ daily, hourly = [] }: Props) {
                   />
                   {hasHourly && (
                     <ChevronDown
-                      size={9}
+                      size={10}
                       className={clsx(
                         'text-ocean-600 transition-transform',
                         isSelected && 'rotate-180'
@@ -259,7 +259,7 @@ export function ForecastPanel({ daily, hourly = [] }: Props) {
       </AnimatePresence>
 
       {/* Legend */}
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-1 mt-4 pt-3 border-t border-ocean-700/40 text-[11px] text-ocean-500">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-1 mt-4 pt-3 border-t border-ocean-700/40 text-xs text-ocean-500">
         <span>Tap any day for hourly breakdown · Dot = crowd</span>
         <span className="text-emerald-400 flex items-center gap-1"><Wind size={9} /> Offshore</span>
         <span className="text-yellow-400 flex items-center gap-1"><Wind size={9} /> Cross</span>

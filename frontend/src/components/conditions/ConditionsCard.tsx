@@ -116,31 +116,29 @@ export function ConditionsCard({ condition }: Props) {
           </div>
         </div>
 
-        {/* Wave height */}
-        <div className="flex items-end gap-2 leading-none mt-2 relative" style={{ zIndex: 2 }}>
-          <span className="wave-height-display"
-            style={{ fontSize: 'clamp(5rem, 16vw, 8rem)', lineHeight: 0.85, color: '#EAF6FF' }}>
-            {heroNum}
-          </span>
-          <span className="font-display mb-1.5" style={{ fontSize: 30, color: '#7AAED0', letterSpacing: '0.06em' }}>
-            FT
-          </span>
-        </div>
-        {breaking && (
-          <p className="mt-1 relative" style={{
-            fontFamily: "'Bangers', Impact, system-ui", fontSize: 12,
-            color: '#7AAAC8', letterSpacing: '0.10em', zIndex: 2,
-          }}>
-            {breaking.face_height_label} · {Math.round(breaking.direction_pct * 100)}% reaching shore
-          </p>
-        )}
-
-        {/* Surfometer — centered below wave height */}
-        {wave_power && (
-          <div className="flex justify-center relative mt-1" style={{ zIndex: 2 }}>
-            <EnergyBar rating={wave_power.surf_rating} />
+        {/* Wave height + Surfometer side by side */}
+        <div className="flex items-center justify-between mt-2 relative" style={{ zIndex: 2 }}>
+          <div>
+            <div className="flex items-end gap-2 leading-none">
+              <span className="wave-height-display"
+                style={{ fontSize: 'clamp(5rem, 16vw, 8rem)', lineHeight: 0.85, color: '#EAF6FF' }}>
+                {heroNum}
+              </span>
+              <span className="font-display mb-1.5" style={{ fontSize: 30, color: '#7AAED0', letterSpacing: '0.06em' }}>
+                FT
+              </span>
+            </div>
+            {breaking && (
+              <p className="mt-1" style={{
+                fontFamily: "'Bangers', Impact, system-ui", fontSize: 14,
+                color: '#7AAAC8', letterSpacing: '0.10em',
+              }}>
+                {breaking.face_height_label} · {Math.round(breaking.direction_pct * 100)}% reaching shore
+              </p>
+            )}
           </div>
-        )}
+          {wave_power && <EnergyBar rating={wave_power.surf_rating} />}
+        </div>
       </div>
 
       {/* ── BENTO GRID ── */}
