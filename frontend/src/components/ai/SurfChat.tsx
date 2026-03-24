@@ -123,11 +123,11 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
         margin: '0 auto',
         position: 'relative',
         bottom: -2,
-        background: 'linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(240,252,250,0.88))',
+        background: 'linear-gradient(to bottom, rgba(237,231,223,0.1), rgba(237,231,223,0.90))',
         borderRadius: '50% 50% 0 0 / 100% 100% 0 0',
         backdropFilter: 'blur(10px)',
         WebkitBackdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255,255,255,0.7)',
+        border: '1px solid rgba(255,248,240,0.7)',
         borderBottom: 'none',
       }} />
 
@@ -138,11 +138,11 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
           height: BOARD_H,
           clipPath: BOARD_CLIP,
           position: 'relative',
-          // Surfboard foam texture — warm white with subtle teal tint
-          background: 'linear-gradient(165deg, rgba(255,255,255,0.92) 0%, rgba(240,252,250,0.88) 40%, rgba(236,248,252,0.90) 100%)',
+          // Surfboard foam texture — warm stone
+          background: 'linear-gradient(165deg, rgba(245,240,234,0.95) 0%, rgba(237,231,223,0.92) 40%, rgba(229,222,212,0.90) 100%)',
           backdropFilter: 'blur(18px)',
           WebkitBackdropFilter: 'blur(18px)',
-          boxShadow: '0 20px 60px rgba(100,160,150,0.18), 0 8px 24px rgba(100,160,150,0.12)',
+          boxShadow: '0 20px 60px rgba(50,38,28,0.14), 0 8px 24px rgba(50,38,28,0.10)',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
@@ -163,7 +163,7 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
           position: 'absolute',
           left: '50%', top: '6%', bottom: '6%',
           width: 1,
-          background: 'linear-gradient(to bottom, transparent, rgba(168,218,220,0.35) 20%, rgba(168,218,220,0.35) 80%, transparent)',
+          background: 'linear-gradient(to bottom, transparent, rgba(168,160,152,0.30) 20%, rgba(168,160,152,0.30) 80%, transparent)',
           transform: 'translateX(-50%)',
           pointerEvents: 'none',
           zIndex: 1,
@@ -176,8 +176,8 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
           transform: 'translateX(-50%)',
           width: 7, height: 7,
           borderRadius: '50%',
-          background: 'rgba(168,218,220,0.6)',
-          border: '1px solid rgba(120,190,194,0.8)',
+          background: 'rgba(106,154,156,0.45)',
+          border: '1px solid rgba(78,122,124,0.6)',
           pointerEvents: 'none',
           zIndex: 2,
         }} />
@@ -197,14 +197,14 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
           <div className="flex items-center gap-2.5">
             <div style={{
               width: 28, height: 28, borderRadius: 8,
-              background: 'rgba(168,218,220,0.25)',
-              border: '1px solid rgba(168,218,220,0.5)',
+              background: 'rgba(106,154,156,0.18)',
+              border: '1px solid rgba(106,154,156,0.35)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <Waves size={13} style={{ color: '#78BEC2' }} />
+              <Waves size={13} style={{ color: '#6A9A9C' }} />
             </div>
             <div>
-              <p style={{ fontWeight: 800, fontSize: 14, color: '#1C3535', lineHeight: 1 }}>
+              <p style={{ fontWeight: 800, fontSize: 14, color: '#12100C', lineHeight: 1 }}>
                 Ask Swello 🤙
               </p>
             </div>
@@ -215,8 +215,8 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
             style={{
               width: 28, height: 28, borderRadius: '50%',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#91AFAA', border: '1px solid rgba(192,213,204,0.6)',
-              background: 'rgba(255,255,255,0.5)',
+              color: '#8A8480', border: '1px solid rgba(168,160,152,0.55)',
+              background: 'rgba(237,231,223,0.60)',
               cursor: 'pointer',
               transition: 'all 0.15s',
             }}
@@ -226,7 +226,7 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* Divider */}
-        <div style={{ height: 1, background: 'rgba(192,213,204,0.45)', margin: '0 20px', flexShrink: 0 }} />
+        <div style={{ height: 1, background: 'rgba(168,160,152,0.35)', margin: '0 20px', flexShrink: 0 }} />
 
         {/* ── Messages ── */}
         <div
@@ -247,14 +247,14 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
                 fontSize: 13,
                 lineHeight: 1.5,
                 ...(msg.role === 'user' ? {
-                  background: 'linear-gradient(135deg, #A8DADC 0%, #88C8CC 100%)',
-                  color: '#1C3535',
+                  background: 'linear-gradient(135deg, #7ABCA0 0%, #7AAEC8 100%)',
+                  color: '#12100C',
                   fontWeight: 500,
-                  boxShadow: '0 2px 8px rgba(168,218,220,0.35)',
+                  boxShadow: '0 2px 8px rgba(106,154,156,0.30)',
                 } : {
-                  background: 'rgba(255,255,255,0.75)',
-                  color: '#2E5454',
-                  border: '1px solid rgba(192,213,204,0.55)',
+                  background: 'rgba(221,214,204,0.70)',
+                  color: '#221C18',
+                  border: '1px solid rgba(168,160,152,0.45)',
                   backdropFilter: 'blur(8px)',
                   WebkitBackdropFilter: 'blur(8px)',
                 }),
@@ -267,8 +267,8 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
           {loading && (
             <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
               <div style={{
-                background: 'rgba(255,255,255,0.75)',
-                border: '1px solid rgba(192,213,204,0.55)',
+                background: 'rgba(221,214,204,0.70)',
+                border: '1px solid rgba(168,160,152,0.45)',
                 borderRadius: '16px 16px 16px 4px',
                 padding: '10px 14px',
               }}>
@@ -276,7 +276,7 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
                   {[0, 150, 300].map((delay) => (
                     <span key={delay} style={{
                       width: 6, height: 6, borderRadius: '50%',
-                      background: '#A8DADC',
+                      background: '#6A9A9C',
                       display: 'inline-block',
                       animation: `bounce 1.2s ${delay}ms ease-in-out infinite`,
                     }} />
@@ -291,10 +291,10 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
         {/* ── Input ── */}
         <div style={{
           flexShrink: 0,
-          borderTop: '1px solid rgba(192,213,204,0.45)',
+          borderTop: '1px solid rgba(168,160,152,0.35)',
           padding: '10px 20px 14px',
           display: 'flex', alignItems: 'flex-end', gap: 8,
-          background: 'rgba(255,255,255,0.30)',
+          background: 'rgba(212,206,198,0.25)',
           zIndex: 3, position: 'relative',
         }}>
           <textarea
@@ -305,12 +305,12 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
             rows={1}
             style={{
               flex: 1,
-              background: 'rgba(255,255,255,0.65)',
-              border: '1px solid rgba(192,213,204,0.65)',
+              background: 'rgba(237,231,223,0.75)',
+              border: '1px solid rgba(168,160,152,0.55)',
               borderRadius: 14,
               padding: '8px 12px',
               fontSize: 13,
-              color: '#1C3535',
+              color: '#221C18',
               resize: 'none',
               outline: 'none',
               maxHeight: 72,
@@ -324,15 +324,15 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
             disabled={!input.trim() || loading}
             style={{
               width: 36, height: 36, borderRadius: 12, flexShrink: 0,
-              background: 'linear-gradient(135deg, #A8DADC 0%, #78BEC2 100%)',
+              background: 'linear-gradient(135deg, #7ABCA0 0%, #7AAEC8 100%)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               border: 'none', cursor: 'pointer',
-              boxShadow: '0 2px 10px rgba(168,218,220,0.45)',
+              boxShadow: '0 2px 10px rgba(106,154,156,0.40)',
               opacity: !input.trim() || loading ? 0.45 : 1,
               transition: 'all 0.15s',
             }}
           >
-            <Send size={14} style={{ color: '#FDFBF7' }} />
+            <Send size={14} style={{ color: '#F5EEE6' }} />
           </button>
         </div>
       </div>
@@ -344,7 +344,7 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
         position: 'relative',
         top: -2,
         clipPath: 'polygon(18% 0%, 82% 0%, 100% 100%, 0% 100%)',
-        background: 'linear-gradient(to bottom, rgba(236,248,252,0.90), rgba(200,230,228,0.55))',
+        background: 'linear-gradient(to bottom, rgba(229,222,212,0.90), rgba(200,192,182,0.55))',
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
       }} />
@@ -366,10 +366,10 @@ export function SurfChatWidget() {
           bottom: 'calc(env(safe-area-inset-bottom) + 76px)',
           right: 16,
           display: open ? 'none' : 'flex',
-          color: '#1C3535',
+          color: '#221C18',
         }}
       >
-        <Waves size={18} style={{ color: '#56A0A4' }} />
+        <Waves size={18} style={{ color: '#6A9A9C' }} />
         <span style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.01em' }}>
           Ask Swello 🤙
         </span>

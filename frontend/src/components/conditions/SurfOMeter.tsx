@@ -42,12 +42,12 @@ export function SurfOMeter({ rating }: Props) {
   const [tipX, tipY]   = pt(needleDeg, R - 8)
   const [tailX, tailY] = pt(needleDeg, -16)
 
-  // Coastal palette — poor=coral, fair=peach, good=green, excellent=sea-glass
+  // Muted coastal palette
   const color =
-    rating >= 8 ? '#78BEC2' :
-    rating >= 6 ? '#52B879' :
-    rating >= 4 ? '#F5A44A' :
-    '#FF9A8B'
+    rating >= 8 ? '#4E7A7C' :
+    rating >= 6 ? '#5E9268' :
+    rating >= 4 ? '#C4904A' :
+    '#B07860'
 
   const label =
     rating >= 8 ? 'Excellent' :
@@ -65,9 +65,9 @@ export function SurfOMeter({ rating }: Props) {
         <defs>
           {/* Gauge face gradient — frosted glass with teal ambient glow */}
           <radialGradient id="faceGrad" cx="50%" cy="55%" r="55%">
-            <stop offset="0%"   stopColor="rgba(240,252,250,0.92)" />
-            <stop offset="65%"  stopColor="rgba(255,255,255,0.78)" />
-            <stop offset="100%" stopColor="rgba(230,245,243,0.60)" />
+            <stop offset="0%"   stopColor="rgba(245,240,234,0.92)" />
+            <stop offset="65%"  stopColor="rgba(237,231,223,0.82)" />
+            <stop offset="100%" stopColor="rgba(225,218,208,0.65)" />
           </radialGradient>
 
           {/* Soft ambient glow behind active arc */}
@@ -104,9 +104,9 @@ export function SurfOMeter({ rating }: Props) {
         />
 
         {/* ── Zone tints — always visible, soft ── */}
-        <path d={arcCW(START, R3,  R, 0)} fill="none" stroke="rgba(255,154,139,0.22)" strokeWidth={TW} />
-        <path d={arcCW(R3,   R7,  R, 0)} fill="none" stroke="rgba(245,164,74,0.18)"  strokeWidth={TW} />
-        <path d={arcCW(R7,   END, R, 0)} fill="none" stroke="rgba(82,184,121,0.18)"  strokeWidth={TW} />
+        <path d={arcCW(START, R3,  R, 0)} fill="none" stroke="rgba(176,120,96,0.20)"  strokeWidth={TW} />
+        <path d={arcCW(R3,   R7,  R, 0)} fill="none" stroke="rgba(196,144,74,0.18)"  strokeWidth={TW} />
+        <path d={arcCW(R7,   END, R, 0)} fill="none" stroke="rgba(94,146,104,0.18)"  strokeWidth={TW} />
 
         {/* ── Active arc with glow ── */}
         {clamped > 0 && (
@@ -142,13 +142,13 @@ export function SurfOMeter({ rating }: Props) {
         <text
           x={elx.toFixed(2)} y={ely.toFixed(2)}
           textAnchor="middle" dominantBaseline="middle"
-          fill="#FF9A8B" fontSize="9" fontWeight="700"
-          fontFamily="system-ui, sans-serif" opacity="0.9"
+          fill="#B07860" fontSize="9" fontWeight="700"
+          fontFamily="system-ui, sans-serif" opacity="0.85"
         >0</text>
         <text
           x={erx.toFixed(2)} y={ery.toFixed(2)}
           textAnchor="middle" dominantBaseline="middle"
-          fill="#52B879" fontSize="9" fontWeight="700"
+          fill="#5E9268" fontSize="9" fontWeight="700"
           fontFamily="system-ui, sans-serif" opacity="0.9"
         >10</text>
 

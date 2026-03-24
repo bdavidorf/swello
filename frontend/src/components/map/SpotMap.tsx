@@ -22,28 +22,26 @@ const SPOT_COORDS: Record<string, [number, number]> = {
 
 // ── Custom SVG marker ─────────────────────────────────────────────────────────
 function ratingColor(r: number) {
-  return r >= 7 ? '#56A0A4' : r >= 5 ? '#52B879' : r >= 3 ? '#F5A44A' : '#91AFAA'
+  return r >= 7 ? '#4E7A7C' : r >= 5 ? '#5E9268' : r >= 3 ? '#C4904A' : '#A8A09A'
 }
 
 function createMarker(rating: number, selected: boolean) {
   const color = ratingColor(rating)
   const size  = selected ? 46 : 36
-  const bg    = selected ? color : '#071428'
-  const tc    = selected ? '#030b17' : color
-  const glow  = selected ? `0 0 16px ${color}99` : `0 0 6px ${color}55`
+  const glow  = selected ? `0 0 14px ${color}88` : `0 0 4px ${color}44`
 
   return L.divIcon({
     className: '',
     html: `<div style="
       width:${size}px;height:${size}px;
-      background:${selected ? color : 'rgba(255,255,255,0.85)'};
+      background:${selected ? color : 'rgba(237,231,223,0.90)'};
       border:2px solid ${color};
       border-radius:50%;
       display:flex;align-items:center;justify-content:center;
       font-weight:900;font-size:${selected ? 15 : 12}px;
-      color:${selected ? '#FDFBF7' : color};
+      color:${selected ? '#F5EEE6' : color};
       font-family:Inter,system-ui,sans-serif;
-      box-shadow:${glow},0 2px 8px rgba(0,0,0,0.12);
+      box-shadow:${glow},0 2px 8px rgba(50,38,28,0.15);
       cursor:pointer;
       backdrop-filter:blur(6px);
       transition:all .2s;
@@ -135,27 +133,27 @@ export function SpotMap({ conditions }: Props) {
                 offset={[0, -4]}
               >
                 <div style={{
-                  background: 'rgba(255,255,255,0.88)',
+                  background: 'rgba(237,231,223,0.92)',
                   backdropFilter: 'blur(14px)',
                   WebkitBackdropFilter: 'blur(14px)',
-                  border: `1px solid rgba(255,255,255,0.9)`,
+                  border: '1px solid rgba(255,248,240,0.80)',
                   borderRadius: 16,
                   padding: '10px 14px',
                   minWidth: 130,
                   fontFamily: 'Inter, system-ui, sans-serif',
-                  boxShadow: '0 8px 24px rgba(100,160,150,0.14)',
+                  boxShadow: '0 8px 24px rgba(50,38,28,0.12)',
                 }}>
-                  <p style={{ color: '#1C3535', fontWeight: 700, fontSize: 13, margin: '0 0 4px' }}>{name}</p>
+                  <p style={{ color: '#12100C', fontWeight: 700, fontSize: 13, margin: '0 0 4px' }}>{name}</p>
                   <p style={{ color, fontWeight: 900, fontSize: 15, margin: '0 0 2px' }}>{wave}</p>
-                  <p style={{ color: '#5E8A86', fontSize: 11, margin: 0 }}>Rating {rating}/10</p>
+                  <p style={{ color: '#5E5650', fontSize: 11, margin: 0 }}>Rating {rating}/10</p>
                   <button
                     onClick={() => { setSelectedSpot(spotId); setMobileTab('waves') }}
                     style={{
                       marginTop: 8, width: '100%',
-                      background: `linear-gradient(135deg, ${color}dd, ${color})`,
-                      color: '#FDFBF7', border: 'none', borderRadius: 10,
+                      background: `linear-gradient(135deg, ${color}cc, ${color})`,
+                      color: '#F5EEE6', border: 'none', borderRadius: 10,
                       padding: '6px 0', fontWeight: 700, fontSize: 12, cursor: 'pointer',
-                      boxShadow: `0 2px 8px ${color}55`,
+                      boxShadow: `0 2px 8px ${color}44`,
                     }}
                   >
                     View Conditions →
@@ -170,19 +168,19 @@ export function SpotMap({ conditions }: Props) {
       {/* Legend */}
       <div style={{
         position: 'absolute', bottom: 16, left: 16, zIndex: 1000,
-        background: 'rgba(255,255,255,0.82)',
+        background: 'rgba(237,231,223,0.88)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
-        border: '1px solid rgba(255,255,255,0.9)',
+        border: '1px solid rgba(255,248,240,0.75)',
         borderRadius: 14, padding: '8px 12px',
         fontFamily: 'Inter, system-ui, sans-serif',
-        boxShadow: '0 4px 16px rgba(100,160,150,0.12)',
+        boxShadow: '0 4px 16px rgba(50,38,28,0.10)',
       }}>
-        <p style={{ color: '#5E8A86', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 6px' }}>Rating</p>
-        {[['7–10', '#56A0A4'], ['5–6', '#52B879'], ['3–4', '#F5A44A'], ['0–2', '#91AFAA']].map(([label, color]) => (
+        <p style={{ color: '#5E5650', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 6px' }}>Rating</p>
+        {[['7–10', '#4E7A7C'], ['5–6', '#5E9268'], ['3–4', '#C4904A'], ['0–2', '#A8A09A']].map(([label, color]) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
             <div style={{ width: 10, height: 10, borderRadius: '50%', background: color }} />
-            <span style={{ color: '#2E5454', fontSize: 11 }}>{label}</span>
+            <span style={{ color: '#3C3630', fontSize: 11 }}>{label}</span>
           </div>
         ))}
       </div>

@@ -5,59 +5,58 @@ export default {
   theme: {
     extend: {
       colors: {
-        // ── Inverted ocean scale: 950 = lightest (sand bg), 50 = darkest (text) ──
-        // All existing ocean-* class names work unchanged — they just flip to light
+        // ── Warm stone scale — 950=lightest card tone, 50=deepest text ──
         ocean: {
-          950: '#FDFBF7',  // sand white — page & component backgrounds
-          900: '#F0F6F2',  // pale seafoam — card interiors
-          800: '#E2EEEB',  // soft seafoam — input backgrounds, subtle fills
-          700: '#C0D5CC',  // seafoam border — dividers
-          600: '#91AFAA',  // muted sea — subtle UI elements
-          500: '#5E8A86',  // mid teal — placeholder text, icons
-          400: '#4A7A7A',  // sea glass — secondary text, muted labels
-          200: '#2E5454',  // deep teal — primary body text
-          50:  '#1C3535',  // deep slate — headings, strong text
+          950: '#EDE7DF',  // warm linen — light fills, subtle highlights
+          900: '#DDD6CC',  // warm stone — card/component backgrounds
+          800: '#CAC3B8',  // medium — input fills, secondary areas
+          700: '#A8A09A',  // warm border / dividers
+          600: '#807870',  // muted icons, placeholder text
+          500: '#5E5650',  // secondary text
+          400: '#3C3630',  // readable muted text
+          200: '#221C18',  // body text (warm near-black)
+          50:  '#12100C',  // headings (almost black)
         },
-        // ── Wave: soft sea glass teal replaces electric cyan ──
+        // ── Muted dusty teal — much less saturated than before ──
         wave: {
-          300: '#C8ECEE',  // pale sea glass
-          400: '#A8DADC',  // sea glass teal — primary accent
-          500: '#78BEC2',  // deeper sea glass
-          600: '#56A0A4',  // dark sea glass
+          300: '#8ABCBE',
+          400: '#6A9A9C',  // primary teal accent (desaturated)
+          500: '#4E7A7C',
+          600: '#366062',
         },
-        // ── Coral: warm accent for energy/highlights ──
+        // ── Muted terracotta / dusty coral ──
         coral: {
-          200: '#FFDAD4',
-          300: '#FFB8AC',
-          400: '#FF9A8B',  // primary coral accent
-          500: '#F07060',
-          600: '#D85040',
+          200: '#D8B8A8',
+          300: '#C49880',
+          400: '#B07860',  // primary warm accent (muted terracotta)
+          500: '#8E5E48',
+          600: '#6E4434',
         },
-        // ── Sand: warm neutrals ──
+        // ── Sandy warm tones ──
         sand: {
-          50:  '#FDFBF7',
-          100: '#F7F0E2',
-          200: '#EDD9BB',
-          300: '#D9B888',
-          400: '#C49A60',
-          500: '#A87840',
+          50:  '#F5EEE6',
+          100: '#EDE4D8',
+          200: '#D8CCBC',
+          300: '#C0AE98',
+          400: '#A89078',
+          500: '#8A7058',
         },
-        // ── Surf condition colors (softened for light theme) ──
+        // ── Surf conditions (muted to match palette) ──
         surf: {
-          flat:     '#9CA8A4',
-          small:    '#A8C8DC',
-          medium:   '#78BEC2',
-          solid:    '#68B880',
-          overhead: '#F5C060',
-          xxl:      '#FF9A8B',
+          flat:     '#8A8480',
+          small:    '#7A9CB0',
+          medium:   '#5E8A8C',
+          solid:    '#5E9268',
+          overhead: '#C4904A',
+          xxl:      '#B07860',
         },
-        // ── Crowd level colors ──
+        // ── Crowd ──
         crowd: {
-          empty:    '#68B880',
-          light:    '#90C855',
-          moderate: '#F5B040',
-          crowded:  '#F08060',
-          packed:   '#C07898',
+          empty:    '#5E9268',
+          light:    '#7A9C42',
+          moderate: '#C4904A',
+          crowded:  '#C07050',
+          packed:   '#9A6880',
         },
       },
       fontFamily: {
@@ -65,20 +64,18 @@ export default {
         mono:    ['JetBrains Mono', 'Menlo', 'monospace'],
       },
       backgroundImage: {
-        'page-bg':     'radial-gradient(ellipse at 15% 0%, rgba(168,218,220,0.22) 0%, transparent 55%), radial-gradient(ellipse at 85% 100%, rgba(255,209,148,0.18) 0%, transparent 55%)',
-        'mint-blue':   'linear-gradient(135deg, #B8F0D4 0%, #A9C7E8 100%)',
-        'sunset-sky':  'linear-gradient(90deg, #FFD194 0%, #A9C7E8 100%)',
-        'glass':       'linear-gradient(145deg, rgba(255,255,255,0.82) 0%, rgba(240,250,248,0.72) 100%)',
-        'coral-warm':  'linear-gradient(135deg, #FFB8AC 0%, #FF9A8B 100%)',
+        'mint-blue':  'linear-gradient(135deg, #7ABCA0 0%, #7AAEC8 100%)',
+        'glass':      'linear-gradient(145deg, rgba(237,231,223,0.80) 0%, rgba(221,214,204,0.75) 100%)',
+        'warm-glow':  'radial-gradient(ellipse at center, rgba(176,120,96,0.12) 0%, transparent 70%)',
       },
       boxShadow: {
-        'glass':      '0 8px 32px rgba(100,160,150,0.10), 0 2px 8px rgba(100,160,150,0.07), inset 0 1px 0 rgba(255,255,255,0.85)',
-        'glass-lg':   '0 16px 48px rgba(100,160,150,0.14), 0 4px 16px rgba(100,160,150,0.09), inset 0 1px 0 rgba(255,255,255,0.9)',
-        'coral-glow': '0 4px 20px rgba(255,154,139,0.40)',
-        'sea-glow':   '0 4px 20px rgba(168,218,220,0.45)',
-        'card':       '0 8px 32px rgba(100,160,150,0.10), 0 2px 8px rgba(100,160,150,0.07)',
-        'wave':       '0 4px 20px rgba(168,218,220,0.35)',
-        'wave-lg':    '0 8px 32px rgba(168,218,220,0.40)',
+        'glass':      '0 8px 32px rgba(50,38,28,0.10), 0 2px 8px rgba(50,38,28,0.07), inset 0 1px 0 rgba(255,248,240,0.70)',
+        'glass-lg':   '0 16px 48px rgba(50,38,28,0.12), 0 4px 16px rgba(50,38,28,0.08), inset 0 1px 0 rgba(255,248,240,0.80)',
+        'teal-glow':  '0 4px 20px rgba(106,154,156,0.35)',
+        'coral-glow': '0 4px 20px rgba(176,120,96,0.35)',
+        'card':       '0 8px 32px rgba(50,38,28,0.10), 0 2px 8px rgba(50,38,28,0.07)',
+        'wave':       '0 4px 20px rgba(106,154,156,0.30)',
+        'wave-lg':    '0 8px 32px rgba(106,154,156,0.35)',
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -88,17 +85,11 @@ export default {
         'grain':      'grain 8s steps(10) infinite',
       },
       keyframes: {
-        waveIn: {
-          '0%':   { opacity: '0', transform: 'translateY(20px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
-        fadeUp: {
-          '0%':   { opacity: '0', transform: 'translateY(12px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
+        waveIn:  { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+        fadeUp:  { '0%': { opacity: '0', transform: 'translateY(12px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
         sunFlare: {
-          '0%, 100%': { boxShadow: '0 4px 20px rgba(169,199,232,0.45), 0 2px 8px rgba(184,240,212,0.35)' },
-          '50%':      { boxShadow: '0 6px 32px rgba(169,199,232,0.65), 0 4px 16px rgba(255,209,148,0.40)' },
+          '0%, 100%': { boxShadow: '0 4px 20px rgba(106,154,156,0.35), 0 2px 8px rgba(122,174,200,0.25)' },
+          '50%':      { boxShadow: '0 6px 30px rgba(106,154,156,0.55), 0 4px 14px rgba(196,144,74,0.30)' },
         },
         grain: {
           '0%, 100%': { transform: 'translate(0, 0)' },
