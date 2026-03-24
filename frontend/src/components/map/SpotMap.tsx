@@ -20,7 +20,7 @@ const SPOT_COORDS: Record<string, [number, number]> = {
 }
 
 function ratingColor(r: number) {
-  return r >= 7 ? '#88C8E8' : r >= 5 ? '#5AAAC8' : r >= 3 ? '#78B8D8' : '#3A5A78'
+  return r >= 7 ? '#88C8E8' : r >= 5 ? '#5AAAC8' : r >= 3 ? '#78B8D8' : '#6AAED0'
 }
 
 function createMarker(rating: number, selected: boolean) {
@@ -126,7 +126,7 @@ export function SpotMap({ conditions }: Props) {
                 }}>
                   <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#D8EEF8', fontSize: 14, margin: '0 0 4px', letterSpacing: '0.06em' }}>{name}</p>
                   <p style={{ fontFamily: "'Bangers', Impact, system-ui", color, fontSize: 20, margin: '0 0 2px', letterSpacing: '0.04em' }}>{wave}</p>
-                  <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#3A5A78', fontSize: 10, margin: 0, letterSpacing: '0.10em' }}>
+                  <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#6AAED0', fontSize: 10, margin: 0, letterSpacing: '0.10em' }}>
                     RATING {rating}/10
                   </p>
                   <button
@@ -161,12 +161,12 @@ export function SpotMap({ conditions }: Props) {
         borderRadius: 16, padding: '10px 14px',
         boxShadow: '0 4px 20px rgba(0,0,0,0.45)',
       }}>
-        <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#3A5A78', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', margin: '0 0 6px' }}>RATING</p>
-        {[['7–10', '#88C8E8', 'FIRING'], ['5–6', '#5AAAC8', 'GOOD'], ['3–4', '#78B8D8', 'FAIR'], ['0–2', '#3A5A78', 'FLAT']].map(([range, color, label]) => (
+        <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#6AAED0', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', margin: '0 0 6px' }}>RATING</p>
+        {[['7–10', '#88C8E8', 'FIRING'], ['5–6', '#5AAAC8', 'GOOD'], ['3–4', '#78B8D8', 'FAIR'], ['0–2', '#6AAED0', 'FLAT']].map(([range, color, label]) => (
           <div key={range} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 4 }}>
             <div style={{ width: 9, height: 9, borderRadius: '50%', background: color, flexShrink: 0 }} />
             <span style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#6A90AA', fontSize: 10, letterSpacing: '0.04em' }}>{range}</span>
-            <span style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#3A5A78', fontSize: 9, letterSpacing: '0.08em' }}>{label}</span>
+            <span style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#6AAED0', fontSize: 9, letterSpacing: '0.08em' }}>{label}</span>
           </div>
         ))}
       </div>

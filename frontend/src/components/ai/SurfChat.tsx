@@ -102,7 +102,7 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
           style={{
             width: 28, height: 28, borderRadius: '50%',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#3A5A78', border: '1px solid rgba(26,48,72,0.70)',
+            color: '#6AAED0', border: '1px solid rgba(26,48,72,0.70)',
             background: 'rgba(13,28,42,0.65)',
             cursor: 'pointer', transition: 'all 0.15s',
           }}

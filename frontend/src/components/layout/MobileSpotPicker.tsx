@@ -5,7 +5,7 @@ import type { SurfCondition } from '../../types/surf'
 interface Props { conditions: SurfCondition[] | undefined }
 
 function ratingColor(r: number) {
-  return r >= 7 ? '#88C8E8' : r >= 5 ? '#5AAAC8' : r >= 3 ? '#78B8D8' : '#3A5A78'
+  return r >= 7 ? '#88C8E8' : r >= 5 ? '#5AAAC8' : r >= 3 ? '#78B8D8' : '#6AAED0'
 }
 
 export function MobileSpotPicker({ conditions }: Props) {
@@ -49,7 +49,7 @@ export function MobileSpotPicker({ conditions }: Props) {
               <span style={{
                 fontFamily: "'Bangers', Impact, system-ui", fontWeight: 400,
                 fontSize: 11, lineHeight: 1.2, letterSpacing: '0.06em',
-                color: selected ? '#D8EEF8' : '#4A7090',
+                color: selected ? '#D8EEF8' : '#6AAED0',
               }}>
                 {c.spot_short_name}
               </span>

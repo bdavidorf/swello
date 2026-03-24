@@ -42,8 +42,9 @@ export function CrowdMeter({ score, level, confidence, peakHour }: Props) {
   const tip        = pt(needleRad, R - 6)
   const fe         = pt(needleRad)
 
-  const trackD  = `M ${CX - R} ${CY} A ${R} ${R} 0 1 0 ${CX + R} ${CY}`
-  const filledD = v > 0 ? `M ${CX - R} ${CY} A ${R} ${R} 0 0 0 ${fe.x} ${fe.y}` : null
+  // Clockwise through top (sweep=1), filled arc same direction
+  const trackD  = `M ${CX - R} ${CY} A ${R} ${R} 0 1 1 ${CX + R} ${CY}`
+  const filledD = v > 0 ? `M ${CX - R} ${CY} A ${R} ${R} 0 0 1 ${fe.x} ${fe.y}` : null
 
   // Needle color follows gradient (red left, green right)
   const color = v >= 7 ? '#40C860' : v >= 4 ? '#E8C040' : '#E04040'
@@ -121,7 +122,7 @@ export function CrowdMeter({ score, level, confidence, peakHour }: Props) {
         </svg>
 
         {confidence != null && (
-          <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: '#3A5A78' }}>
+          <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: '#6AAED0' }}>
             {Math.round(confidence * 100)}% conf.
           </p>
         )}

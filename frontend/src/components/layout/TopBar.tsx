@@ -45,7 +45,7 @@ export function TopBar() {
         <button
           onClick={() => qc.invalidateQueries()}
           style={{
-            padding: '6px 8px', borderRadius: 10, color: '#3A5A78',
+            padding: '6px 8px', borderRadius: 10, color: '#6AAED0',
             background: 'transparent', border: 'none', cursor: 'pointer',
             transition: 'color 0.2s',
           }}
@@ -63,7 +63,7 @@ export function TopBar() {
             fontSize: 11, letterSpacing: '0.14em',
             background: mobileTab === 'spots' ? 'rgba(120,184,216,0.18)' : 'rgba(26,48,72,0.60)',
             border: `1px solid ${mobileTab === 'spots' ? 'rgba(120,184,216,0.40)' : 'rgba(168,200,220,0.10)'}`,
-            color: mobileTab === 'spots' ? '#78B8D8' : '#4A7090',
+            color: mobileTab === 'spots' ? '#78B8D8' : '#6AAED0',
             cursor: 'pointer', transition: 'all 0.2s',
           }}
         >
@@ -79,7 +79,7 @@ export function TopBar() {
             fontSize: 11, letterSpacing: '0.14em',
             background: preferencesOpen ? 'rgba(120,184,216,0.18)' : 'rgba(26,48,72,0.60)',
             border: `1px solid ${preferencesOpen ? 'rgba(120,184,216,0.40)' : 'rgba(168,200,220,0.10)'}`,
-            color: preferencesOpen ? '#78B8D8' : '#4A7090',
+            color: preferencesOpen ? '#78B8D8' : '#6AAED0',
             cursor: 'pointer', transition: 'all 0.2s',
           }}
         >
@@ -89,7 +89,7 @@ export function TopBar() {
         <button
           onClick={() => setMobileTab('ai')}
           className="md:hidden"
-          style={{ padding: '6px 8px', borderRadius: 10, color: '#3A5A78', background: 'transparent', border: 'none', cursor: 'pointer' }}
+          style={{ padding: '6px 8px', borderRadius: 10, color: '#6AAED0', background: 'transparent', border: 'none', cursor: 'pointer' }}
         >
           <Settings size={16} />
         </button>

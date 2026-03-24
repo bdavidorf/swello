@@ -33,7 +33,7 @@ export function MobileNav() {
               key={id}
               onClick={() => setMobileTab(id)}
               className="flex flex-col items-center justify-center gap-1 py-3 transition-colors"
-              style={{ color: active ? '#78B8D8' : '#3A5A78', border: 'none', background: 'transparent', cursor: 'pointer' }}
+              style={{ color: active ? '#78B8D8' : '#6AAED0', border: 'none', background: 'transparent', cursor: 'pointer' }}
             >
               <Icon size={20} />
               <span style={{
@@ -41,7 +41,7 @@ export function MobileNav() {
                 fontWeight: 400,
                 fontSize: 9,
                 letterSpacing: '0.16em',
-                color: active ? '#78B8D8' : '#3A5A78',
+                color: active ? '#78B8D8' : '#6AAED0',
               }}>
                 {label}
               </span>
