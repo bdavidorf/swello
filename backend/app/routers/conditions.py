@@ -10,18 +10,33 @@ from app.services.nws import fetch_hourly_forecast
 from app.services.wave_power import build_wave_power, wind_quality_for_spot
 from app.services.wave_interpreter import interpret_breaking_conditions
 from app.services.sun_times import get_sun_times
+from app.services.coops import fetch_tide_predictions
 from app.ml.crowd_model import predict_crowd
 
 router = APIRouter(prefix="/conditions", tags=["conditions"])
 
 
 async def _build_condition(spot: dict) -> SurfCondition | None:
-    buoy = await fetch_buoy_with_fallback(spot["buoy_primary"], spot["buoy_fallback"])
-    if not buoy:
+    buoy, nws_raw, tide_data = await asyncio.gather(
+        fetch_buoy_with_fallback(spot["buoy_primary"], spot["buoy_fallback"]),
+        fetch_hourly_forecast(spot["lat"], spot["lon"]),
+        fetch_tide_predictions(spot["tide_station"], days=2),
+        return_exceptions=True,
+    )
+    if buoy is None or isinstance(buoy, BaseException):
         return None
+    nws_raw = nws_raw if not isinstance(nws_raw, BaseException) else []
+    tide_data = tide_data if not isinstance(tide_data, BaseException) else None
+
+    # Next upcoming tide event
+    next_tide = None
+    if tide_data and tide_data.events:
+        future = [e for e in tide_data.events if e.hours_away is not None and e.hours_away > 0]
+        if future:
+            next_tide = future[0]
 
     # NWS wind (use spot lat/lon so each spot gets its own local wind)
-    nws = await fetch_hourly_forecast(spot["lat"], spot["lon"])
+    nws = nws_raw
     current_nws = nws[0] if nws else None
 
     wind = None
@@ -90,6 +105,7 @@ async def _build_condition(spot: dict) -> SurfCondition | None:
         wind=wind,
         crowd=crowd,
         sun=sun_times,
+        next_tide=next_tide,
     )
 
 
