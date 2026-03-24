@@ -152,7 +152,7 @@ export function ConditionsCard({ condition }: Props) {
 
         {/* Period */}
         <BentoTile label="PERIOD" accent={buoy.dpd_s != null && buoy.dpd_s >= 12 ? '#88C8E8' : undefined}>
-          <span className="font-display" style={{ fontSize: 36, color: '#D8EEF8', lineHeight: 1, letterSpacing: '0.04em' }}>
+          <span style={{ fontFamily: "'Inter', system-ui", fontWeight: 800, fontSize: 36, color: '#D8EEF8', lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
             {buoy.dpd_s != null ? buoy.dpd_s.toFixed(0) : '--'}
           </span>
           <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 11, color: '#3A5A78', letterSpacing: '0.10em' }}>
@@ -173,7 +173,7 @@ export function ConditionsCard({ condition }: Props) {
         >
           <p className="stat-label">WIND</p>
           {wind && <CompassRose deg={wind.direction_deg} size={52} color={wColor} />}
-          <span className="font-display" style={{ fontSize: 30, color: wColor, lineHeight: 1, letterSpacing: '0.04em' }}>
+          <span style={{ fontFamily: "'Inter', system-ui", fontWeight: 800, fontSize: 30, color: wColor, lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
             {wind ? `${wind.speed_mph.toFixed(0)}` : '--'}
           </span>
           <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 10, color: '#3A5A78', letterSpacing: '0.10em' }}>
@@ -199,7 +199,7 @@ export function ConditionsCard({ condition }: Props) {
 
         {/* Water temp */}
         <BentoTile label="WATER">
-          <span className="font-display" style={{ fontSize: 32, color: '#5AAAC8', lineHeight: 1, letterSpacing: '0.04em' }}>
+          <span style={{ fontFamily: "'Inter', system-ui", fontWeight: 800, fontSize: 32, color: '#5AAAC8', lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
             {buoy.wtmp_f != null ? `${buoy.wtmp_f.toFixed(0)}°` : '--'}
           </span>
           <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 11, color: '#3A5A78', letterSpacing: '0.10em' }}>
@@ -221,18 +221,9 @@ export function ConditionsCard({ condition }: Props) {
 
         {/* Crowd badge row — bottom right */}
         <BentoTile label="CROWD">
-          {crowd ? (
-            <>
-              <span className="font-display" style={{ fontSize: 26, color: '#D8EEF8', lineHeight: 1, letterSpacing: '0.04em' }}>
-                {crowd.level.toUpperCase()}
-              </span>
-              <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 10, color: '#3A5A78', letterSpacing: '0.08em' }}>
-                {crowd.score.toFixed(0)}/100
-              </span>
-            </>
-          ) : (
-            <span className="font-display" style={{ fontSize: 26, color: '#3A5A78', letterSpacing: '0.04em' }}>N/A</span>
-          )}
+          <span className="font-display" style={{ fontSize: 22, color: crowd ? '#D8EEF8' : '#3A5A78', lineHeight: 1, letterSpacing: '0.04em' }}>
+            {crowd ? crowd.level.toUpperCase() : 'N/A'}
+          </span>
         </BentoTile>
 
       </div>

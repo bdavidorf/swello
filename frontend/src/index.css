@@ -191,11 +191,12 @@
 .leaflet-popup-content { margin: 0 !important; }
 .leaflet-container { font-family: 'Inter', system-ui, sans-serif; }
 
-/* ── Wave height — Bangers display ── */
+/* ── Wave height — Inter for clear numeral distinction ── */
 .wave-height-display {
-  font-family: 'Bangers', Impact, system-ui, sans-serif;
-  letter-spacing: 0.04em;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 800;
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
 /* ── Keyframes ── */
