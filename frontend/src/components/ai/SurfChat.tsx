@@ -133,7 +133,6 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
           </div>
           <div>
             <p className="font-bold text-sm text-ocean-50 leading-none">Ask Swello 🤙</p>
-            <p className="text-[10px] text-wave-400 mt-0.5">Powered by Gemini</p>
           </div>
         </div>
         <button
