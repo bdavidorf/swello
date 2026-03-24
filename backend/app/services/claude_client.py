@@ -147,15 +147,15 @@ Be conversational, knowledgeable, and use surf lingo naturally. Give specific sp
 # ── Groq / Claude fallbacks ───────────────────────────────────────────────────
 
 async def _call_groq(prompt: str) -> dict:
-    from groq import AsyncGroq
-    client = AsyncGroq(api_key=_groq_key())
-    resp = await client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=2048,
-        temperature=0.3,
-    )
-    return _clean_json(resp.choices[0].message.content)
+    import httpx
+    async with httpx.AsyncClient(timeout=30) as client:
+        resp = await client.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers={"Authorization": f"Bearer {_groq_key()}", "Content-Type": "application/json"},
+            json={"model": "llama-3.3-70b-versatile", "messages": [{"role": "user", "content": prompt}], "max_tokens": 2048, "temperature": 0.3},
+        )
+        resp.raise_for_status()
+        return _clean_json(resp.json()["choices"][0]["message"]["content"])
 
 
 async def _call_claude(prompt: str) -> dict:
