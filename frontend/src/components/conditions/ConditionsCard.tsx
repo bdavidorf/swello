@@ -119,7 +119,7 @@ export function ConditionsCard({ condition }: Props) {
           <div>
             <div className="flex items-end gap-2 leading-none">
               <span className="wave-height-display"
-                style={{ fontSize: 'clamp(5rem, 16vw, 8rem)', lineHeight: 0.85, color: '#EAF6FF' }}>
+                style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)', lineHeight: 0.85, color: '#EAF6FF' }}>
                 {heroNum}
               </span>
               <span className="font-display mb-1.5" style={{ fontSize: 30, color: '#7AAED0', letterSpacing: '0.06em' }}>
@@ -218,40 +218,25 @@ export function ConditionsCard({ condition }: Props) {
           </span>
         </BentoTile>
 
-        {/* Tide — spans 2 rows to match wind */}
-        <motion.div
-          className="bento-tile"
-          style={{ gridRow: 'span 2', padding: '14px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6 }}
-          whileHover={{ y: -3, scale: 1.02 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-        >
-          <p className="stat-label">TIDE</p>
+        {/* Tide */}
+        <BentoTile label="TIDE" accent={next_tide ? (next_tide.event_type === 'high' ? '#88C8E8' : '#5AAAC8') : undefined}>
           {next_tide ? (
             <>
-              <span style={{ fontFamily: "'Inter', system-ui", fontWeight: 800, fontSize: 42, color: next_tide.event_type === 'high' ? '#88C8E8' : '#5AAAC8', lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
-                {next_tide.height_ft.toFixed(1)}
-              </span>
-              <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 14, color: '#6AAED0', letterSpacing: '0.10em' }}>FT</span>
-              <div style={{
-                background: next_tide.event_type === 'high' ? 'rgba(136,200,232,0.15)' : 'rgba(90,170,200,0.15)',
-                border: `1px solid ${next_tide.event_type === 'high' ? 'rgba(136,200,232,0.40)' : 'rgba(90,170,200,0.40)'}`,
-                borderRadius: 20, padding: '3px 10px',
-                fontFamily: "'Bangers', Impact, system-ui", fontSize: 13,
-                color: next_tide.event_type === 'high' ? '#88C8E8' : '#5AAAC8',
-                letterSpacing: '0.12em', textTransform: 'uppercase',
-              }}>
-                {next_tide.event_type === 'high' ? '▲ HIGH' : '▼ LOW'}
-              </div>
-              {next_tide.hours_away != null && (
-                <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 12, color: '#6AAED0', letterSpacing: '0.08em' }}>
-                  in {next_tide.hours_away.toFixed(1)}h
+              <div className="flex items-end gap-1 leading-none">
+                <span style={{ fontFamily: "'Inter', system-ui", fontWeight: 800, fontSize: 42, color: next_tide.event_type === 'high' ? '#88C8E8' : '#5AAAC8', lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
+                  {next_tide.height_ft.toFixed(1)}
                 </span>
-              )}
+                <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 14, color: '#6AAED0', letterSpacing: '0.10em', marginBottom: 4 }}>FT</span>
+              </div>
+              <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 13, color: next_tide.event_type === 'high' ? '#88C8E8' : '#5AAAC8', letterSpacing: '0.10em' }}>
+                {next_tide.event_type === 'high' ? '▲ HIGH' : '▼ LOW'}
+                {next_tide.hours_away != null ? ` · ${next_tide.hours_away.toFixed(1)}h` : ''}
+              </span>
             </>
           ) : (
             <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 28, color: '#6AAED0' }}>--</span>
           )}
-        </motion.div>
+        </BentoTile>
 
       </div>
 
