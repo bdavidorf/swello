@@ -161,6 +161,75 @@ async def _call_claude(prompt: str) -> dict:
     return _clean_json(message.content[0].text)
 
 
+# ── Spot analysis ────────────────────────────────────────────────────────────
+
+def _build_analysis_prompt(c: dict) -> str:
+    buoy     = c.get("buoy", {})
+    breaking = c.get("breaking") or {}
+    wind     = c.get("wind") or {}
+    crowd    = c.get("crowd") or {}
+    tide     = c.get("next_tide") or {}
+    sun      = c.get("sun") or {}
+    wp       = c.get("wave_power") or {}
+
+    fmtFt = lambda n: f"{n:.1f}" if n and n < 4 else (f"{n:.0f}" if n else "--")
+    face_lo = breaking.get("face_height_min_ft", 0)
+    face_hi = breaking.get("face_height_max_ft", 0)
+    face_str = fmtFt(face_lo) if round(face_lo, 1) == round(face_hi, 1) else f"{fmtFt(face_lo)}–{fmtFt(face_hi)}"
+
+    tide_info = "--"
+    if tide:
+        evt  = tide.get("event_type", "")
+        hrs  = tide.get("hours_away")
+        ht   = tide.get("height_ft")
+        hrs_str = f"in {hrs:.1f}h" if hrs is not None else ""
+        tide_info = f"{evt} tide {hrs_str} at {ht:.1f}ft" if ht else "--"
+
+    sun_info = []
+    if sun.get("is_dawn_patrol_window"):  sun_info.append("Dawn patrol window NOW")
+    if sun.get("is_golden_hour_morning"): sun_info.append("Golden hour lighting")
+    if not sun.get("is_daytime"):         sun_info.append("Dark / after sunset")
+    sun_str = " · ".join(sun_info) if sun_info else f"Sunrise {sun.get('sunrise_display','--')}, Sunset {sun.get('sunset_display','--')}"
+
+    peak_crowd = f", peak hour {crowd.get('peak_hour_today')}:00" if crowd.get("peak_hour_today") else ""
+
+    return f"""You are an expert LA surf forecaster writing a real-time session briefing for a surfer checking the app right now. Be specific, honest, and use natural surf lingo. Write 4-5 punchy sentences — no fluff.
+
+SPOT: {c.get('spot_name')}
+Break: {c.get('_break_type','--')} | Difficulty: {c.get('_difficulty','--')} | Faces: {c.get('_facing','--')}
+
+LIVE CONDITIONS:
+- Wave face: {face_str}ft ({breaking.get('face_height_label','--')})
+- Buoy: {buoy.get('wvht_ft') and f"{buoy['wvht_ft']:.1f}" or '--'}ft Hs open-ocean @ {buoy.get('dpd_s') and f"{buoy['dpd_s']:.0f}" or '--'}s ({breaking.get('period_quality','--')} period, {breaking.get('swell_type_short','--')})
+- Swell direction: {buoy.get('mwd_label','--')} ({buoy.get('mwd_deg') and f"{buoy['mwd_deg']:.0f}°" or '--'}) — {breaking.get('direction_rating','--')}, {breaking.get('direction_pct') and f"{breaking['direction_pct']*100:.0f}" or '--'}% reaching shore
+- Wind: {wind.get('speed_mph') and f"{wind['speed_mph']:.0f}" or '--'} mph {wind.get('direction_label','--')} — {wind.get('quality_label','--')}
+- Water temp: {buoy.get('wtmp_f') and f"{buoy['wtmp_f']:.0f}°F" or '--'}
+- Tide: {tide_info}
+- Crowd: {crowd.get('level','--')} ({crowd.get('score') and f"{crowd['score']:.0f}" or '--'}/100{peak_crowd})
+- Wave power: {wp.get('kw_per_meter') and f"{wp['kw_per_meter']:.1f}" or '--'} kW/m ({wp.get('classification','--')})
+- Overall surf rating: {wp.get('surf_rating','--')}/10
+- Sun: {sun_str}
+
+Write the session briefing now. Cover: wave quality and shape, how the wind is affecting it, tide situation, crowd reality check, and one clear verdict — go now, wait, or skip. Do NOT use bullet points."""
+
+
+async def get_spot_analysis(condition: dict) -> str:
+    """Generate a Gemini surf session briefing for a spot using all live data."""
+    prompt = _build_analysis_prompt(condition)
+
+    if settings.gemini_api_key:
+        try:
+            model = _get_gemini_model(json_mode=False)
+            response = await model.generate_content_async(prompt)
+            return response.text.strip()
+        except Exception as e:
+            pass  # fall through to fallback
+
+    # Fallback: use rule-based interpretation already in the data
+    breaking = condition.get("breaking") or {}
+    return breaking.get("interpretation") or "Analysis unavailable — no AI key configured."
+
+
 # ── Public interface ──────────────────────────────────────────────────────────
 
 async def get_ai_ranking(

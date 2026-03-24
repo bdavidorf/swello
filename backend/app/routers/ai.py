@@ -8,7 +8,7 @@ from app.services.nws import fetch_hourly_forecast
 from app.services.ndbc import fetch_buoy_with_fallback
 from app.services.wave_power import wind_quality_for_spot, CARDINAL_TO_DEG
 from app.ml.crowd_model import predict_crowd
-from app.services.claude_client import get_ai_ranking, get_chat_reply
+from app.services.claude_client import get_ai_ranking, get_chat_reply, get_spot_analysis
 import asyncio
 
 router = APIRouter(prefix="/ai", tags=["ai"])
@@ -62,28 +62,51 @@ async def _build_spot_forecast_summary(spot: dict, hours: int = 48) -> dict:
     }
 
 
-async def _build_conditions_context() -> str:
-    """Brief plain-text conditions summary for chat system prompt."""
+async def _build_conditions_context(spot_id: str = "malibu") -> str:
+    """Rich conditions summary for the chat system prompt — uses all live data."""
     spots = get_spots()
     lines = [f"LA surf conditions as of {datetime.now().strftime('%A %B %d, %I:%M %p')} PT:\n"]
 
-    # Fetch buoy once (all LA spots share it)
+    # Fetch buoy data (shared across LA spots)
     try:
         buoy = await fetch_buoy_with_fallback("46221", "46069")
         if buoy.wvht_ft:
             lines.append(
-                f"Buoy 46221 (Santa Monica Bay): {buoy.wvht_ft:.1f}ft @ "
-                f"{(buoy.dpd_s or 0):.0f}s, {buoy.mwd_label or '--'} swell\n"
+                f"Buoy 46221 (Santa Monica Bay): {buoy.wvht_ft:.1f}ft Hs @ "
+                f"{(buoy.dpd_s or 0):.0f}s, {buoy.mwd_label or '--'} swell, "
+                f"wind {(buoy.wspd_mph or 0):.0f}mph {buoy.wdir_label or '--'}, "
+                f"water {(buoy.wtmp_f or 0):.0f}°F\n"
             )
     except Exception:
         pass
 
-    lines.append("Spots:")
+    # Fetch wind + crowd for each spot
+    lines.append("All spots:")
     for spot in spots:
-        lines.append(
-            f"- {spot['name']}: {spot['break_type']} break, {spot['difficulty']} difficulty, "
-            f"faces {spot['facing_dir']}"
-        )
+        try:
+            nws_data = await fetch_hourly_forecast(spot["lat"], spot["lon"])
+            first_wind = nws_data[0] if nws_data else None
+            wind_str = ""
+            if first_wind:
+                wq = wind_quality_for_spot(
+                    first_wind.wind_dir, first_wind.wind_speed_mph,
+                    spot["offshore_wind_dir_min"], spot["offshore_wind_dir_max"],
+                )
+                wind_str = f", wind {first_wind.wind_speed_mph:.0f}mph {wq.quality_label}"
+
+            crowd = predict_crowd(
+                spot_id=spot["id"], wvht_m=0.8, dpd_s=10.0,
+                wind_speed_ms=0, wind_dir_deg=270, dt=datetime.now(),
+            )
+            crowd_str = f", crowd {crowd.level}"
+
+            marker = " ← currently selected" if spot["id"] == spot_id else ""
+            lines.append(
+                f"- {spot['name']}: {spot['break_type']}, {spot['difficulty']}, "
+                f"faces {spot['facing_dir']}{wind_str}{crowd_str}{marker}"
+            )
+        except Exception:
+            lines.append(f"- {spot['name']}: {spot['break_type']}, {spot['difficulty']}, faces {spot['facing_dir']}")
 
     return "\n".join(lines)
 
@@ -120,7 +143,7 @@ async def chat(request: ChatRequest):
     if not request.messages:
         raise HTTPException(400, "No messages provided")
 
-    context = await _build_conditions_context()
+    context = await _build_conditions_context(request.spot_id)
     msgs = [{"role": m.role, "content": m.content} for m in request.messages]
 
     try:
@@ -128,3 +151,31 @@ async def chat(request: ChatRequest):
         return ChatResponse(reply=reply)
     except Exception as e:
         raise HTTPException(503, f"AI unavailable: {e}")
+
+
+class SpotAnalysisRequest(BaseModel):
+    condition: dict  # full SurfCondition JSON from frontend
+    spot_meta: dict = {}  # break_type, difficulty, facing_dir
+
+class SpotAnalysisResponse(BaseModel):
+    analysis: str
+    spot_id: str
+
+
+@router.post("/spot-analysis", response_model=SpotAnalysisResponse)
+async def spot_analysis(request: SpotAnalysisRequest):
+    """Generate a Gemini-written session briefing using all live condition data."""
+    condition = request.condition
+    # Inject spot meta fields so prompt can use them
+    condition["_break_type"] = request.spot_meta.get("break_type", "--")
+    condition["_difficulty"]  = request.spot_meta.get("difficulty", "--")
+    condition["_facing"]      = request.spot_meta.get("facing_dir", "--")
+
+    try:
+        analysis = await get_spot_analysis(condition)
+        return SpotAnalysisResponse(
+            analysis=analysis,
+            spot_id=condition.get("spot_id", ""),
+        )
+    except Exception as e:
+        raise HTTPException(503, f"Analysis unavailable: {e}")

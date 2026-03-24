@@ -46,6 +46,11 @@ export async function fetchAIRanking(preferences: object, horizonHours = 48) {
   return data
 }
 
+export async function fetchSpotAnalysis(condition: object, spotMeta: object) {
+  const { data } = await api.post('/ai/spot-analysis', { condition, spot_meta: spotMeta })
+  return data as { analysis: string; spot_id: string }
+}
+
 export async function fetchAIChat(
   messages: { role: string; content: string }[],
   spotId: string,
