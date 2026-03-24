@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { Send, X, Waves } from 'lucide-react'
 import { fetchAIChat } from '../../api/client'
 import { useSpotStore } from '../../store/spotStore'
@@ -13,12 +13,61 @@ const GREETING: Message = {
   content: "Hey! I'm your Swello Surf Advisor 🤙 Tell me your skill level and what you're after, and I'll find you the best spots and windows across all 11 LA breaks.",
 }
 
+const WINDOW_W = 340
+const WINDOW_H = 480
+
 function ChatWindow({ onClose }: { onClose: () => void }) {
   const { selectedSpotId } = useSpotStore()
   const [messages, setMessages] = useState<Message[]>([GREETING])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
+
+  // Drag state
+  const windowRef = useRef<HTMLDivElement>(null)
+  const dragging = useRef(false)
+  const dragOffset = useRef({ x: 0, y: 0 })
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null)
+
+  // Initial position: bottom-right (mirroring the button)
+  useEffect(() => {
+    const safeBottom = 76 + 16
+    setPos({
+      x: window.innerWidth - WINDOW_W - 16,
+      y: window.innerHeight - WINDOW_H - safeBottom,
+    })
+  }, [])
+
+  const onDragStart = useCallback((clientX: number, clientY: number) => {
+    if (!windowRef.current) return
+    dragging.current = true
+    const rect = windowRef.current.getBoundingClientRect()
+    dragOffset.current = { x: clientX - rect.left, y: clientY - rect.top }
+  }, [])
+
+  const onDragMove = useCallback((clientX: number, clientY: number) => {
+    if (!dragging.current) return
+    const x = Math.max(0, Math.min(window.innerWidth - WINDOW_W, clientX - dragOffset.current.x))
+    const y = Math.max(0, Math.min(window.innerHeight - WINDOW_H, clientY - dragOffset.current.y))
+    setPos({ x, y })
+  }, [])
+
+  const onDragEnd = useCallback(() => { dragging.current = false }, [])
+
+  useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => onDragMove(e.clientX, e.clientY)
+    const onTouchMove = (e: TouchEvent) => onDragMove(e.touches[0].clientX, e.touches[0].clientY)
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mouseup', onDragEnd)
+    window.addEventListener('touchmove', onTouchMove, { passive: true })
+    window.addEventListener('touchend', onDragEnd)
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onDragEnd)
+      window.removeEventListener('touchmove', onTouchMove)
+      window.removeEventListener('touchend', onDragEnd)
+    }
+  }, [onDragMove, onDragEnd])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -27,13 +76,11 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
   async function send() {
     const text = input.trim()
     if (!text || loading) return
-
     const userMsg: Message = { role: 'user', content: text }
     const next = [...messages, userMsg]
     setMessages(next)
     setInput('')
     setLoading(true)
-
     try {
       const { reply } = await fetchAIChat(
         next.map(m => ({ role: m.role, content: m.content })),
@@ -57,32 +104,40 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
     }
   }
 
+  if (!pos) return null
+
   return (
     <div
-      className="fixed z-50 flex flex-col overflow-hidden shadow-2xl"
+      ref={windowRef}
+      className="fixed z-50 flex flex-col overflow-hidden shadow-2xl select-none"
       style={{
-        bottom: 'calc(env(safe-area-inset-bottom) + 76px)',
-        right: 16,
-        width: 'min(360px, calc(100vw - 32px))',
-        height: 'min(500px, 60vh)',
+        left: pos.x,
+        top: pos.y,
+        width: WINDOW_W,
+        height: WINDOW_H,
         borderRadius: 20,
         background: '#071428',
         border: '1px solid rgba(18,48,85,0.8)',
       }}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-ocean-700/60 flex-shrink-0"
-           style={{ background: 'rgba(13,32,64,0.95)' }}>
+      {/* Header — drag handle */}
+      <div
+        className="flex items-center justify-between px-4 py-3 border-b border-ocean-700/60 flex-shrink-0 cursor-grab active:cursor-grabbing"
+        style={{ background: 'rgba(13,32,64,0.97)', touchAction: 'none' }}
+        onMouseDown={e => onDragStart(e.clientX, e.clientY)}
+        onTouchStart={e => onDragStart(e.touches[0].clientX, e.touches[0].clientY)}
+      >
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg bg-wave-400/20 border border-wave-400/30 flex items-center justify-center">
             <Waves size={13} className="text-wave-400" />
           </div>
           <div>
-            <p className="font-bold text-sm text-ocean-50 leading-none">Swello Surf Advisor</p>
+            <p className="font-bold text-sm text-ocean-50 leading-none">Ask Swello</p>
             <p className="text-[10px] text-wave-400 mt-0.5">Powered by Gemini</p>
           </div>
         </div>
         <button
+          onMouseDown={e => e.stopPropagation()}
           onClick={onClose}
           className="w-7 h-7 rounded-full flex items-center justify-center text-ocean-500 hover:text-ocean-200 hover:bg-ocean-700/40 transition-colors"
         >
@@ -121,8 +176,10 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
       </div>
 
       {/* Input */}
-      <div className="flex-shrink-0 border-t border-ocean-700/50 px-3 py-2.5 flex items-end gap-2"
-           style={{ background: 'rgba(7,20,40,0.95)' }}>
+      <div
+        className="flex-shrink-0 border-t border-ocean-700/50 px-3 py-2.5 flex items-end gap-2"
+        style={{ background: 'rgba(7,20,40,0.97)' }}
+      >
         <textarea
           value={input}
           onChange={e => setInput(e.target.value)}
@@ -151,20 +208,18 @@ export function SurfChatWidget() {
     <>
       {open && <ChatWindow onClose={() => setOpen(false)} />}
 
-      {/* Floating button */}
       <button
         onClick={() => setOpen(o => !o)}
         className="fixed z-50 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-lg transition-all active:scale-95"
         style={{
           bottom: 'calc(env(safe-area-inset-bottom) + 76px)',
           right: 16,
-          background: open ? '#0d2040' : '#00d4c8',
-          border: open ? '1px solid rgba(18,48,85,0.8)' : 'none',
+          background: '#00d4c8',
           display: open ? 'none' : 'flex',
         }}
       >
         <Waves size={16} className="text-ocean-950" />
-        <span className="text-ocean-950 font-bold text-sm">Surf Advisor</span>
+        <span className="text-ocean-950 font-bold text-sm">Ask Swello</span>
       </button>
     </>
   )
