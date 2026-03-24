@@ -1,9 +1,8 @@
-import { useState } from 'react'
 import clsx from 'clsx'
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useSpotStore } from '../store/spotStore'
 import {
-  fetchConditions, fetchForecast, fetchTides, fetchCrowdToday, fetchAIRanking
+  fetchConditions, fetchForecast, fetchTides, fetchCrowdToday
 } from '../api/client'
 import { ConditionsCard } from '../components/conditions/ConditionsCard'
 import { CrowdMeter } from '../components/crowd/CrowdMeter'
@@ -11,10 +10,9 @@ import { CrowdTimeline } from '../components/crowd/CrowdTimeline'
 import { TideChart } from '../components/forecast/TideChart'
 import { HourlyChart } from '../components/forecast/HourlyChart'
 import { ForecastPanel } from '../components/forecast/ForecastPanel'
-import { AIInsightCard } from '../components/ai/AIInsightCard'
-import { PreferencesPanel } from '../components/ai/PreferencesPanel'
+import { SurfChat } from '../components/ai/SurfChat'
 import { SkeletonCard } from '../components/shared/SkeletonCard'
-import type { SurfCondition, SpotForecast, TideWindow, AIRankingResponse } from '../types/surf'
+import type { SurfCondition, SpotForecast, TideWindow } from '../types/surf'
 
 /** Show on desktop always; on mobile only when the given tab is active */
 function Section({ tab, children }: { tab: string; children: React.ReactNode }) {
@@ -27,9 +25,7 @@ function Section({ tab, children }: { tab: string; children: React.ReactNode }) 
 }
 
 export function DashboardContent() {
-  const { selectedSpotId, preferences } = useSpotStore()
-  const [aiData, setAiData] = useState<AIRankingResponse | null>(null)
-
+  const { selectedSpotId } = useSpotStore()
   const spotCondition = useQuery<SurfCondition>({
     queryKey: ['condition', selectedSpotId],
     queryFn: () => fetchConditions(selectedSpotId),
@@ -53,11 +49,6 @@ export function DashboardContent() {
     queryKey: ['crowd-today', selectedSpotId],
     queryFn: () => fetchCrowdToday(selectedSpotId),
     staleTime: 30 * 60 * 1000,
-  })
-
-  const aiMutation = useMutation({
-    mutationFn: () => fetchAIRanking(preferences, 48),
-    onSuccess: (data: AIRankingResponse) => setAiData(data),
   })
 
   const condition = spotCondition.data
@@ -124,15 +115,7 @@ export function DashboardContent() {
 
       {/* ── AI tab ── */}
       <Section tab="ai">
-        <PreferencesPanel onSubmit={() => aiMutation.mutate()} />
-      </Section>
-
-      <Section tab="ai">
-        <AIInsightCard
-          data={aiData}
-          loading={aiMutation.isPending}
-          onRequest={() => aiMutation.mutate()}
-        />
+        <SurfChat />
       </Section>
 
       <div className="h-2" />

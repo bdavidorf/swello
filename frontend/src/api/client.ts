@@ -45,3 +45,11 @@ export async function fetchAIRanking(preferences: object, horizonHours = 48) {
   })
   return data
 }
+
+export async function fetchAIChat(
+  messages: { role: string; content: string }[],
+  spotId: string,
+) {
+  const { data } = await api.post('/ai/chat', { messages, spot_id: spotId })
+  return data as { reply: string }
+}

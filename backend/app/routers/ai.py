@@ -1,20 +1,23 @@
 from __future__ import annotations
 from fastapi import APIRouter, HTTPException
-from datetime import datetime, timezone, timedelta
+from pydantic import BaseModel
+from datetime import datetime, timezone
 from app.models.ai import AIRankingRequest, AIRankingResponse
 from app.config import get_spots, get_spot_by_id
 from app.services.nws import fetch_hourly_forecast
 from app.services.ndbc import fetch_buoy_with_fallback
 from app.services.wave_power import wind_quality_for_spot, CARDINAL_TO_DEG
 from app.ml.crowd_model import predict_crowd
-from app.services.claude_client import get_ai_ranking
+from app.services.claude_client import get_ai_ranking, get_chat_reply
 import asyncio
 
 router = APIRouter(prefix="/ai", tags=["ai"])
 
 
+# ── Shared forecast builder ───────────────────────────────────────────────────
+
 async def _build_spot_forecast_summary(spot: dict, hours: int = 48) -> dict:
-    """Compact forecast for feeding to Claude (keep token count reasonable)."""
+    """Compact forecast for feeding to AI (keep token count reasonable)."""
     try:
         nws = await fetch_hourly_forecast(spot["lat"], spot["lon"])
         buoy = await fetch_buoy_with_fallback(spot["buoy_primary"], spot["buoy_fallback"])
@@ -59,6 +62,34 @@ async def _build_spot_forecast_summary(spot: dict, hours: int = 48) -> dict:
     }
 
 
+async def _build_conditions_context() -> str:
+    """Brief plain-text conditions summary for chat system prompt."""
+    spots = get_spots()
+    lines = [f"LA surf conditions as of {datetime.now().strftime('%A %B %d, %I:%M %p')} PT:\n"]
+
+    # Fetch buoy once (all LA spots share it)
+    try:
+        buoy = await fetch_buoy_with_fallback("46221", "46069")
+        if buoy.wvht_ft:
+            lines.append(
+                f"Buoy 46221 (Santa Monica Bay): {buoy.wvht_ft:.1f}ft @ "
+                f"{(buoy.dpd_s or 0):.0f}s, {buoy.mwd_label or '--'} swell\n"
+            )
+    except Exception:
+        pass
+
+    lines.append("Spots:")
+    for spot in spots:
+        lines.append(
+            f"- {spot['name']}: {spot['break_type']} break, {spot['difficulty']} difficulty, "
+            f"faces {spot['facing_dir']}"
+        )
+
+    return "\n".join(lines)
+
+
+# ── Endpoints ─────────────────────────────────────────────────────────────────
+
 @router.post("/rank-spots", response_model=AIRankingResponse)
 async def rank_spots(request: AIRankingRequest):
     all_spots = get_spots()
@@ -70,3 +101,30 @@ async def rank_spots(request: AIRankingRequest):
     forecast_data = [s for s in summaries if s]
 
     return await get_ai_ranking(request, forecast_data)
+
+
+class ChatMessage(BaseModel):
+    role: str   # "user" | "assistant"
+    content: str
+
+class ChatRequest(BaseModel):
+    messages: list[ChatMessage]
+    spot_id: str = "malibu"
+
+class ChatResponse(BaseModel):
+    reply: str
+
+
+@router.post("/chat", response_model=ChatResponse)
+async def chat(request: ChatRequest):
+    if not request.messages:
+        raise HTTPException(400, "No messages provided")
+
+    context = await _build_conditions_context()
+    msgs = [{"role": m.role, "content": m.content} for m in request.messages]
+
+    try:
+        reply = await get_chat_reply(msgs, context)
+        return ChatResponse(reply=reply)
+    except Exception as e:
+        raise HTTPException(503, f"AI unavailable: {e}")
