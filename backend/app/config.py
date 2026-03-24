@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     surfline_email: str = ""
     surfline_password: str = ""
     app_env: str = "development"
-    cors_origins: list[str] = ["http://localhost:5173", "http://localhost:3000"]
+    cors_origins: list[str] = ["*"]
 
     # NOAA endpoints
     ndbc_base_url: str = "https://www.ndbc.noaa.gov/data/realtime2"
