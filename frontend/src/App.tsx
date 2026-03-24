@@ -5,6 +5,7 @@ import { MobileSpotPicker } from './components/layout/MobileSpotPicker'
 import { SpotMap } from './components/map/SpotMap'
 import { DashboardContent } from './pages/DashboardContent'
 import { SurfChatWidget } from './components/ai/SurfChat'
+import { MapFAB } from './components/map/MapFAB'
 import { useQuery } from '@tanstack/react-query'
 import { fetchAllConditions } from './api/client'
 import { useSpotStore } from './store/spotStore'
@@ -43,6 +44,7 @@ export default function App() {
         </div>
 
         <MobileNav />
+        <MapFAB />
         <SurfChatWidget />
       </div>
     </BrowserRouter>
