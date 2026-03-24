@@ -7,6 +7,7 @@ import {
 import { ConditionsCard } from '../components/conditions/ConditionsCard'
 import { CrowdMeter } from '../components/crowd/CrowdMeter'
 import { CrowdTimeline } from '../components/crowd/CrowdTimeline'
+import { CrowdDataStatus } from '../components/crowd/CrowdDataStatus'
 import { TideChart } from '../components/forecast/TideChart'
 import { HourlyChart } from '../components/forecast/HourlyChart'
 import { ForecastPanel } from '../components/forecast/ForecastPanel'
@@ -110,6 +111,11 @@ export function DashboardContent() {
         {forecast.data?.hourly && forecast.data.hourly.length > 0 && (
           <HourlyChart data={forecast.data.hourly} />
         )}
+      </Section>
+
+      {/* ── AI tab ── */}
+      <Section tab="ai">
+        <CrowdDataStatus />
       </Section>
 
       <div className="h-2" />

@@ -1,8 +1,10 @@
 from __future__ import annotations
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, BackgroundTasks
 from datetime import datetime
 from pydantic import BaseModel, Field
 from typing import Optional
+import sqlite3
+from pathlib import Path
 
 from app.config import get_spot_by_id, get_settings
 from app.models.crowd import CrowdFeatures, CrowdPrediction, DailyCrowdForecast, HourlyCrowd, score_to_level
@@ -11,6 +13,8 @@ from app.services.popular_times import (
     log_crowd_report, get_recent_reports, get_report_count,
     fetch_all_spots, get_popularity_at,
 )
+
+DB_PATH = Path(__file__).parent.parent / "data" / "crowd_readings.db"
 
 router = APIRouter(prefix="/crowd", tags=["crowd"])
 settings = get_settings()
@@ -79,6 +83,68 @@ async def crowd_reports(spot_id: str, limit: int = 50):
 async def crowd_stats():
     """Total user-submitted reports per spot."""
     return {"report_counts": get_report_count()}
+
+
+@router.get("/data-status")
+async def data_status():
+    """How much real crowd data we have and when to retrain."""
+    user_counts = get_report_count()
+    conn = sqlite3.connect(DB_PATH)
+    cam_rows = conn.execute("""
+        SELECT spot_id, COUNT(*) as total,
+               MAX(captured_at) as last_capture,
+               ROUND(AVG(person_count), 1) as avg_count
+        FROM cam_crowd_readings
+        GROUP BY spot_id
+        ORDER BY total DESC
+    """).fetchall()
+    conn.close()
+
+    cam_counts = {r[0]: {"readings": r[1], "last": r[2], "avg_people": r[3]} for r in cam_rows}
+    total_user = sum(user_counts.values())
+    total_cam  = sum(v["readings"] for v in cam_counts.values())
+    total      = total_user + total_cam
+    target     = 200
+    ready_to_retrain = total >= target
+
+    return {
+        "total_readings": total,
+        "user_reports": total_user,
+        "cam_readings": total_cam,
+        "target_for_retrain": target,
+        "ready_to_retrain": ready_to_retrain,
+        "progress_pct": round(min(total / target * 100, 100), 1),
+        "by_spot": {
+            "user": user_counts,
+            "cam": cam_counts,
+        },
+    }
+
+
+def _run_cam_collection(spot_id: Optional[str] = None):
+    """Run the cam collection pipeline (called in background)."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+    from app.scripts.collect_crowd_data import collect_one_spot, collect_all, MONITORED_SPOTS
+    try:
+        if spot_id:
+            collect_one_spot(spot_id)
+        else:
+            collect_all()
+    except Exception as e:
+        print(f"[crowd/collect] Error: {e}")
+
+
+@router.post("/collect")
+async def trigger_collection(background_tasks: BackgroundTasks, spot_id: Optional[str] = None):
+    """Manually trigger a cam collection run (runs in background)."""
+    if spot_id:
+        spot = get_spot_by_id(spot_id)
+        if not spot:
+            raise HTTPException(404, f"Spot '{spot_id}' not found")
+    background_tasks.add_task(_run_cam_collection, spot_id)
+    target = spot_id or "all spots"
+    return {"started": True, "target": target, "message": f"Collection started for {target}. Check /crowd/data-status for progress."}
 
 
 @router.post("/fetch-popular-times")

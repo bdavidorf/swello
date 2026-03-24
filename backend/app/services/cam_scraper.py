@@ -3,9 +3,8 @@ from __future__ import annotations
 Fetches a single frame from a surf cam source.
 
 Supports:
-  - YouTube live streams / videos (via yt-dlp)
+  - YouTube live streams / videos (via yt-dlp + ffmpeg)
   - Direct image URLs (webcam snapshots, JPG feeds)
-  - RTSP/HLS video streams (via cv2)
 """
 
 import os
@@ -21,46 +20,52 @@ FRAMES_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # ---------------------------------------------------------------------------
-# Known cam sources per spot
-# Free / publicly accessible sources only.
-# Add more as you find them — just needs to be a YouTube URL or direct image URL.
+# Known cam sources per spot.
+#
+# Priority order: first working cam is used.
+# type "youtube" → yt-dlp grabs one frame from the live stream
+# type "image"   → direct JPEG snapshot URL
+#
+# HOW TO ADD MORE:
+#   1. Find a YouTube live stream URL for the spot (search "[spot name] beach cam live")
+#   2. Add {"type": "youtube", "url": "https://www.youtube.com/watch?v=VIDEO_ID", "label": "..."}
+#   3. Or find a direct JPEG snapshot URL and use type "image"
 # ---------------------------------------------------------------------------
 SPOT_CAMS: dict[str, list[dict]] = {
     "malibu": [
-        # Surfline Malibu/Surfrider public cam snapshots (no auth required for stills)
-        {"type": "image", "url": "https://camrewinds.cdn-surfline.com/cache/buoy-live-cam/5842041f4e65fad6a77087f1.jpg",
-         "label": "surfline_malibu"},
-        # Backup: YouTube - various channels stream Malibu live
-        {"type": "youtube", "url": "https://www.youtube.com/watch?v=live_malibu_placeholder",
-         "label": "youtube_malibu", "active": False},
-    ],
-    "venice": [
-        {"type": "image", "url": "https://camrewinds.cdn-surfline.com/cache/buoy-live-cam/5842041f4e65fad6a7708823.jpg",
-         "label": "surfline_venice"},
-    ],
-    "el_porto": [
-        {"type": "image", "url": "https://camrewinds.cdn-surfline.com/cache/buoy-live-cam/5842041f4e65fad6a770882b.jpg",
-         "label": "surfline_el_porto"},
-    ],
-    "manhattan_pier": [
-        {"type": "image", "url": "https://camrewinds.cdn-surfline.com/cache/buoy-live-cam/5842041f4e65fad6a770882b.jpg",
-         "label": "surfline_manhattan"},
-    ],
-    "hermosa": [
-        {"type": "image", "url": "https://camrewinds.cdn-surfline.com/cache/buoy-live-cam/5842041f4e65fad6a770884c.jpg",
-         "label": "surfline_hermosa"},
+        # Surfrider Beach — several channels run 24/7 live streams
+        {"type": "youtube_search", "query": "Malibu Surfrider beach live cam surf", "label": "yt_malibu"},
     ],
     "zuma": [
-        {"type": "image", "url": "https://camrewinds.cdn-surfline.com/cache/buoy-live-cam/5842041f4e65fad6a7708700.jpg",
-         "label": "surfline_zuma"},
+        {"type": "youtube_search", "query": "Zuma Beach Malibu live cam surf", "label": "yt_zuma"},
+    ],
+    "venice": [
+        # Venice Beach Boardwalk has well-known permanent live streams
+        {"type": "youtube_search", "query": "Venice Beach live cam boardwalk", "label": "yt_venice"},
+    ],
+    "el_porto": [
+        {"type": "youtube_search", "query": "El Porto Manhattan Beach surf live cam", "label": "yt_el_porto"},
+    ],
+    "manhattan_pier": [
+        {"type": "youtube_search", "query": "Manhattan Beach Pier live cam surf", "label": "yt_manhattan"},
+    ],
+    "hermosa": [
+        {"type": "youtube_search", "query": "Hermosa Beach live cam surf", "label": "yt_hermosa"},
     ],
     "redondo": [
-        {"type": "image", "url": "https://camrewinds.cdn-surfline.com/cache/buoy-live-cam/5842041f4e65fad6a7708862.jpg",
-         "label": "surfline_redondo"},
+        {"type": "youtube_search", "query": "Redondo Beach pier live cam", "label": "yt_redondo"},
     ],
     "leo_carrillo": [
-        {"type": "image", "url": "https://camrewinds.cdn-surfline.com/cache/buoy-live-cam/5842041f4e65fad6a77086f9.jpg",
-         "label": "surfline_leo_carrillo"},
+        {"type": "youtube_search", "query": "Leo Carrillo State Beach live cam surf", "label": "yt_leo"},
+    ],
+    "point_dume": [
+        {"type": "youtube_search", "query": "Point Dume Malibu beach live cam", "label": "yt_point_dume"},
+    ],
+    "topanga": [
+        {"type": "youtube_search", "query": "Topanga Beach Malibu surf live cam", "label": "yt_topanga"},
+    ],
+    "sunset_malibu": [
+        {"type": "youtube_search", "query": "Sunset Point Malibu surf live cam", "label": "yt_sunset"},
     ],
 }
 
@@ -95,47 +100,50 @@ def _download(cam: dict, spot_id: str) -> Optional[str]:
         )
         with urllib.request.urlopen(req, timeout=10) as resp:
             data = resp.read()
-        if len(data) < 5000:   # too small = error page / blank image
+        if len(data) < 5000:
             return None
         with open(out_path, "wb") as f:
             f.write(data)
         return out_path
 
     elif cam["type"] == "youtube":
-        # yt-dlp grabs one frame from the live stream without downloading full video
-        result = subprocess.run(
-            [
-                "yt-dlp",
-                "--no-playlist",
-                "--skip-download",
-                "--write-thumbnail",
-                "--convert-thumbnails", "jpg",
-                "-o", out_path.replace(".jpg", ""),
-                cam["url"],
-            ],
-            capture_output=True, text=True, timeout=30,
-        )
-        # Check if file was created
-        candidates = list(FRAMES_DIR.glob(f"{spot_id}_{ts}*.jpg"))
-        if candidates:
-            return str(candidates[0])
-        # Fallback: extract actual frame using yt-dlp + ffmpeg
-        result2 = subprocess.run(
-            [
-                "yt-dlp", "-g", "--no-playlist", cam["url"]
-            ],
-            capture_output=True, text=True, timeout=20,
-        )
-        stream_url = result2.stdout.strip().split("\n")[0]
-        if stream_url:
-            subprocess.run(
-                ["ffmpeg", "-i", stream_url, "-frames:v", "1", "-q:v", "2", out_path, "-y"],
-                capture_output=True, timeout=30,
-            )
-            if Path(out_path).exists() and Path(out_path).stat().st_size > 5000:
-                return out_path
+        return _grab_youtube_frame(cam["url"], out_path)
+
+    elif cam["type"] == "youtube_search":
+        # Search YouTube for a live stream matching the query
+        query = cam["query"]
+        search_url = f"ytsearch1:{query} live"
+        return _grab_youtube_frame(search_url, out_path)
+
+    return None
+
+
+def _grab_youtube_frame(url_or_query: str, out_path: str) -> Optional[str]:
+    """Use yt-dlp + ffmpeg to grab one frame from a YouTube stream."""
+    # Step 1: get the direct stream URL via yt-dlp
+    result = subprocess.run(
+        [
+            "yt-dlp",
+            "--no-playlist",
+            "--format", "best[height<=720]",  # don't need 4K for person counting
+            "--get-url",
+            url_or_query,
+        ],
+        capture_output=True, text=True, timeout=30,
+    )
+    stream_url = result.stdout.strip().split("\n")[0]
+    if not stream_url or "Error" in stream_url:
+        print(f"[cam_scraper] yt-dlp failed to get stream URL: {result.stderr[:200]}")
         return None
 
+    # Step 2: grab one frame with ffmpeg
+    result2 = subprocess.run(
+        ["ffmpeg", "-i", stream_url, "-frames:v", "1", "-q:v", "2", out_path, "-y"],
+        capture_output=True, timeout=45,
+    )
+    if Path(out_path).exists() and Path(out_path).stat().st_size > 5000:
+        return out_path
+    print(f"[cam_scraper] ffmpeg failed: {result2.stderr[-200:]}")
     return None
 
 

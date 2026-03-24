@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import { Users, CheckCircle } from 'lucide-react'
 import clsx from 'clsx'
 import type { SurfCondition, CrowdLevel } from '../../types/surf'
+import { submitCrowdReport } from '../../api/client'
 
 interface Props {
   condition: SurfCondition
@@ -16,16 +17,6 @@ const LEVELS: { level: CrowdLevel; label: string; emoji: string; color: string }
   { level: 'packed',    label: 'Packed',    emoji: '🚫', color: 'bg-red-500/20 border-red-500/50 text-red-300 hover:bg-red-500/30' },
 ]
 
-async function postCrowdReport(body: object) {
-  const resp = await fetch('/api/v1/crowd/report', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  })
-  if (!resp.ok) throw new Error('Failed to submit')
-  return resp.json()
-}
-
 export function CrowdReportButton({ condition }: Props) {
   const [open, setOpen] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -33,7 +24,7 @@ export function CrowdReportButton({ condition }: Props) {
 
   const mutation = useMutation({
     mutationFn: (level: CrowdLevel) =>
-      postCrowdReport({
+      submitCrowdReport({
         spot_id: condition.spot_id,
         crowd_level: level,
         wvht_ft: condition.buoy.wvht_ft,
