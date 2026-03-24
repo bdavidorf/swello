@@ -1,7 +1,7 @@
 from __future__ import annotations
 """
 AI surf ranking.
-Priority: Groq (free) → Anthropic Claude → mock fallback.
+Priority: Gemini (Google Cloud) → Groq → Anthropic Claude → mock fallback.
 """
 
 import json
@@ -92,6 +92,17 @@ def _clean_json(raw: str) -> dict:
     return json.loads(raw)
 
 
+async def _call_gemini(prompt: str) -> dict:
+    import google.generativeai as genai
+    genai.configure(api_key=settings.gemini_api_key)
+    model = genai.GenerativeModel(
+        model_name="gemini-2.0-flash",
+        generation_config={"temperature": 0.3, "max_output_tokens": 2048},
+    )
+    response = await model.generate_content_async(prompt)
+    return _clean_json(response.text)
+
+
 async def _call_groq(prompt: str) -> dict:
     from groq import AsyncGroq
     client = AsyncGroq(api_key=settings.groq_api_key)
@@ -120,23 +131,29 @@ async def get_ai_ranking(
     forecast_data: list[dict],
 ) -> AIRankingResponse:
     prompt = _build_prompt(request, forecast_data)
+    errors = []
+
+    if settings.gemini_api_key:
+        try:
+            return _parse_windows(await _call_gemini(prompt), "gemini-2.0-flash")
+        except Exception as e:
+            errors.append(f"Gemini: {e}")
 
     if settings.groq_api_key:
         try:
             return _parse_windows(await _call_groq(prompt), "llama-3.3-70b (Groq)")
         except Exception as e:
-            err = f"Groq error: {e}"
-    elif settings.anthropic_api_key:
+            errors.append(f"Groq: {e}")
+
+    if settings.anthropic_api_key:
         try:
             return _parse_windows(await _call_claude(prompt), "claude-sonnet-4-6")
         except Exception as e:
-            err = f"Claude error: {e}"
-    else:
-        err = "No AI key configured."
+            errors.append(f"Claude: {e}")
 
     return AIRankingResponse(
         ranked_windows=[],
-        explanation=f"Add a GROQ_API_KEY to your .env file (free at console.groq.com). {err}",
+        explanation=f"No AI provider available. Errors: {'; '.join(errors) or 'No API keys configured.'}",
         top_pick="", top_pick_time="",
         generated_at=datetime.now(tz=timezone.utc),
         model_used="mock",
