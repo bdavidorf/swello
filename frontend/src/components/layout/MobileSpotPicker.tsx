@@ -29,14 +29,17 @@ export function MobileSpotPicker({ conditions }: Props) {
             <button
               key={c.spot_id}
               onClick={() => setSelectedSpot(c.spot_id)}
-              style={{ scrollSnapAlign: 'start', flexShrink: 0 }}
+              style={{
+                scrollSnapAlign: 'start',
+                flexShrink: 0,
+                ...(!selected ? { background: 'rgba(255,255,255,0.55)' } : {}),
+              }}
               className={clsx(
                 'flex flex-col items-center px-3 py-1.5 rounded-xl border transition-all text-center min-w-[64px]',
                 selected
                   ? 'bg-wave-400/20 border-wave-400/60'
                   : 'border-ocean-700/50'
               )}
-              style={!selected ? { background: 'rgba(255,255,255,0.55)' } : {}}
             >
               <span className={clsx(
                 'text-xs font-semibold leading-tight',
