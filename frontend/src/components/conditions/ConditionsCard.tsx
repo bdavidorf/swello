@@ -237,7 +237,7 @@ export function ConditionsCard({ condition }: Props) {
                     <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 14, color: '#6AAED0', letterSpacing: '0.10em', marginBottom: 4 }}>FT</span>
                   </div>
                   <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 13, color: tideColor, letterSpacing: '0.10em' }}>
-                    {isHigh ? '▲ HIGH' : '▼ LOW'}{tideTime ? ` · ${tideTime}` : ''}
+                    {isHigh ? '▲ HIGH' : '▼ LOW'} {next_tide.height_ft.toFixed(1)}ft{tideTime ? ` · ${tideTime}` : ''}
                   </span>
                 </>
               ) : (
