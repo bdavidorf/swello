@@ -96,7 +96,7 @@ async def _call_gemini(prompt: str) -> dict:
     import google.generativeai as genai
     genai.configure(api_key=settings.gemini_api_key)
     model = genai.GenerativeModel(
-        model_name="gemini-2.0-flash",
+        model_name="gemini-3-flash-preview",
         generation_config={"temperature": 0.3, "max_output_tokens": 2048},
     )
     response = await model.generate_content_async(prompt)
@@ -135,7 +135,7 @@ async def get_ai_ranking(
 
     if settings.gemini_api_key:
         try:
-            return _parse_windows(await _call_gemini(prompt), "gemini-2.0-flash")
+            return _parse_windows(await _call_gemini(prompt), "gemini-3-flash-preview")
         except Exception as e:
             errors.append(f"Gemini: {e}")
 
