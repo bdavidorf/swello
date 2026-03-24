@@ -230,7 +230,7 @@ export function ConditionsCard({ condition }: Props) {
               </div>
               <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 13, color: next_tide.event_type === 'high' ? '#88C8E8' : '#5AAAC8', letterSpacing: '0.10em' }}>
                 {next_tide.event_type === 'high' ? '▲ HIGH' : '▼ LOW'}
-                {next_tide.hours_away != null ? ` · ${next_tide.hours_away.toFixed(1)}h` : ''}
+                {next_tide.timestamp ? ` · ${new Date(next_tide.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).replace(':00', '').toLowerCase()}` : ''}
               </span>
             </>
           ) : (
