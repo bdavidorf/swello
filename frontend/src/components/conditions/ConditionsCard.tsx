@@ -219,24 +219,33 @@ export function ConditionsCard({ condition }: Props) {
         </BentoTile>
 
         {/* Tide */}
-        <BentoTile label="TIDE" accent={next_tide ? (next_tide.event_type === 'high' ? '#88C8E8' : '#5AAAC8') : undefined}>
-          {next_tide ? (
-            <>
-              <div className="flex items-end gap-1 leading-none">
-                <span style={{ fontFamily: "'Inter', system-ui", fontWeight: 800, fontSize: 42, color: next_tide.event_type === 'high' ? '#88C8E8' : '#5AAAC8', lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
-                  {next_tide.height_ft.toFixed(1)}
-                </span>
-                <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 14, color: '#6AAED0', letterSpacing: '0.10em', marginBottom: 4 }}>FT</span>
-              </div>
-              <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 13, color: next_tide.event_type === 'high' ? '#88C8E8' : '#5AAAC8', letterSpacing: '0.10em' }}>
-                {next_tide.event_type === 'high' ? '▲ HIGH' : '▼ LOW'}
-                {next_tide.timestamp ? ` · ${new Date(next_tide.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).replace(':00', '').toLowerCase()}` : ''}
-              </span>
-            </>
-          ) : (
-            <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 28, color: '#6AAED0' }}>--</span>
-          )}
-        </BentoTile>
+        {(() => {
+          const isHigh = next_tide?.event_type === 'high'
+          const tideColor = next_tide ? (isHigh ? '#88C8E8' : '#5AAAC8') : undefined
+          const tideLabel = next_tide ? (isHigh ? 'RISING' : 'DROPPING') : 'TIDE'
+          const tideTime = next_tide?.timestamp
+            ? new Date(next_tide.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).replace(':00', '').toLowerCase()
+            : null
+          return (
+            <BentoTile label={tideLabel} accent={tideColor}>
+              {next_tide ? (
+                <>
+                  <div className="flex items-end gap-1 leading-none">
+                    <span style={{ fontFamily: "'Inter', system-ui", fontWeight: 800, fontSize: 42, color: tideColor, lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
+                      {next_tide.height_ft.toFixed(1)}
+                    </span>
+                    <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 14, color: '#6AAED0', letterSpacing: '0.10em', marginBottom: 4 }}>FT</span>
+                  </div>
+                  <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 13, color: tideColor, letterSpacing: '0.10em' }}>
+                    {isHigh ? '▲ HIGH' : '▼ LOW'}{tideTime ? ` · ${tideTime}` : ''}
+                  </span>
+                </>
+              ) : (
+                <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 28, color: '#6AAED0' }}>--</span>
+              )}
+            </BentoTile>
+          )
+        })()}
 
       </div>
 
