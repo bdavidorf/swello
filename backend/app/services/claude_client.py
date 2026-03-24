@@ -127,19 +127,19 @@ async def get_chat_reply(
 
 Be conversational, knowledgeable, and use surf lingo naturally. Give specific spot recommendations based on what the user tells you about their skill level and preferences. Keep replies concise (2-4 sentences) unless the user asks for detail. Today is {datetime.now().strftime('%A, %B %d %Y')}."""
 
-    # Use Groq (Llama 3.3 70B) for chat
+    # Use Groq (Llama 3.3 70B) via httpx — avoids groq package dependency
     if _groq_key():
-        from groq import AsyncGroq
-        client = AsyncGroq(api_key=_groq_key())
+        import httpx
         groq_msgs = [{"role": "system", "content": system}] + \
                     [{"role": m["role"], "content": m["content"]} for m in messages]
-        resp = await client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=groq_msgs,
-            max_tokens=512,
-            temperature=0.7,
-        )
-        return resp.choices[0].message.content
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.post(
+                "https://api.groq.com/openai/v1/chat/completions",
+                headers={"Authorization": f"Bearer {_groq_key()}", "Content-Type": "application/json"},
+                json={"model": "llama-3.3-70b-versatile", "messages": groq_msgs, "max_tokens": 512, "temperature": 0.7},
+            )
+            resp.raise_for_status()
+            return resp.json()["choices"][0]["message"]["content"]
 
     raise RuntimeError("No GROQ_API_KEY configured")
 
