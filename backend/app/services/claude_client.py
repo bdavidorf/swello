@@ -126,6 +126,7 @@ async def get_chat_reply(
 
 Be conversational, knowledgeable, and use surf lingo naturally. Give specific spot recommendations based on what the user tells you about their skill level and preferences. Keep replies concise (2-4 sentences) unless the user asks for detail. Today is {datetime.now().strftime('%A, %B %d %Y')}."""
 
+    gemini_error = None
     # Try Gemini first
     if _gemini_key():
         try:
@@ -145,8 +146,8 @@ Be conversational, knowledgeable, and use surf lingo naturally. Give specific sp
             chat = model.start_chat(history=history)
             response = await chat.send_message_async(messages[-1]["content"])
             return response.text
-        except Exception:
-            pass  # fall through to Claude
+        except Exception as e:
+            gemini_error = str(e)  # fall through to Claude
 
     # Fallback: Claude
     if _anthropic_key():
@@ -161,7 +162,7 @@ Be conversational, knowledgeable, and use surf lingo naturally. Give specific sp
         )
         return message.content[0].text
 
-    raise RuntimeError("No AI API key configured")
+    raise RuntimeError(f"No AI API key configured. Gemini error: {gemini_error}")
 
 
 # ── Groq / Claude fallbacks ───────────────────────────────────────────────────
