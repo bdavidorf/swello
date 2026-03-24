@@ -5,6 +5,7 @@ import { MobileNav } from './components/layout/MobileNav'
 import { MobileSpotPicker } from './components/layout/MobileSpotPicker'
 import { MobileSpotList } from './components/layout/MobileSpotList'
 import { DashboardContent } from './pages/DashboardContent'
+import { SurfChatWidget } from './components/ai/SurfChat'
 import { useQuery } from '@tanstack/react-query'
 import { fetchAllConditions } from './api/client'
 import { useSpotStore } from './store/spotStore'
@@ -56,6 +57,9 @@ export default function App() {
 
         {/* Bottom nav — mobile only */}
         <MobileNav />
+
+        {/* Floating chat widget — always visible */}
+        <SurfChatWidget />
       </div>
     </BrowserRouter>
   )

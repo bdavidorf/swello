@@ -10,7 +10,6 @@ import { CrowdTimeline } from '../components/crowd/CrowdTimeline'
 import { TideChart } from '../components/forecast/TideChart'
 import { HourlyChart } from '../components/forecast/HourlyChart'
 import { ForecastPanel } from '../components/forecast/ForecastPanel'
-import { SurfChat } from '../components/ai/SurfChat'
 import { SkeletonCard } from '../components/shared/SkeletonCard'
 import type { SurfCondition, SpotForecast, TideWindow } from '../types/surf'
 
@@ -71,10 +70,6 @@ export function DashboardContent() {
             </p>
           </div>
         )}
-      </Section>
-
-      <Section tab="waves">
-        <SurfChat />
       </Section>
 
       <Section tab="waves">
