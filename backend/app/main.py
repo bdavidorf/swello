@@ -50,7 +50,8 @@ async def health():
         "status": "ok",
         "model_loaded": _model is not None,
         "env": settings.app_env,
-        "gemini_slot_prefix": os.environ.get("GEMINI_API_KEY", "")[:8],
+        "gemini_key": os.environ.get("GEMINI_API_KEY", "")[:8] or "NOT SET",
+        "groq_key": os.environ.get("GROQ_API_KEY", "")[:8] or "NOT SET",
         "vercel_env": os.environ.get("VERCEL_ENV", "not set"),
     }
 
