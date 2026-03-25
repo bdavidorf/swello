@@ -74,6 +74,17 @@ export async function submitCrowdReport(body: {
   return data
 }
 
+export async function fetchSwelloAI(profile: {
+  skill: string
+  board: string
+  prefers_bigger: boolean
+  prefers_cleaner: boolean
+  prefers_uncrowded: boolean
+}) {
+  const { data } = await api.post('/swello-ai/recommend', profile)
+  return data
+}
+
 export async function fetchAIChat(
   messages: { role: string; content: string }[],
   spotId: string,

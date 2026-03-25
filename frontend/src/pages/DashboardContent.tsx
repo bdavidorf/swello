@@ -8,6 +8,7 @@ import { ConditionsCard } from '../components/conditions/ConditionsCard'
 import { CrowdMeter } from '../components/crowd/CrowdMeter'
 import { CrowdTimeline } from '../components/crowd/CrowdTimeline'
 import { CrowdDataStatus } from '../components/crowd/CrowdDataStatus'
+import { SwelloAIPanel } from '../components/ai/SwelloAIPanel'
 import { TideChart } from '../components/forecast/TideChart'
 import { HourlyChart } from '../components/forecast/HourlyChart'
 import { ForecastPanel } from '../components/forecast/ForecastPanel'
@@ -115,7 +116,7 @@ export function DashboardContent() {
 
       {/* ── AI tab ── */}
       <Section tab="ai">
-        <CrowdDataStatus />
+        <SwelloAIPanel />
       </Section>
 
       <div className="h-2" />

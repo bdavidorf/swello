@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 
 from app.config import get_settings
 from app.ml.crowd_model import load_model
-from app.routers import conditions, forecast, tides, crowd, ai, sun
+from app.routers import conditions, forecast, tides, crowd, ai, sun, swello_ai
 
 settings = get_settings()
 
@@ -40,6 +40,7 @@ app.include_router(tides.router, prefix="/v1")
 app.include_router(crowd.router, prefix="/v1")
 app.include_router(ai.router, prefix="/v1")
 app.include_router(sun.router, prefix="/v1")
+app.include_router(swello_ai.router, prefix="/v1")
 
 
 @app.get("/v1/health")
