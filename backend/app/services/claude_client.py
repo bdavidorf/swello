@@ -97,22 +97,19 @@ Return top 5 windows. Weigh crowd heavily."""
 
 # ── Gemini ────────────────────────────────────────────────────────────────────
 
-def _get_gemini_model(json_mode: bool = False):
-    import google.generativeai as genai
-    genai.configure(api_key=_gemini_key())
-    config = {"temperature": 0.4, "max_output_tokens": 2048}
-    if json_mode:
-        config["response_mime_type"] = "application/json"
-    return genai.GenerativeModel(
-        model_name="gemini-2.0-flash",
-        generation_config=config,
-    )
-
-
 async def _call_gemini_ranking(prompt: str) -> dict:
-    model = _get_gemini_model(json_mode=True)
-    response = await model.generate_content_async(prompt)
-    return _clean_json(response.text)
+    import httpx
+    async with httpx.AsyncClient(timeout=30) as client:
+        resp = await client.post(
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={_gemini_key()}",
+            json={
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {"temperature": 0.4, "maxOutputTokens": 2048, "responseMimeType": "application/json"},
+            },
+        )
+        resp.raise_for_status()
+        text = resp.json()["candidates"][0]["content"]["parts"][0]["text"]
+        return _clean_json(text)
 
 
 async def get_chat_reply(
@@ -158,14 +155,23 @@ async def _call_groq(prompt: str) -> dict:
 
 
 async def _call_claude(prompt: str) -> dict:
-    from anthropic import AsyncAnthropic
-    client = AsyncAnthropic(api_key=_anthropic_key())
-    message = await client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=2048,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    return _clean_json(message.content[0].text)
+    import httpx
+    async with httpx.AsyncClient(timeout=30) as client:
+        resp = await client.post(
+            "https://api.anthropic.com/v1/messages",
+            headers={
+                "x-api-key": _anthropic_key(),
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json",
+            },
+            json={
+                "model": "claude-sonnet-4-6",
+                "max_tokens": 2048,
+                "messages": [{"role": "user", "content": prompt}],
+            },
+        )
+        resp.raise_for_status()
+        return _clean_json(resp.json()["content"][0]["text"])
 
 
 # ── Spot analysis ────────────────────────────────────────────────────────────
@@ -221,16 +227,38 @@ Write the session briefing now. Cover: wave quality and shape, how the wind is a
 
 
 async def get_spot_analysis(condition: dict) -> str:
-    """Generate a Gemini surf session briefing for a spot using all live data."""
+    """Generate a surf session briefing for a spot using all live data."""
     prompt = _build_analysis_prompt(condition)
 
     if _gemini_key():
         try:
-            model = _get_gemini_model(json_mode=False)
-            response = await model.generate_content_async(prompt)
-            return response.text.strip()
-        except Exception as e:
-            pass  # fall through to fallback
+            import httpx
+            async with httpx.AsyncClient(timeout=30) as client:
+                resp = await client.post(
+                    f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={_gemini_key()}",
+                    json={
+                        "contents": [{"parts": [{"text": prompt}]}],
+                        "generationConfig": {"temperature": 0.4, "maxOutputTokens": 1024},
+                    },
+                )
+                resp.raise_for_status()
+                return resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+        except Exception:
+            pass
+
+    if _groq_key():
+        try:
+            import httpx
+            async with httpx.AsyncClient(timeout=30) as client:
+                resp = await client.post(
+                    "https://api.groq.com/openai/v1/chat/completions",
+                    headers={"Authorization": f"Bearer {_groq_key()}", "Content-Type": "application/json"},
+                    json={"model": "llama-3.3-70b-versatile", "messages": [{"role": "user", "content": prompt}], "max_tokens": 512, "temperature": 0.5},
+                )
+                resp.raise_for_status()
+                return resp.json()["choices"][0]["message"]["content"].strip()
+        except Exception:
+            pass
 
     # Fallback: use rule-based interpretation already in the data
     breaking = condition.get("breaking") or {}
