@@ -219,6 +219,7 @@ function SurfboardButton({ onClick }: { onClick: () => void }) {
     <button
       onClick={onClick}
       title="Ask Swello"
+      className="surf-chat-fab"
       style={{
         position: 'fixed',
         bottom: 'calc(env(safe-area-inset-bottom) + 178px)',

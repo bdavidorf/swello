@@ -26,6 +26,7 @@ export function MapFAB() {
     <button
       onClick={() => setMobileTab(active ? 'waves' : 'spots')}
       title="Map"
+      className="map-fab"
       style={{
         position: 'fixed',
         bottom: 'calc(env(safe-area-inset-bottom) + 88px)',
