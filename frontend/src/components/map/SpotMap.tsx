@@ -20,7 +20,10 @@ const SPOT_COORDS: Record<string, [number, number]> = {
 }
 
 function ratingColor(r: number) {
-  return r >= 7 ? '#88C8E8' : r >= 5 ? '#5AAAC8' : r >= 3 ? '#78B8D8' : '#6AAED0'
+  if (r >= 7) return '#4ADE80'  // green  — firing
+  if (r >= 5) return '#A3E635'  // lime   — good
+  if (r >= 3) return '#FACC15'  // yellow — fair
+  return '#F87171'              // red    — flat
 }
 
 function createMarker(rating: number, selected: boolean) {
@@ -175,11 +178,11 @@ export function SpotMap({ conditions }: Props) {
         boxShadow: '0 4px 20px rgba(0,0,0,0.45)',
       }}>
         <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#6AAED0', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', margin: '0 0 6px' }}>RATING</p>
-        {[['7–10', '#88C8E8', 'FIRING'], ['5–6', '#5AAAC8', 'GOOD'], ['3–4', '#78B8D8', 'FAIR'], ['0–2', '#6AAED0', 'FLAT']].map(([range, color, label]) => (
+        {[['7–10', '#4ADE80', 'FIRING'], ['5–6', '#A3E635', 'GOOD'], ['3–4', '#FACC15', 'FAIR'], ['0–2', '#F87171', 'FLAT']].map(([range, color, label]) => (
           <div key={range} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 4 }}>
-            <div style={{ width: 9, height: 9, borderRadius: '50%', background: color, flexShrink: 0 }} />
-            <span style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#6A90AA', fontSize: 10, letterSpacing: '0.04em' }}>{range}</span>
-            <span style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#6AAED0', fontSize: 9, letterSpacing: '0.08em' }}>{label}</span>
+            <div style={{ width: 9, height: 9, borderRadius: '50%', background: color, flexShrink: 0, boxShadow: `0 0 5px ${color}88` }} />
+            <span style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#A0C0D8', fontSize: 10, letterSpacing: '0.04em' }}>{range}</span>
+            <span style={{ fontFamily: "'Bangers', Impact, system-ui", color, fontSize: 9, letterSpacing: '0.08em' }}>{label}</span>
           </div>
         ))}
       </div>
