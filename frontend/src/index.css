@@ -245,6 +245,29 @@
     right: 16px !important;
     bottom: calc(env(safe-area-inset-bottom) + 76px) !important;
   }
+
+  /* ── Chat window goes full-screen on mobile ── */
+  .surf-chat-window {
+    inset: 0 !important;
+    width: 100% !important;
+    max-height: 100dvh !important;
+    height: 100dvh !important;
+    border-radius: 0 !important;
+    bottom: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+  }
+
+  /* Header clears the notch/status bar */
+  .surf-chat-header {
+    padding-top: max(14px, env(safe-area-inset-top)) !important;
+  }
+
+  /* Input area respects keyboard/safe area */
+  .surf-chat-input-area {
+    padding-bottom: max(12px, env(safe-area-inset-bottom)) !important;
+  }
 }
 
 /* ── Keyframes ── */

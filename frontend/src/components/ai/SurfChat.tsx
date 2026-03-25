@@ -66,7 +66,7 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className="fixed z-50"
+      className="fixed z-50 surf-chat-window"
       style={{
         bottom: 'calc(env(safe-area-inset-bottom) + 240px)',
         right: 16,
@@ -84,7 +84,7 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
       }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between flex-shrink-0" style={{ padding: '14px 16px 12px', borderBottom: '1px solid rgba(120,184,216,0.10)' }}>
+      <div className="surf-chat-header flex items-center justify-between flex-shrink-0" style={{ padding: '14px 16px 12px', borderBottom: '1px solid rgba(120,184,216,0.10)' }}>
         <div className="flex items-center gap-2.5">
           <div style={{
             width: 30, height: 30, borderRadius: 9,
@@ -101,14 +101,15 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
         <button
           onClick={onClose}
           style={{
-            width: 28, height: 28, borderRadius: '50%',
+            width: 44, height: 44, borderRadius: '50%',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#6AAED0', border: '1px solid rgba(26,48,72,0.70)',
-            background: 'rgba(13,28,42,0.65)',
+            color: '#ffffff', border: '2px solid rgba(120,184,216,0.50)',
+            background: 'rgba(120,184,216,0.20)',
             cursor: 'pointer', transition: 'all 0.15s',
+            flexShrink: 0,
           }}
         >
-          <X size={13} />
+          <X size={20} />
         </button>
       </div>
 
@@ -164,7 +165,7 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
       </div>
 
       {/* Input */}
-      <div style={{
+      <div className="surf-chat-input-area" style={{
         flexShrink: 0,
         borderTop: '1px solid rgba(120,184,216,0.10)',
         padding: '10px 14px 12px',
