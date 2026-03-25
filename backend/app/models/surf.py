@@ -57,6 +57,14 @@ class SpotMeta(BaseModel):
     fame_score: float
 
 
+class SwellComponent(BaseModel):
+    label: str                    # "Primary", "Secondary", "Wind Chop"
+    height_ft: float
+    period_s: float
+    direction_deg: float
+    direction_label: str          # "NW", "SSW", etc.
+
+
 class BreakingConditions(BaseModel):
     buoy_hs_ft: float
     buoy_period_s: float
@@ -107,6 +115,7 @@ class SurfCondition(BaseModel):
     crowd: Optional["CrowdPrediction"] = None
     next_tide: Optional["TideEvent"] = None
     sun: Optional[SunTimes] = None
+    swells: list[SwellComponent] = Field(default_factory=list)
 
 
 # avoid circular import — imported from crowd.py and tide.py at runtime

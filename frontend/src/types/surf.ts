@@ -99,6 +99,14 @@ export interface SunTimes {
   is_golden_hour_morning: boolean
 }
 
+export interface SwellComponent {
+  label: string          // "Primary", "Secondary", "Third", "Wind Chop"
+  height_ft: number
+  period_s: number
+  direction_deg: number
+  direction_label: string
+}
+
 export interface SurfCondition {
   spot_id: string
   spot_name: string
@@ -111,6 +119,7 @@ export interface SurfCondition {
   crowd: CrowdPrediction | null
   next_tide: TideEvent | null
   sun: SunTimes | null
+  swells: SwellComponent[]
 }
 
 export interface SpotMeta {

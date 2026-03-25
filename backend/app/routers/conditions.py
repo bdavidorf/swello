@@ -4,29 +4,59 @@ from datetime import datetime, timezone
 import asyncio
 
 from app.config import get_spots, get_spot_by_id
-from app.models.surf import SurfCondition, SpotMeta, BreakingConditions, SunTimes
-from app.services.ndbc import fetch_buoy_with_fallback
+from app.models.surf import SurfCondition, SpotMeta, BreakingConditions, SunTimes, SwellComponent
+from app.services.ndbc import fetch_buoy_with_fallback, deg_to_label
 from app.services.nws import fetch_hourly_forecast
 from app.services.wave_power import build_wave_power, wind_quality_for_spot
 from app.services.wave_interpreter import interpret_breaking_conditions
 from app.services.sun_times import get_sun_times
 from app.services.coops import fetch_tide_predictions
+from app.services.openmeteo import fetch_marine_forecast
 from app.ml.crowd_model import predict_crowd
 
 router = APIRouter(prefix="/conditions", tags=["conditions"])
 
 
+def _build_swells(marine_hour) -> list[SwellComponent]:
+    """Extract active swell components from the current Open-Meteo marine hour."""
+    components = []
+    M_TO_FT = 3.28084
+
+    candidates = [
+        ("Primary",   marine_hour.swell_height_m,   marine_hour.swell_period_s,   marine_hour.swell_direction_deg),
+        ("Secondary", marine_hour.swell_height_2_m, marine_hour.swell_period_2_s, marine_hour.swell_direction_2_deg),
+        ("Third",     marine_hour.swell_height_3_m, marine_hour.swell_period_3_s, marine_hour.swell_direction_3_deg),
+        ("Wind Chop", marine_hour.wind_wave_height_m, marine_hour.wind_wave_period_s, marine_hour.wind_wave_dir_deg),
+    ]
+    for label, h_m, period, dir_deg in candidates:
+        if h_m is None or period is None or dir_deg is None:
+            continue
+        height_ft = h_m * M_TO_FT
+        if height_ft < 0.5:  # skip tiny components
+            continue
+        components.append(SwellComponent(
+            label=label,
+            height_ft=round(height_ft, 1),
+            period_s=round(period, 1),
+            direction_deg=round(dir_deg, 0),
+            direction_label=deg_to_label(dir_deg),
+        ))
+    return components
+
+
 async def _build_condition(spot: dict) -> SurfCondition | None:
-    buoy, nws_raw, tide_data = await asyncio.gather(
+    buoy, nws_raw, tide_data, marine_data = await asyncio.gather(
         fetch_buoy_with_fallback(spot["buoy_primary"], spot["buoy_fallback"]),
         fetch_hourly_forecast(spot["lat"], spot["lon"]),
         fetch_tide_predictions(spot["tide_station"], days=2),
+        fetch_marine_forecast(spot["lat"], spot["lon"]),
         return_exceptions=True,
     )
     if buoy is None or isinstance(buoy, BaseException):
         return None
     nws_raw = nws_raw if not isinstance(nws_raw, BaseException) else []
     tide_data = tide_data if not isinstance(tide_data, BaseException) else None
+    marine_data = marine_data if not isinstance(marine_data, BaseException) else []
 
     # Next upcoming tide event
     next_tide = None
@@ -94,6 +124,14 @@ async def _build_condition(spot: dict) -> SurfCondition | None:
     sun_data = get_sun_times(spot["lat"], spot["lon"])
     sun_times = SunTimes(**{k: sun_data[k] for k in SunTimes.model_fields if k in sun_data}) if sun_data else None
 
+    # Swell components from Open-Meteo (current hour)
+    swells: list[SwellComponent] = []
+    if marine_data:
+        now = datetime.now()
+        # Find the hour closest to now
+        current_hour = min(marine_data, key=lambda h: abs((h.timestamp - now).total_seconds()))
+        swells = _build_swells(current_hour)
+
     return SurfCondition(
         spot_id=spot["id"],
         spot_name=spot["name"],
@@ -106,6 +144,7 @@ async def _build_condition(spot: dict) -> SurfCondition | None:
         crowd=crowd,
         sun=sun_times,
         next_tide=next_tide,
+        swells=swells,
     )
 
 

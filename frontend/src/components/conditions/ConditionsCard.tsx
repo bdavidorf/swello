@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Clock, Sunrise, Sunset } from 'lucide-react'
+import { Clock, Sunrise, Sunset, ArrowUp } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import type { SurfCondition } from '../../types/surf'
 import { CompassRose } from '../shared/CompassRose'
@@ -52,7 +52,7 @@ function RetroSun({ color }: { color: string }) {
 }
 
 export function ConditionsCard({ condition }: Props) {
-  const { buoy, wave_power, wind, crowd, breaking, sun, next_tide } = condition
+  const { buoy, wave_power, wind, crowd, breaking, sun, next_tide, swells } = condition
   const updatedAt = new Date(condition.updated_at)
 
   const rating = wave_power?.surf_rating ?? 0
@@ -248,6 +248,73 @@ export function ConditionsCard({ condition }: Props) {
         })()}
 
       </div>
+
+      {/* ── Swell breakdown ── */}
+      {swells && swells.length > 0 && (
+        <div style={{
+          padding: '10px 16px 12px',
+          borderTop: '1px solid rgba(168,200,220,0.08)',
+        }}>
+          <p style={{
+            fontFamily: "'Bangers', Impact, system-ui",
+            fontSize: 9, letterSpacing: '0.18em', color: '#6AAED0',
+            textTransform: 'uppercase', margin: '0 0 8px',
+          }}>
+            SWELL BREAKDOWN
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+            {swells.map((s, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              }}>
+                {/* Left: label */}
+                <span style={{
+                  fontFamily: "'Bangers', Impact, system-ui",
+                  fontSize: 10, letterSpacing: '0.12em',
+                  color: i === 0 ? '#88C8E8' : '#5AAAC8',
+                  width: 80, flexShrink: 0,
+                }}>
+                  {s.label.toUpperCase()}
+                </span>
+                {/* Center: direction arrow + label */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, flex: 1 }}>
+                  <ArrowUp
+                    size={11}
+                    style={{
+                      color: i === 0 ? '#88C8E8' : '#5AAAC8',
+                      transform: `rotate(${s.direction_deg}deg)`,
+                      flexShrink: 0,
+                    }}
+                  />
+                  <span style={{
+                    fontFamily: "'Bangers', Impact, system-ui",
+                    fontSize: 13, letterSpacing: '0.06em',
+                    color: '#D8EEF8',
+                  }}>
+                    {s.direction_label}
+                  </span>
+                </div>
+                {/* Right: height + period */}
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                  <span style={{
+                    fontFamily: "'Inter', system-ui", fontWeight: 800,
+                    fontSize: 14, color: '#D8EEF8',
+                    fontVariantNumeric: 'tabular-nums',
+                  }}>
+                    {s.height_ft.toFixed(1)}ft
+                  </span>
+                  <span style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: 11, color: '#6AAED0',
+                  }}>
+                    @ {s.period_s.toFixed(0)}s
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── Sun times strip ── */}
       {sun && (
