@@ -46,10 +46,11 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
         selectedSpotId,
       )
       setMessages(prev => [...prev, { role: 'assistant', content: reply }])
-    } catch {
+    } catch (err: unknown) {
+      const detail = err instanceof Error ? err.message : String(err)
       setMessages(prev => [
         ...prev,
-        { role: 'assistant', content: "Sorry, having trouble connecting right now. Try again in a moment." },
+        { role: 'assistant', content: `Debug — ${detail}` },
       ])
     } finally {
       setLoading(false)
