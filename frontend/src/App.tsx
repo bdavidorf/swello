@@ -35,7 +35,7 @@ export default function App() {
         <div className="flex flex-1 min-h-0 overflow-hidden">
           {mobileTab === 'spots' ? (
             <div className="flex-1 flex flex-col overflow-hidden"
-                 style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)' }}>
+                 style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)', height: '100%' }}>
               <SpotMap conditions={allConditions.data} />
             </div>
           ) : (

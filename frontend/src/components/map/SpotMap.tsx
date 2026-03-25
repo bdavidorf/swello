@@ -91,11 +91,11 @@ export function SpotMap({ conditions }: Props) {
   }
 
   return (
-    <div style={{ position: 'relative', flex: 1, minHeight: 0, width: '100%' }}>
+    <div style={{ position: 'relative', flex: 1, minHeight: 0, width: '100%', height: '100%' }}>
       <MapContainer
         center={[33.97, -118.6]}
         zoom={11}
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+        style={{ width: '100%', height: '100%', minHeight: '400px' }}
         zoomControl={false}
         worldCopyJump={false}
         maxBounds={[[-90, -180], [90, 180]]}
