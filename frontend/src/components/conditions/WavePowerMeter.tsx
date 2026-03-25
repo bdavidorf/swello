@@ -80,7 +80,7 @@ export function WavePowerMeter({ kw, maxKw = 80 }: Props) {
           {kw < 10 ? kw.toFixed(1) : kw.toFixed(0)}
         </text>
         <text x={cx} y={cy + 9} textAnchor="middle" fill="#3A5870" fontSize="7" fontFamily="JetBrains Mono, monospace">
-          kW/m
+          kJ
         </text>
       </svg>
       <p className="text-xs font-semibold mt-0.5" style={{ color }}>{label}</p>

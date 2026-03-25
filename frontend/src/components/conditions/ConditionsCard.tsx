@@ -288,7 +288,7 @@ export function ConditionsCard({ condition }: Props) {
                 <span style={{ fontFamily: "'Inter', system-ui", fontWeight: 800, fontSize: 'clamp(22px, 6vw, 38px)', color: pColor, lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
                   {kw < 10 ? kw.toFixed(1) : kw.toFixed(0)}
                 </span>
-                <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 11, color: '#6AAED0', letterSpacing: '0.10em', marginBottom: 2 }}>kW/m</span>
+                <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 11, color: '#6AAED0', letterSpacing: '0.10em', marginBottom: 2 }}>kJ</span>
               </div>
               <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 11, color: pColor, letterSpacing: '0.12em' }}>
                 {powerLabel(kw)}

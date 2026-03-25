@@ -243,7 +243,7 @@ LIVE CONDITIONS:
 - Water temp: {buoy.get('wtmp_f') and f"{buoy['wtmp_f']:.0f}°F" or '--'}
 - Tide: {tide_info}
 - Crowd: {crowd.get('level','--')} ({crowd.get('score') and f"{crowd['score']:.0f}" or '--'}/100{peak_crowd})
-- Wave power: {wp.get('kw_per_meter') and f"{wp['kw_per_meter']:.1f}" or '--'} kW/m ({wp.get('classification','--')})
+- Wave energy: {wp.get('kw_per_meter') and f"{wp['kw_per_meter']:.1f}" or '--'} kJ ({wp.get('classification','--')})
 - Overall surf rating: {wp.get('surf_rating','--')}/10
 - Sun: {sun_str}
 
