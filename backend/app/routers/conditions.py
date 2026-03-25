@@ -23,7 +23,9 @@ def _build_swells(marine_hour) -> list[SwellComponent]:
     M_TO_FT = 3.28084
 
     candidates = [
-        ("Primary",   marine_hour.swell_height_m,   marine_hour.swell_period_s,   marine_hour.swell_direction_deg),
+        ("Primary",   marine_hour.swell_height_m,    marine_hour.swell_period_s,    marine_hour.swell_direction_deg),
+        ("Secondary", marine_hour.swell2_height_m,   marine_hour.swell2_period_s,   marine_hour.swell2_direction_deg),
+        ("Tertiary",  marine_hour.swell3_height_m,   marine_hour.swell3_period_s,   marine_hour.swell3_direction_deg),
         ("Wind Chop", marine_hour.wind_wave_height_m, marine_hour.wind_wave_period_s, marine_hour.wind_wave_dir_deg),
     ]
     for label, h_m, period, dir_deg in candidates:

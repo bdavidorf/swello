@@ -211,14 +211,14 @@ export function ConditionsCard({ condition }: Props) {
                   <span style={{
                     fontFamily: "'Bangers', Impact, system-ui",
                     fontSize: 9, letterSpacing: '0.14em',
-                    color: i === 0 ? '#88C8E8' : '#5AAAC8',
+                    color: i === 0 ? '#88C8E8' : i === 1 ? '#5AAAC8' : i === 2 ? '#78B8D8' : '#6AAED0',
                     textTransform: 'uppercase',
                   }}>
                     {s.label}
                   </span>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
                     <ArrowUp size={10} style={{
-                      color: i === 0 ? '#88C8E8' : '#5AAAC8',
+                      color: i === 0 ? '#88C8E8' : i === 1 ? '#5AAAC8' : i === 2 ? '#78B8D8' : '#6AAED0',
                       transform: `rotate(${s.direction_deg}deg)`,
                       flexShrink: 0,
                       alignSelf: 'center',
