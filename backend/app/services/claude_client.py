@@ -123,21 +123,45 @@ async def get_chat_reply(
 
 Be conversational, knowledgeable, and use surf lingo naturally. Give specific spot recommendations based on what the user tells you about their skill level and preferences. Keep replies concise (2-4 sentences) unless the user asks for detail. Today is {datetime.now().strftime('%A, %B %d %Y')}."""
 
-    # Use Groq (Llama 3.3 70B) via httpx — avoids groq package dependency
+    import httpx
+
+    # Try Groq first (fast, free)
     if _groq_key():
-        import httpx
-        groq_msgs = [{"role": "system", "content": system}] + \
-                    [{"role": m["role"], "content": m["content"]} for m in messages]
+        try:
+            groq_msgs = [{"role": "system", "content": system}] + \
+                        [{"role": m["role"], "content": m["content"]} for m in messages]
+            async with httpx.AsyncClient(timeout=30) as client:
+                resp = await client.post(
+                    "https://api.groq.com/openai/v1/chat/completions",
+                    headers={"Authorization": f"Bearer {_groq_key()}", "Content-Type": "application/json"},
+                    json={"model": "llama-3.3-70b-versatile", "messages": groq_msgs, "max_tokens": 512, "temperature": 0.7},
+                )
+                resp.raise_for_status()
+                return resp.json()["choices"][0]["message"]["content"]
+        except Exception:
+            pass
+
+    # Fallback to Anthropic Claude
+    if _anthropic_key():
         async with httpx.AsyncClient(timeout=30) as client:
             resp = await client.post(
-                "https://api.groq.com/openai/v1/chat/completions",
-                headers={"Authorization": f"Bearer {_groq_key()}", "Content-Type": "application/json"},
-                json={"model": "llama-3.3-70b-versatile", "messages": groq_msgs, "max_tokens": 512, "temperature": 0.7},
+                "https://api.anthropic.com/v1/messages",
+                headers={
+                    "x-api-key": _anthropic_key(),
+                    "anthropic-version": "2023-06-01",
+                    "content-type": "application/json",
+                },
+                json={
+                    "model": "claude-haiku-4-5-20251001",
+                    "max_tokens": 512,
+                    "system": system,
+                    "messages": [{"role": m["role"], "content": m["content"]} for m in messages],
+                },
             )
             resp.raise_for_status()
-            return resp.json()["choices"][0]["message"]["content"]
+            return resp.json()["content"][0]["text"]
 
-    raise RuntimeError("No GROQ_API_KEY configured")
+    raise RuntimeError("No AI API key configured (GROQ_API_KEY or ANTHROPIC_API_KEY)")
 
 
 # ── Groq / Claude fallbacks ───────────────────────────────────────────────────

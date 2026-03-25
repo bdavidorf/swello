@@ -81,16 +81,23 @@ async def _build_condition(spot: dict) -> SurfCondition | None:
     wave_power = None
     breaking = None
     if buoy.wvht_m and buoy.dpd_s:
-        wq = wind.quality if wind else "cross"
-        wave_power = build_wave_power(buoy.wvht_m, buoy.dpd_s, wq)
+        wq  = wind.quality if wind else "cross"
+        wsp = wind.speed_mph if wind else 10.0
 
-        # Spot-specific breaking wave interpretation
+        # Compute breaking conditions first so we can use face height for rating
         bc = interpret_breaking_conditions(
             wvht_m=buoy.wvht_m,
             dpd_s=buoy.dpd_s,
             mwd_deg=buoy.mwd_deg,
             spot=spot,
         )
+        face_avg = (bc.face_height_min_ft + bc.face_height_max_ft) / 2
+        wave_power = build_wave_power(
+            buoy.wvht_m, buoy.dpd_s, wq,
+            wind_speed_mph=wsp,
+            face_height_ft=face_avg,
+        )
+
         breaking = BreakingConditions(
             buoy_hs_ft=bc.buoy_hs_ft,
             buoy_period_s=bc.buoy_period_s,

@@ -51,6 +51,25 @@ function RetroSun({ color }: { color: string }) {
   )
 }
 
+function powerLabel(kw: number): string {
+  if (kw < 2)   return 'TINY'
+  if (kw < 6)   return 'WEAK'
+  if (kw < 15)  return 'MODERATE'
+  if (kw < 35)  return 'SOLID'
+  if (kw < 70)  return 'POWERFUL'
+  if (kw < 140) return 'HEAVY'
+  return 'MAXED'
+}
+
+function powerColor(kw: number): string {
+  if (kw < 2)   return '#6AAED0'
+  if (kw < 6)   return '#78B8D8'
+  if (kw < 15)  return '#5AAAC8'
+  if (kw < 35)  return '#88C8E8'
+  if (kw < 70)  return '#A0D0F0'
+  return '#C8E8FF'
+}
+
 export function ConditionsCard({ condition }: Props) {
   const { buoy, wave_power, wind, crowd, breaking, sun, next_tide, swells } = condition
   const updatedAt = new Date(condition.updated_at)
@@ -258,6 +277,25 @@ export function ConditionsCard({ condition }: Props) {
             </>
           )}
         </BentoTile>
+
+        {/* Wave power */}
+        {wave_power && (() => {
+          const kw    = wave_power.kw_per_meter
+          const pColor = powerColor(kw)
+          return (
+            <BentoTile label="POWER" accent={pColor}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
+                <span style={{ fontFamily: "'Inter', system-ui", fontWeight: 800, fontSize: 'clamp(22px, 6vw, 38px)', color: pColor, lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
+                  {kw < 10 ? kw.toFixed(1) : kw.toFixed(0)}
+                </span>
+                <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 11, color: '#6AAED0', letterSpacing: '0.10em', marginBottom: 2 }}>kW/m</span>
+              </div>
+              <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 11, color: pColor, letterSpacing: '0.12em' }}>
+                {powerLabel(kw)}
+              </span>
+            </BentoTile>
+          )
+        })()}
 
         {/* Crowd badge row */}
         <BentoTile label="CROWD">
