@@ -53,15 +53,13 @@ export function MobileSpotPicker({ conditions }: Props) {
               }}>
                 {c.spot_short_name}
               </span>
-              {rating > 0 && (
-                <span style={{
-                  fontFamily: "'Bangers', Impact, system-ui",
-                  fontSize: 14, lineHeight: 1.2, color: rc,
-                  letterSpacing: '0.04em',
-                }}>
-                  {rating}
-                </span>
-              )}
+              <span style={{
+                fontFamily: "'Bangers', Impact, system-ui",
+                fontSize: 14, lineHeight: 1.2, color: rating > 0 ? rc : '#3A5870',
+                letterSpacing: '0.04em',
+              }}>
+                {rating > 0 ? rating : '--'}
+              </span>
             </button>
           )
         })}
