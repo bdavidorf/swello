@@ -70,7 +70,7 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
       style={{
         bottom: 'calc(env(safe-area-inset-bottom) + 240px)',
         right: 16,
-        width: 340,
+        width: 'min(340px, calc(100vw - 32px))',
         background: 'rgba(18,42,66,0.95)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
@@ -223,7 +223,7 @@ function SurfboardButton({ onClick }: { onClick: () => void }) {
         position: 'fixed',
         bottom: 'calc(env(safe-area-inset-bottom) + 178px)',
         right: 16,
-        width: BOARD_W,
+        width: `min(${BOARD_W}px, calc(100vw - 32px))`,
         height: BOARD_H,
         clipPath: SURFBOARD_BTN_CLIP,
         // Warm teak/balsa wood — grain runs left-to-right on horizontal board

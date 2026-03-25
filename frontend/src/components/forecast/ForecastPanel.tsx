@@ -139,8 +139,9 @@ export function ForecastPanel({ daily, hourly = [] }: Props) {
     <div className="card-glow p-5">
       <p style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 30, letterSpacing: '0.06em', color: '#D8EEF8', marginBottom: 16 }}>14-Day Swell Forecast</p>
 
-      {/* ── Day grid — 5 per row ── */}
-      <div className="grid grid-cols-5 gap-2">
+      {/* ── Day grid — 5 per row, scrollable on mobile ── */}
+      <div className="overflow-x-auto -mx-1 px-1">
+      <div className="grid grid-cols-5 gap-2" style={{ minWidth: 400 }}>
         {daily.map((day, i) => {
           const isToday    = i === 0
           const isSelected = selectedDate === day.date
@@ -235,6 +236,7 @@ export function ForecastPanel({ daily, hourly = [] }: Props) {
             </button>
           )
         })}
+      </div>
       </div>
 
       {/* ── Hourly detail panel ── */}

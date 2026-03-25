@@ -140,7 +140,7 @@ export function ConditionsCard({ condition }: Props) {
       </div>
 
       {/* ── BENTO GRID ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr 1fr 1fr', gap: 10, padding: '14px 16px' }}>
+      <div className="bento-grid">
 
         {/* Period */}
         <BentoTile label="PERIOD" accent={buoy.dpd_s != null && buoy.dpd_s >= 12 ? '#88C8E8' : undefined}>
@@ -152,11 +152,10 @@ export function ConditionsCard({ condition }: Props) {
           </span>
         </BentoTile>
 
-        {/* Wind — taller, spans 2 rows, has compass */}
+        {/* Wind — taller, spans 2 rows on desktop, has compass */}
         <motion.div
-          className="bento-tile"
+          className="bento-tile bento-wind-tile"
           style={{
-            gridRow: 'span 2',
             padding: '14px 12px',
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8,
           }}
