@@ -244,7 +244,7 @@ function SurfboardButton({ onClick }: { onClick: () => void }) {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 10,
+        gap: 7,
         zIndex: 50,
         boxShadow: '0 8px 28px rgba(0,0,0,0.55), 0 3px 10px rgba(100,50,10,0.40), inset 0 1px 0 rgba(255,220,160,0.25)',
         transition: 'transform 0.2s ease, box-shadow 0.2s ease',
@@ -289,11 +289,11 @@ function SurfboardButton({ onClick }: { onClick: () => void }) {
       }} />
 
       {/* Content: icon + text in a row */}
-      <Waves size={18} style={{ color: 'rgba(255,230,170,0.95)', position: 'relative', zIndex: 1, flexShrink: 0 }} />
+      <Waves size={12} style={{ color: 'rgba(255,230,170,0.95)', position: 'relative', zIndex: 1, flexShrink: 0 }} />
       <span style={{
         fontFamily: "'Bangers', Impact, system-ui",
-        fontSize: 20,
-        letterSpacing: '0.14em',
+        fontSize: 24,
+        letterSpacing: '0.18em',
         color: 'rgba(255,230,170,0.95)',
         lineHeight: 1,
         textShadow: '0 1px 4px rgba(0,0,0,0.55)',
