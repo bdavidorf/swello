@@ -108,15 +108,6 @@ export function DashboardContent() {
       </Section>
 
       <Section tab="forecast">
-        {tides.data?.predictions && tides.data.predictions.length > 0 && (
-          <TideChart
-            predictions={tides.data.predictions}
-            events={tides.data.events}
-          />
-        )}
-      </Section>
-
-      <Section tab="forecast">
         {forecast.data?.hourly && forecast.data.hourly.length > 0 && (
           <HourlyChart data={forecast.data.hourly} />
         )}
