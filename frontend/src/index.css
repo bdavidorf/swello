@@ -224,10 +224,27 @@
   50%       { transform: translateY(-5px); opacity: 1;   }
 }
 
-/* ── Mobile: shrink Ask Swello + Map FAB ── */
+/* ── Mobile: tighter bento tiles + smaller surfometer ── */
 @media (max-width: 499px) {
-  .surf-chat-fab { transform: scale(0.72); transform-origin: bottom right; }
-  .map-fab       { transform: scale(0.72); transform-origin: bottom right; }
+  .bento-tile { padding: 8px 10px !important; }
+  .bento-wind-tile { padding: 10px 8px !important; }
+  .energy-gauge-wrap svg { width: 140px; height: auto; }
+}
+
+/* ── Mobile: reposition + shrink Ask Swello + Map FAB ── */
+@media (max-width: 499px) {
+  .surf-chat-fab {
+    transform: scale(0.65);
+    transform-origin: bottom right;
+    right: 16px !important;
+    bottom: calc(env(safe-area-inset-bottom) + 148px) !important;
+  }
+  .map-fab {
+    transform: scale(0.65);
+    transform-origin: bottom right;
+    right: 16px !important;
+    bottom: calc(env(safe-area-inset-bottom) + 76px) !important;
+  }
 }
 
 /* ── Keyframes ── */

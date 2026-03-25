@@ -153,7 +153,7 @@ export function ForecastPanel({ daily, hourly = [] }: Props) {
               key={day.date}
               onClick={() => toggleDay(day.date)}
               className={clsx(
-                'rounded-xl p-3 flex flex-col items-center gap-2 border transition-all text-left',
+                'rounded-xl p-2 flex flex-col items-center gap-1.5 border transition-all',
                 isSelected
                   ? 'bg-wave-400/15 border-wave-400/60 ring-1 ring-wave-400/30'
                   : isToday
@@ -161,78 +161,50 @@ export function ForecastPanel({ daily, hourly = [] }: Props) {
                   : 'bg-ocean-800/40 border-ocean-700/40 hover:border-ocean-600/60',
               )}
             >
-              {/* Day label */}
+              {/* Day */}
               <p className={clsx(
-                'text-base font-bold',
+                'text-xs font-bold tracking-wide',
                 isSelected ? 'text-wave-400' : isToday ? 'text-wave-400' : 'text-ocean-300'
               )}>
                 {day.day_label}
               </p>
 
-              {/* Face height */}
-              <div className="text-center">
-                <p className="text-ocean-50 font-black text-2xl leading-tight">
-                  {faceStr}<span className="text-ocean-500 font-normal text-base">ft</span>
-                </p>
-                <p className="text-ocean-500 text-sm leading-tight truncate w-full">
-                  {day.face_height_label}
-                </p>
-              </div>
+              {/* Wave height */}
+              <p className="text-ocean-50 font-black text-xl leading-none">
+                {faceStr}<span className="text-ocean-500 font-normal text-sm">ft</span>
+              </p>
 
-              {/* Period */}
-              {day.swell_period_s && (
-                <div className="text-center">
-                  <p className="text-ocean-200 text-base font-semibold">{day.swell_period_s.toFixed(0)}s</p>
-                  <p className="text-sm text-ocean-500 leading-none">
-                    {PERIOD_STARS[day.period_quality] ?? '★☆☆'}
-                  </p>
-                </div>
-              )}
-
-              {/* Swell direction */}
-              <p className="text-ocean-400 text-sm font-medium">{day.swell_dir_label}</p>
-
-              {/* Wind */}
-              <div className={clsx('flex items-center gap-1 text-sm', WIND_COLOR[day.best_wind_quality])}>
-                <Wind size={12} />
-                <span>{day.avg_wind_speed_mph.toFixed(0)}</span>
-              </div>
-
-              {/* Rating bar + number */}
-              <div className="w-full mt-0.5">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-base font-black" style={{ color: ratingColor(day.surf_rating) }}>
+              {/* Rating bar + score + crowd */}
+              <div className="w-full">
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-sm font-black leading-none" style={{ color: ratingColor(day.surf_rating) }}>
                     {day.surf_rating}
                   </span>
-                  <span className="text-ocean-600 text-sm">/10</span>
+                  <div className={clsx('w-2 h-2 rounded-full', CROWD_DOT[day.crowd_level])} title={`Crowd: ${day.crowd_level}`} />
                 </div>
-                <div className="w-full bg-ocean-700/50 rounded-full h-2">
+                <div className="w-full bg-ocean-700/50 rounded-full h-1.5">
                   <div
-                    className={clsx('h-2 rounded-full transition-all', ratingBg(day.surf_rating))}
+                    className={clsx('h-1.5 rounded-full transition-all', ratingBg(day.surf_rating))}
                     style={{ width: `${(day.surf_rating / 10) * 100}%` }}
                   />
                 </div>
               </div>
 
-              {/* Peak time + crowd + expand indicator */}
-              <div className="flex items-center justify-between w-full px-0.5">
-                <span className="text-sm text-ocean-600">{fmtHour(day.peak_hour)}</span>
-                <div className="flex items-center gap-1">
-                  <div
-                    className={clsx('w-2.5 h-2.5 rounded-full', CROWD_DOT[day.crowd_level])}
-                    title={`Crowd: ${day.crowd_level}`}
-                  />
-                  {hasHourly && (
-                    <ChevronDown
-                      size={12}
-                      className={clsx(
-                        'text-ocean-600 transition-transform',
-                        isSelected && 'rotate-180'
-                      )}
-                    />
-                  )}
-                </div>
+              {/* Wind */}
+              <div className={clsx('flex items-center gap-1 text-xs', WIND_COLOR[day.best_wind_quality])}>
+                <Wind size={10} />
+                <span>{day.avg_wind_speed_mph.toFixed(0)}mph</span>
               </div>
+
+              {/* Period */}
+              {day.swell_period_s && (
+                <p className="text-ocean-500 text-xs leading-none">{day.swell_period_s.toFixed(0)}s</p>
+              )}
+
+              {/* Expand chevron */}
+              {hasHourly && (
+                <ChevronDown size={10} className={clsx('text-ocean-700 transition-transform', isSelected && 'rotate-180')} />
+              )}
             </button>
           )
         })}

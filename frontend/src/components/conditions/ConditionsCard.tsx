@@ -135,7 +135,11 @@ export function ConditionsCard({ condition }: Props) {
               </p>
             )}
           </div>
-          {wave_power && <EnergyBar rating={wave_power.surf_rating} />}
+          {wave_power && (
+            <div className="energy-gauge-wrap">
+              <EnergyBar rating={wave_power.surf_rating} />
+            </div>
+          )}
         </div>
       </div>
 
@@ -144,7 +148,7 @@ export function ConditionsCard({ condition }: Props) {
 
         {/* Period */}
         <BentoTile label="PERIOD" accent={buoy.dpd_s != null && buoy.dpd_s >= 12 ? '#88C8E8' : undefined}>
-          <span style={{ fontFamily: "'Inter', system-ui", fontWeight: 800, fontSize: 58, color: '#D8EEF8', lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
+          <span style={{ fontFamily: "'Inter', system-ui", fontWeight: 800, fontSize: 'clamp(32px, 9vw, 58px)', color: '#D8EEF8', lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
             {buoy.dpd_s != null ? buoy.dpd_s.toFixed(0) : '--'}
           </span>
           <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 14, color: '#6AAED0', letterSpacing: '0.10em' }}>
@@ -164,7 +168,7 @@ export function ConditionsCard({ condition }: Props) {
         >
           <p className="stat-label">WIND</p>
           {wind && <CompassRose deg={wind.direction_deg} size={52} color={wColor} />}
-          <span style={{ fontFamily: "'Inter', system-ui", fontWeight: 800, fontSize: 48, color: wColor, lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
+          <span style={{ fontFamily: "'Inter', system-ui", fontWeight: 800, fontSize: 'clamp(28px, 7.5vw, 48px)', color: wColor, lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
             {wind ? `${wind.speed_mph.toFixed(0)}` : '--'}
           </span>
           <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 14, color: '#6AAED0', letterSpacing: '0.10em' }}>
@@ -190,7 +194,7 @@ export function ConditionsCard({ condition }: Props) {
 
         {/* Water temp */}
         <BentoTile label="WATER">
-          <span style={{ fontFamily: "'Inter', system-ui", fontWeight: 800, fontSize: 58, color: '#5AAAC8', lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
+          <span style={{ fontFamily: "'Inter', system-ui", fontWeight: 800, fontSize: 'clamp(32px, 9vw, 58px)', color: '#5AAAC8', lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
             {buoy.wtmp_f != null ? `${buoy.wtmp_f.toFixed(0)}°` : '--'}
           </span>
           <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 14, color: '#6AAED0', letterSpacing: '0.10em' }}>
@@ -243,7 +247,7 @@ export function ConditionsCard({ condition }: Props) {
             </div>
           ) : (
             <>
-              <span className="font-display" style={{ fontSize: 52, color: '#D8EEF8', lineHeight: 1, letterSpacing: '0.04em' }}>
+              <span className="font-display" style={{ fontSize: 'clamp(28px, 8vw, 52px)', color: '#D8EEF8', lineHeight: 1, letterSpacing: '0.04em' }}>
                 {buoy.mwd_label ?? '--'}
               </span>
               {buoy.mwd_deg != null && (
@@ -257,7 +261,7 @@ export function ConditionsCard({ condition }: Props) {
 
         {/* Crowd badge row */}
         <BentoTile label="CROWD">
-          <span className="font-display" style={{ fontSize: 36, color: crowd ? '#D8EEF8' : '#6AAED0', lineHeight: 1, letterSpacing: '0.04em' }}>
+          <span className="font-display" style={{ fontSize: 'clamp(20px, 5.5vw, 36px)', color: crowd ? '#D8EEF8' : '#6AAED0', lineHeight: 1, letterSpacing: '0.04em' }}>
             {crowd ? crowd.level.toUpperCase() : 'N/A'}
           </span>
         </BentoTile>
@@ -275,7 +279,7 @@ export function ConditionsCard({ condition }: Props) {
               {next_tide ? (
                 <>
                   <div className="flex items-end gap-1 leading-none">
-                    <span style={{ fontFamily: "'Inter', system-ui", fontWeight: 800, fontSize: 42, color: tideColor, lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
+                    <span style={{ fontFamily: "'Inter', system-ui", fontWeight: 800, fontSize: 'clamp(24px, 6.5vw, 42px)', color: tideColor, lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
                       {next_tide.height_ft.toFixed(1)}
                     </span>
                     <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 14, color: '#6AAED0', letterSpacing: '0.10em', marginBottom: 4 }}>FT</span>
