@@ -24,15 +24,13 @@ def _build_swells(marine_hour) -> list[SwellComponent]:
 
     candidates = [
         ("Primary",   marine_hour.swell_height_m,   marine_hour.swell_period_s,   marine_hour.swell_direction_deg),
-        ("Secondary", marine_hour.swell_height_2_m, marine_hour.swell_period_2_s, marine_hour.swell_direction_2_deg),
-        ("Third",     marine_hour.swell_height_3_m, marine_hour.swell_period_3_s, marine_hour.swell_direction_3_deg),
         ("Wind Chop", marine_hour.wind_wave_height_m, marine_hour.wind_wave_period_s, marine_hour.wind_wave_dir_deg),
     ]
     for label, h_m, period, dir_deg in candidates:
         if h_m is None or period is None or dir_deg is None:
             continue
         height_ft = h_m * M_TO_FT
-        if height_ft < 0.5:  # skip tiny components
+        if height_ft < 0.3:  # skip tiny components
             continue
         components.append(SwellComponent(
             label=label,
@@ -128,9 +126,18 @@ async def _build_condition(spot: dict) -> SurfCondition | None:
     swells: list[SwellComponent] = []
     if marine_data:
         now = datetime.now()
-        # Find the hour closest to now
         current_hour = min(marine_data, key=lambda h: abs((h.timestamp - now).total_seconds()))
         swells = _build_swells(current_hour)
+
+    # Fallback: build swell list from buoy if Open-Meteo returned nothing
+    if not swells and buoy.wvht_ft and buoy.dpd_s and buoy.mwd_deg is not None:
+        swells = [SwellComponent(
+            label="Primary",
+            height_ft=round(buoy.wvht_ft, 1),
+            period_s=round(buoy.dpd_s, 1),
+            direction_deg=round(buoy.mwd_deg, 0),
+            direction_label=buoy.mwd_label or deg_to_label(buoy.mwd_deg),
+        )]
 
     return SurfCondition(
         spot_id=spot["id"],

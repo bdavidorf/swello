@@ -20,12 +20,6 @@ class MarineHour:
     swell_height_m: Optional[float]    # primary swell component only
     swell_period_s: Optional[float]
     swell_direction_deg: Optional[float]
-    swell_height_2_m: Optional[float]  # secondary swell
-    swell_period_2_s: Optional[float]
-    swell_direction_2_deg: Optional[float]
-    swell_height_3_m: Optional[float]  # tertiary swell
-    swell_period_3_s: Optional[float]
-    swell_direction_3_deg: Optional[float]
     wind_wave_height_m: Optional[float]   # wind-generated sea component
     wind_wave_dir_deg: Optional[float]
     wind_wave_period_s: Optional[float]
@@ -43,12 +37,6 @@ async def fetch_marine_forecast(lat: float, lon: float) -> list[MarineHour]:
             "swell_wave_height",
             "swell_wave_period",
             "swell_wave_direction",
-            "swell_wave_height_2",
-            "swell_wave_period_2",
-            "swell_wave_direction_2",
-            "swell_wave_height_3",
-            "swell_wave_period_3",
-            "swell_wave_direction_3",
             "wind_wave_height",
             "wind_wave_direction",
             "wind_wave_period",
@@ -82,12 +70,6 @@ async def fetch_marine_forecast(lat: float, lon: float) -> list[MarineHour]:
             swell_height_m=_get("swell_wave_height"),
             swell_period_s=_get("swell_wave_period"),
             swell_direction_deg=_get("swell_wave_direction"),
-            swell_height_2_m=_get("swell_wave_height_2"),
-            swell_period_2_s=_get("swell_wave_period_2"),
-            swell_direction_2_deg=_get("swell_wave_direction_2"),
-            swell_height_3_m=_get("swell_wave_height_3"),
-            swell_period_3_s=_get("swell_wave_period_3"),
-            swell_direction_3_deg=_get("swell_wave_direction_3"),
             wind_wave_height_m=_get("wind_wave_height"),
             wind_wave_dir_deg=_get("wind_wave_direction"),
             wind_wave_period_s=_get("wind_wave_period"),
