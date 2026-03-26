@@ -28,8 +28,9 @@ export function MobileSpotPicker({ conditions }: Props) {
       >
         {conditions.map((c) => {
           const selected = c.spot_id === selectedSpotId
-          const rating   = c.wave_power?.surf_rating ?? 0
-          const rc       = ratingColor(rating)
+          const rawRating = c.wave_power?.surf_rating ?? 0
+          const rating    = rawRating > 0 ? rawRating : (c.wave_power ? 1 : 0)
+          const rc        = ratingColor(Math.max(1, rating))
 
           return (
             <button
@@ -55,10 +56,11 @@ export function MobileSpotPicker({ conditions }: Props) {
               </span>
               <span style={{
                 fontFamily: "'Bangers', Impact, system-ui",
-                fontSize: 14, lineHeight: 1.2, color: rating > 0 ? rc : '#3A5870',
+                fontSize: 14, lineHeight: 1.2,
+                color: c.wave_power ? rc : '#3A5870',
                 letterSpacing: '0.04em',
               }}>
-                {rating > 0 ? rating : '--'}
+                {c.wave_power ? Math.max(1, rating) : '--'}
               </span>
             </button>
           )

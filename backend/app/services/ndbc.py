@@ -7,12 +7,17 @@ https://www.ndbc.noaa.gov/data/realtime2/{STATION}.txt
 
 import httpx
 import asyncio
+import time
 from datetime import datetime, timezone
 from typing import Optional
 from app.models.surf import BuoyReading
 from app.config import get_settings
 
 settings = get_settings()
+
+# Simple in-memory cache so all 11 spots sharing buoy 46221 don't hammer NDBC
+_buoy_cache: dict[str, tuple[float, Optional[BuoyReading]]] = {}
+_CACHE_TTL = 90  # seconds
 
 
 DIRECTION_LABELS = [
@@ -36,12 +41,22 @@ def parse_val(s: str) -> Optional[float]:
 
 
 async def fetch_buoy(station_id: str) -> Optional[BuoyReading]:
+    # Return cached reading if still fresh
+    now = time.time()
+    if station_id in _buoy_cache:
+        cached_ts, cached_reading = _buoy_cache[station_id]
+        if now - cached_ts < _CACHE_TTL:
+            return cached_reading
+
     url = f"{settings.ndbc_base_url}/{station_id}.txt"
     async with httpx.AsyncClient(timeout=10.0) as client:
         try:
             resp = await client.get(url)
             resp.raise_for_status()
         except Exception:
+            # Return stale cache if available rather than None
+            if station_id in _buoy_cache:
+                return _buoy_cache[station_id][1]
             return None
 
     lines = resp.text.strip().splitlines()
@@ -110,7 +125,7 @@ async def fetch_buoy(station_id: str) -> Optional[BuoyReading]:
     mwd = get("MWD")
     wtmp = get("WTMP")
 
-    return BuoyReading(
+    reading = BuoyReading(
         station_id=station_id,
         timestamp=ts,
         wvht_m=wvht,
@@ -129,6 +144,8 @@ async def fetch_buoy(station_id: str) -> Optional[BuoyReading]:
         pres_hpa=get("PRES"),
         data_age_minutes=round(data_age, 1),
     )
+    _buoy_cache[station_id] = (time.time(), reading)
+    return reading
 
 
 async def fetch_buoy_with_fallback(primary: str, fallback: str) -> Optional[BuoyReading]:

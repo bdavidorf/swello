@@ -80,7 +80,7 @@ async def _build_condition(spot: dict) -> SurfCondition | None:
 
     wave_power = None
     breaking = None
-    if buoy.wvht_m and buoy.dpd_s:
+    if buoy.wvht_m is not None and buoy.dpd_s is not None:
         wq  = wind.quality if wind else "cross"
         wsp = wind.speed_mph if wind else 10.0
 
@@ -117,7 +117,7 @@ async def _build_condition(spot: dict) -> SurfCondition | None:
         )
 
     crowd = None
-    if buoy.wvht_m and buoy.dpd_s:
+    if buoy.wvht_m is not None and buoy.dpd_s is not None:
         crowd = predict_crowd(
             spot_id=spot["id"],
             wvht_m=buoy.wvht_m,
