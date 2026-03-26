@@ -85,6 +85,11 @@ export async function fetchSwelloAI(profile: {
   return data
 }
 
+export async function fetchPinConditions(lat: number, lon: number, name = 'Dropped Pin') {
+  const { data } = await api.get('/conditions/pin', { params: { lat, lon, name } })
+  return data
+}
+
 export async function fetchAIChat(
   messages: { role: string; content: string }[],
   spotId: string,

@@ -4,9 +4,14 @@ import type { UserPreferences } from '../types/surf'
 
 export type MobileTab = 'waves' | 'forecast' | 'spots' | 'ai'
 
+export interface PinLatLon { lat: number; lon: number; name: string }
+
 interface SpotStore {
   selectedSpotId: string
   setSelectedSpot: (id: string) => void
+
+  pinLatLon: PinLatLon | null
+  setPinLatLon: (p: PinLatLon | null) => void
 
   preferences: UserPreferences
   setPreferences: (prefs: Partial<UserPreferences>) => void
@@ -34,7 +39,10 @@ export const useSpotStore = create<SpotStore>()(
   persist(
     (set) => ({
       selectedSpotId: 'malibu',
-      setSelectedSpot: (id) => set({ selectedSpotId: id }),
+      setSelectedSpot: (id) => set({ selectedSpotId: id, ...(id !== 'pin' && { pinLatLon: null }) }),
+
+      pinLatLon: null,
+      setPinLatLon: (p) => set({ pinLatLon: p, selectedSpotId: p ? 'pin' : 'malibu' }),
 
       preferences: DEFAULT_PREFS,
       setPreferences: (prefs) =>
@@ -52,7 +60,7 @@ export const useSpotStore = create<SpotStore>()(
     {
       name: 'surf-forecast-prefs',
       partialize: (state) => ({
-        selectedSpotId: state.selectedSpotId,
+        selectedSpotId: state.selectedSpotId === 'pin' ? 'malibu' : state.selectedSpotId,
         preferences: state.preferences,
       }),
     }

@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { useSpotStore } from '../../store/spotStore'
@@ -54,6 +54,38 @@ function createMarker(rating: number, selected: boolean) {
   })
 }
 
+function createPinMarker() {
+  return L.divIcon({
+    className: '',
+    html: `<div style="
+      width:36px;height:36px;
+      background:rgba(120,184,216,0.20);
+      border:2px solid #78B8D8;
+      border-radius:50% 50% 50% 0;
+      transform:rotate(-45deg);
+      box-shadow:0 0 12px rgba(120,184,216,0.60),0 3px 12px rgba(0,0,0,0.45);
+      cursor:crosshair;
+    "></div>`,
+    iconSize:   [36, 36],
+    iconAnchor: [18, 36],
+    popupAnchor:[0, -38],
+  })
+}
+
+function MapClickHandler() {
+  const { setPinLatLon, setMobileTab } = useSpotStore()
+  useMapEvents({
+    click(e) {
+      const { lat, lng } = e.latlng
+      // Snap to 3 decimal places (~110m precision)
+      const name = `${Math.abs(lat).toFixed(2)}°${lat >= 0 ? 'N' : 'S'} ${Math.abs(lng).toFixed(2)}°${lng >= 0 ? 'E' : 'W'}`
+      setPinLatLon({ lat: +lat.toFixed(5), lon: +lng.toFixed(5), name })
+      setMobileTab('waves')
+    },
+  })
+  return null
+}
+
 function MapController({ spotId }: { spotId: string }) {
   const map    = useMap()
   const coords = SPOT_COORDS[spotId]
@@ -74,7 +106,7 @@ function MapController({ spotId }: { spotId: string }) {
 interface Props { conditions: SurfCondition[] | undefined }
 
 export function SpotMap({ conditions }: Props) {
-  const { selectedSpotId, setSelectedSpot, setMobileTab } = useSpotStore()
+  const { selectedSpotId, setSelectedSpot, setMobileTab, pinLatLon, setPinLatLon } = useSpotStore()
 
   const ratingMap: Record<string, number> = {}
   const nameMap:   Record<string, string>  = {}
@@ -117,6 +149,55 @@ export function SpotMap({ conditions }: Props) {
           noWrap={true}
         />
         <MapController spotId={selectedSpotId} />
+        <MapClickHandler />
+
+        {/* Custom dropped pin */}
+        {pinLatLon && (
+          <Marker
+            position={[pinLatLon.lat, pinLatLon.lon]}
+            icon={createPinMarker()}
+          >
+            <Popup className="surf-popup" closeButton={false} offset={[0, -4]}>
+              <div style={{
+                background: 'rgba(18,37,52,0.96)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                border: '1px solid rgba(120,184,216,0.20)',
+                borderRadius: 18,
+                padding: '12px 16px',
+                minWidth: 140,
+                fontFamily: 'Inter, system-ui, sans-serif',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.55)',
+              }}>
+                <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#78B8D8', fontSize: 12, margin: '0 0 2px', letterSpacing: '0.10em' }}>DROPPED PIN</p>
+                <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#D8EEF8', fontSize: 13, margin: '0 0 8px', letterSpacing: '0.06em' }}>{pinLatLon.name}</p>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <button
+                    onClick={() => { setMobileTab('waves') }}
+                    style={{
+                      flex: 1,
+                      background: 'linear-gradient(135deg, #78B8D8, #5AAAC8)',
+                      color: '#0D1C2A', border: 'none', borderRadius: 10,
+                      padding: '6px 0',
+                      fontFamily: "'Bangers', Impact, system-ui", fontSize: 10,
+                      cursor: 'pointer', letterSpacing: '0.10em',
+                    }}
+                  >VIEW CONDITIONS</button>
+                  <button
+                    onClick={() => setPinLatLon(null)}
+                    style={{
+                      background: 'rgba(120,184,216,0.12)',
+                      color: '#6AAED0', border: '1px solid rgba(120,184,216,0.20)',
+                      borderRadius: 10, padding: '6px 10px',
+                      fontFamily: "'Bangers', Impact, system-ui", fontSize: 10,
+                      cursor: 'pointer', letterSpacing: '0.08em',
+                    }}
+                  >CLEAR</button>
+                </div>
+              </div>
+            </Popup>
+          </Marker>
+        )}
 
         {Object.entries(SPOT_COORDS).map(([spotId, coords]) => {
           const rating   = ratingMap[spotId] ?? 0

@@ -9,7 +9,7 @@ function ratingColor(r: number) {
 }
 
 export function MobileSpotPicker({ conditions }: Props) {
-  const { selectedSpotId, setSelectedSpot } = useSpotStore()
+  const { selectedSpotId, setSelectedSpot, pinLatLon, setPinLatLon } = useSpotStore()
   if (!conditions || conditions.length === 0) return null
 
   return (
@@ -26,6 +26,26 @@ export function MobileSpotPicker({ conditions }: Props) {
         className="flex gap-2 px-4 py-2.5"
         style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}
       >
+        {/* Dropped pin tab */}
+        {pinLatLon && (
+          <button
+            onClick={() => setSelectedSpot('pin')}
+            style={{
+              scrollSnapAlign: 'start', flexShrink: 0,
+              background: selectedSpotId === 'pin' ? 'rgba(120,184,216,0.18)' : 'rgba(18,37,52,0.70)',
+              border: `1px solid ${selectedSpotId === 'pin' ? 'rgba(120,184,216,0.50)' : 'rgba(120,184,216,0.15)'}`,
+              borderRadius: 16, padding: '6px 14px',
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              minWidth: 64, cursor: 'pointer', transition: 'all 0.18s',
+              position: 'relative',
+            }}
+          >
+            <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 11, lineHeight: 1.2, letterSpacing: '0.06em', color: '#78B8D8' }}>📍 PIN</span>
+            <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 9, lineHeight: 1.2, color: '#3A5870', letterSpacing: '0.04em' }}
+              onClick={(e) => { e.stopPropagation(); setPinLatLon(null) }}>✕ clear</span>
+          </button>
+        )}
+
         {conditions.map((c) => {
           const selected = c.spot_id === selectedSpotId
           const rawRating = c.wave_power?.surf_rating ?? 0

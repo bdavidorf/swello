@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import { useQuery } from '@tanstack/react-query'
 import { useSpotStore } from '../store/spotStore'
 import {
-  fetchConditions, fetchForecast, fetchTides, fetchCrowdToday
+  fetchConditions, fetchForecast, fetchTides, fetchCrowdToday, fetchPinConditions,
 } from '../api/client'
 import { ConditionsCard } from '../components/conditions/ConditionsCard'
 import { CrowdMeter } from '../components/crowd/CrowdMeter'
@@ -26,10 +26,17 @@ function Section({ tab, children }: { tab: string; children: React.ReactNode }) 
 }
 
 export function DashboardContent() {
-  const { selectedSpotId } = useSpotStore()
+  const { selectedSpotId, pinLatLon } = useSpotStore()
+  const isPin = selectedSpotId === 'pin'
+
   const spotCondition = useQuery<SurfCondition>({
-    queryKey: ['condition', selectedSpotId],
-    queryFn: () => fetchConditions(selectedSpotId),
+    queryKey: isPin
+      ? ['pin-condition', pinLatLon?.lat, pinLatLon?.lon]
+      : ['condition', selectedSpotId],
+    queryFn: isPin
+      ? () => fetchPinConditions(pinLatLon!.lat, pinLatLon!.lon, pinLatLon!.name)
+      : () => fetchConditions(selectedSpotId),
+    enabled: isPin ? !!pinLatLon : true,
     staleTime: 2 * 60 * 1000,
     refetchInterval: 2 * 60 * 1000,
   })
