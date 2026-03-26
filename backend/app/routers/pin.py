@@ -65,10 +65,11 @@ async def pin_conditions(
         current_hour = min(marine_data, key=lambda h: abs((h.timestamp - now).total_seconds()))
 
     # ── Land/ocean detection ──────────────────────────────────────────────────
-    # Open-Meteo only populates wave_height_m for actual ocean grid cells.
-    # Coastal land pins can still snap to a nearby ocean grid cell and return
-    # swell component values — use wave_height_m as the definitive gate.
-    is_ocean = current_hour is not None and current_hour.wave_height_m is not None
+    # Open-Meteo marine snaps to the nearest ocean grid cell regardless of how
+    # far inland the pin is, so null wave values alone aren't sufficient.
+    # Use global-land-mask (built-in geographic dataset, no API, no latency).
+    from global_land_mask import globe as _globe
+    is_ocean = (not _globe.is_land(lat, lon)) and (current_hour is not None and current_hour.wave_height_m is not None)
 
     # ── Wave data: prefer primary swell component for surf assessment ─────────
     wvht_m  = (current_hour.swell_height_m  or current_hour.wave_height_m)  if is_ocean else None
