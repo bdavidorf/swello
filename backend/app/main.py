@@ -34,6 +34,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# pin must be registered BEFORE conditions so /conditions/pin (literal)
+# takes priority over /conditions/{spot_id} (parameterized)
+app.include_router(pin.router, prefix="/v1")
 app.include_router(conditions.router, prefix="/v1")
 app.include_router(forecast.router, prefix="/v1")
 app.include_router(tides.router, prefix="/v1")
@@ -41,7 +44,6 @@ app.include_router(crowd.router, prefix="/v1")
 app.include_router(ai.router, prefix="/v1")
 app.include_router(sun.router, prefix="/v1")
 app.include_router(swello_ai.router, prefix="/v1")
-app.include_router(pin.router, prefix="/v1")
 
 
 @app.get("/v1/health")
