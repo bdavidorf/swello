@@ -9,7 +9,7 @@ interface Props {
 
 export function AISpotAnalysis({ condition, spotMeta }: Props) {
   const { data, isLoading } = useQuery({
-    queryKey: ['spot-analysis', condition.spot_id],
+    queryKey: ['spot-analysis', condition.spot_id, condition.spot_name],
     queryFn: () =>
       fetchSpotAnalysis(condition, {
         break_type: spotMeta?.break_type ?? '',

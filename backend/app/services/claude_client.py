@@ -230,7 +230,9 @@ def _build_analysis_prompt(c: dict) -> str:
 
     peak_crowd = f", peak hour {crowd.get('peak_hour_today')}:00" if crowd.get("peak_hour_today") else ""
 
-    return f"""You are an expert LA surf forecaster writing a real-time session briefing for a surfer checking the app right now. Be specific, honest, and use natural surf lingo. Write 4-5 punchy sentences — no fluff.
+    is_pin = c.get("spot_id") == "pin"
+    expert_intro = "You are an expert global surf forecaster" if is_pin else "You are an expert LA surf forecaster"
+    return f"""{expert_intro} writing a real-time session briefing for a surfer checking the app right now. Be specific, honest, and use natural surf lingo. Write 4-5 punchy sentences — no fluff.
 
 SPOT: {c.get('spot_name')}
 Break: {c.get('_break_type','--')} | Difficulty: {c.get('_difficulty','--')} | Faces: {c.get('_facing','--')}
