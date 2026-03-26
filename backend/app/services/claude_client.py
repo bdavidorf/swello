@@ -128,12 +128,16 @@ Be conversational, knowledgeable, and use surf lingo naturally. Give specific sp
     # Try Gemini first
     if _gemini_key():
         try:
-            # Gemini uses "model" instead of "assistant" for role names
+            # Gemini uses "model" instead of "assistant" for role names.
+            # Gemini also requires the first turn to be "user" — drop any
+            # leading assistant/model messages (e.g. the greeting).
             gemini_contents = [
                 {"role": "model" if m["role"] == "assistant" else "user",
                  "parts": [{"text": m["content"]}]}
                 for m in messages
             ]
+            while gemini_contents and gemini_contents[0]["role"] == "model":
+                gemini_contents.pop(0)
             async with httpx.AsyncClient(timeout=30) as client:
                 resp = await client.post(
                     f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={_gemini_key()}",
