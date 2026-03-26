@@ -136,6 +136,7 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     reply: str
+    model_used: str
 
 
 @router.post("/chat", response_model=ChatResponse)
@@ -147,8 +148,8 @@ async def chat(request: ChatRequest):
     msgs = [{"role": m.role, "content": m.content} for m in request.messages]
 
     try:
-        reply = await get_chat_reply(msgs, context)
-        return ChatResponse(reply=reply)
+        reply, model_used = await get_chat_reply(msgs, context)
+        return ChatResponse(reply=reply, model_used=model_used)
     except Exception as e:
         raise HTTPException(503, f"AI unavailable: {e}")
 

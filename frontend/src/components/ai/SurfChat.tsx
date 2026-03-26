@@ -26,6 +26,7 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
   const [messages, setMessages] = useState<Message[]>([GREETING])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [modelUsed, setModelUsed] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -41,10 +42,11 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
     setInput('')
     setLoading(true)
     try {
-      const { reply } = await fetchAIChat(
+      const { reply, model_used } = await fetchAIChat(
         next.map(m => ({ role: m.role, content: m.content })),
         selectedSpotId,
       )
+      setModelUsed(model_used)
       setMessages(prev => [...prev, { role: 'assistant', content: reply }])
     } catch (err: unknown) {
       const detail = err instanceof Error ? err.message : String(err)
@@ -94,9 +96,16 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
           }}>
             <Waves size={14} style={{ color: '#78B8D8' }} />
           </div>
-          <p style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 18, color: '#D8EEF8', lineHeight: 1, letterSpacing: '0.06em' }}>
-            Ask Swello 🤙
-          </p>
+          <div>
+            <p style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 18, color: '#D8EEF8', lineHeight: 1, letterSpacing: '0.06em' }}>
+              Ask Swello 🤙
+            </p>
+            {modelUsed && (
+              <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#3A6A8A', letterSpacing: '0.06em', marginTop: 2, lineHeight: 1 }}>
+                via {modelUsed}
+              </p>
+            )}
+          </div>
         </div>
         <button
           onClick={onClose}

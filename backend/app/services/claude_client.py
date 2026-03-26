@@ -115,8 +115,8 @@ async def _call_gemini_ranking(prompt: str) -> dict:
 async def get_chat_reply(
     messages: list[dict],
     conditions_context: str,
-) -> str:
-    """Conversational chat. Tries Gemini first, falls back to Claude."""
+) -> tuple[str, str]:
+    """Conversational chat. Returns (reply, model_used). Tries Gemini first, falls back to Groq then Claude."""
     system = f"""You are Swello, a friendly AI surf advisor for Los Angeles beaches. You have real-time surf data.
 
 {conditions_context}
@@ -144,7 +144,7 @@ Be conversational, knowledgeable, and use surf lingo naturally. Give specific sp
                     },
                 )
                 resp.raise_for_status()
-                return resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+                return resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip(), "gemini-2.0-flash"
         except Exception:
             pass
 
@@ -160,7 +160,7 @@ Be conversational, knowledgeable, and use surf lingo naturally. Give specific sp
                     json={"model": "llama-3.3-70b-versatile", "messages": groq_msgs, "max_tokens": 512, "temperature": 0.7},
                 )
                 resp.raise_for_status()
-                return resp.json()["choices"][0]["message"]["content"]
+                return resp.json()["choices"][0]["message"]["content"], "llama-3.3-70b (groq)"
         except Exception:
             pass
 
@@ -182,7 +182,7 @@ Be conversational, knowledgeable, and use surf lingo naturally. Give specific sp
                 },
             )
             resp.raise_for_status()
-            return resp.json()["content"][0]["text"]
+            return resp.json()["content"][0]["text"], "claude-haiku-4-5"
 
     raise RuntimeError("No AI API key configured")
 

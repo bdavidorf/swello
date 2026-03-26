@@ -95,5 +95,5 @@ export async function fetchAIChat(
   spotId: string,
 ) {
   const { data } = await api.post('/ai/chat', { messages, spot_id: spotId })
-  return data as { reply: string }
+  return data as { reply: string; model_used: string }
 }
