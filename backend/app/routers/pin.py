@@ -64,10 +64,16 @@ async def pin_conditions(
     if marine_data:
         current_hour = min(marine_data, key=lambda h: abs((h.timestamp - now).total_seconds()))
 
+    # ── Land/ocean detection ──────────────────────────────────────────────────
+    # Open-Meteo only populates wave_height_m for actual ocean grid cells.
+    # Coastal land pins can still snap to a nearby ocean grid cell and return
+    # swell component values — use wave_height_m as the definitive gate.
+    is_ocean = current_hour is not None and current_hour.wave_height_m is not None
+
     # ── Wave data: prefer primary swell component for surf assessment ─────────
-    wvht_m  = (current_hour.swell_height_m  or current_hour.wave_height_m)  if current_hour else None
-    dpd_s   = (current_hour.swell_period_s  or current_hour.wave_period_s)  if current_hour else None
-    mwd_deg = (current_hour.swell_direction_deg or current_hour.wave_direction_deg) if current_hour else None
+    wvht_m  = (current_hour.swell_height_m  or current_hour.wave_height_m)  if is_ocean else None
+    dpd_s   = (current_hour.swell_period_s  or current_hour.wave_period_s)  if is_ocean else None
+    mwd_deg = (current_hour.swell_direction_deg or current_hour.wave_direction_deg) if is_ocean else None
 
     # ── Virtual spot: infer coastline from dominant swell direction ───────────
     # The coast faces the direction swell arrives FROM; land is behind it.
@@ -157,7 +163,7 @@ async def pin_conditions(
 
     # ── Swell components ──────────────────────────────────────────────────────
     swells: list[SwellComponent] = []
-    if current_hour:
+    if is_ocean:
         candidates = [
             ("Primary",   current_hour.swell_height_m,     current_hour.swell_period_s,     current_hour.swell_direction_deg),
             ("Secondary", current_hour.swell2_height_m,    current_hour.swell2_period_s,    current_hour.swell2_direction_deg),
