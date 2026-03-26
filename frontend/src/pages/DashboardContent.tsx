@@ -71,7 +71,19 @@ export function DashboardContent() {
         {spotCondition.isLoading ? (
           <SkeletonCard height="h-64" />
         ) : condition ? (
-          <ConditionsCard condition={condition} />
+          <>
+            {isPin && !condition.wave_power && !condition.breaking && (
+              <div className="card p-4 mb-4" style={{ borderColor: 'rgba(120,184,216,0.20)' }}>
+                <p style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 13, letterSpacing: '0.12em', color: '#78B8D8', margin: 0 }}>
+                  LAND LOCATION — WIND DATA ONLY
+                </p>
+                <p style={{ fontFamily: "'Inter', system-ui", fontSize: 12, color: '#6AAED0', margin: '4px 0 0' }}>
+                  No ocean swell detected at this pin. Move it to open water for full surf conditions.
+                </p>
+              </div>
+            )}
+            <ConditionsCard condition={condition} />
+          </>
         ) : (
           <div className="card p-6 border-red-500/30">
             <p className="text-ocean-400 text-sm">

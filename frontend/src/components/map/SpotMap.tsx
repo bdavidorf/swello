@@ -1,9 +1,26 @@
-import { useEffect } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet'
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
+import { useState, useCallback } from 'react'
+import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api'
 import { useSpotStore } from '../../store/spotStore'
 import type { SurfCondition } from '../../types/surf'
+
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY ?? ''
+
+// Deep Ocean dark style — matches app theme
+const MAP_STYLES: google.maps.MapTypeStyle[] = [
+  { elementType: 'geometry',            stylers: [{ color: '#0D1C2A' }] },
+  { elementType: 'labels.text.stroke',  stylers: [{ color: '#0D1C2A' }] },
+  { elementType: 'labels.text.fill',    stylers: [{ color: '#6AAED0' }] },
+  { featureType: 'water', elementType: 'geometry',         stylers: [{ color: '#071420' }] },
+  { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#3A6A8A' }] },
+  { featureType: 'landscape',           stylers: [{ color: '#122534' }] },
+  { featureType: 'landscape.natural',   stylers: [{ color: '#1A3048' }] },
+  { featureType: 'poi',                 stylers: [{ visibility: 'off' }] },
+  { featureType: 'road',                stylers: [{ visibility: 'off' }] },
+  { featureType: 'transit',             stylers: [{ visibility: 'off' }] },
+  { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: '#2E5275' }, { weight: 0.8 }] },
+  { featureType: 'administrative', elementType: 'labels.text.fill', stylers: [{ color: '#5A8AAA' }] },
+  { featureType: 'administrative.country', elementType: 'geometry.stroke', stylers: [{ color: '#2E5275' }, { weight: 1 }] },
+]
 
 const SPOT_COORDS: Record<string, [number, number]> = {
   leo_carrillo:   [34.0453, -118.9365],
@@ -20,93 +37,69 @@ const SPOT_COORDS: Record<string, [number, number]> = {
 }
 
 function ratingColor(r: number) {
-  if (r >= 7) return '#4ADE80'  // green  — firing
-  if (r >= 5) return '#A3E635'  // lime   — good
-  if (r >= 3) return '#FACC15'  // yellow — fair
-  return '#F87171'              // red    — flat
+  if (r >= 7) return '#4ADE80'
+  if (r >= 5) return '#A3E635'
+  if (r >= 3) return '#FACC15'
+  return '#F87171'
 }
 
-function createMarker(rating: number, selected: boolean) {
-  const color = ratingColor(rating)
+function spotIcon(rating: number, selected: boolean): google.maps.Icon {
+  const color = ratingColor(Math.max(rating, 1))
   const size  = selected ? 48 : 38
-  const glow  = selected ? `0 0 16px ${color}99` : `0 0 5px ${color}55`
+  const bg    = selected ? color : 'rgba(18,37,52,0.95)'
+  const text  = selected ? '#0D1C2A' : color
+  const sw    = selected ? 3 : 2
 
-  return L.divIcon({
-    className: '',
-    html: `<div style="
-      width:${size}px;height:${size}px;
-      background:${selected ? color : 'rgba(18,37,52,0.92)'};
-      border:2px solid ${color};
-      border-radius:50%;
-      display:flex;align-items:center;justify-content:center;
-      font-family:'Bangers',Impact,system-ui;
-      font-size:${selected ? 16 : 13}px;
-      letter-spacing:0.04em;
-      color:${selected ? '#0D1C2A' : color};
-      box-shadow:${glow},0 3px 12px rgba(0,0,0,0.45);
-      cursor:pointer;
-      backdrop-filter:blur(8px);
-      transition:all .2s;
-    ">${rating > 0 ? rating : '·'}</div>`,
-    iconSize:   [size, size],
-    iconAnchor: [size / 2, size / 2],
-    popupAnchor:[0, -(size / 2 + 6)],
-  })
+  const svg = encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
+      <circle cx="${size/2}" cy="${size/2}" r="${size/2-2}" fill="${bg}" stroke="${color}" stroke-width="${sw}"/>
+      <text x="${size/2}" y="${size/2+5}" text-anchor="middle" fill="${text}"
+        font-family="Impact,system-ui" font-size="${selected ? 17 : 14}"
+      >${rating > 0 ? rating : '·'}</text>
+    </svg>`
+  )
+  return {
+    url: `data:image/svg+xml;charset=utf-8,${svg}`,
+    scaledSize: new window.google.maps.Size(size, size),
+    anchor:     new window.google.maps.Point(size / 2, size / 2),
+  }
 }
 
-function createPinMarker() {
-  return L.divIcon({
-    className: '',
-    html: `<div style="
-      width:36px;height:36px;
-      background:rgba(120,184,216,0.20);
-      border:2px solid #78B8D8;
-      border-radius:50% 50% 50% 0;
-      transform:rotate(-45deg);
-      box-shadow:0 0 12px rgba(120,184,216,0.60),0 3px 12px rgba(0,0,0,0.45);
-      cursor:crosshair;
-    "></div>`,
-    iconSize:   [36, 36],
-    iconAnchor: [18, 36],
-    popupAnchor:[0, -38],
-  })
+function pinIcon(): google.maps.Icon {
+  const svg = encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="40">
+      <path d="M15 0C6.7 0 0 6.7 0 15c0 11.2 15 25 15 25S30 26.2 30 15C30 6.7 23.3 0 15 0z"
+        fill="rgba(120,184,216,0.90)" stroke="#78B8D8" stroke-width="1.5"/>
+      <circle cx="15" cy="15" r="5.5" fill="rgba(13,28,42,0.95)" stroke="#A0D0F0" stroke-width="1.5"/>
+    </svg>`
+  )
+  return {
+    url: `data:image/svg+xml;charset=utf-8,${svg}`,
+    scaledSize: new window.google.maps.Size(30, 40),
+    anchor:     new window.google.maps.Point(15, 40),
+  }
 }
 
-function MapClickHandler() {
-  const { setPinLatLon, setMobileTab } = useSpotStore()
-  useMapEvents({
-    click(e) {
-      const { lat, lng } = e.latlng
-      // Snap to 3 decimal places (~110m precision)
-      const name = `${Math.abs(lat).toFixed(2)}°${lat >= 0 ? 'N' : 'S'} ${Math.abs(lng).toFixed(2)}°${lng >= 0 ? 'E' : 'W'}`
-      setPinLatLon({ lat: +lat.toFixed(5), lon: +lng.toFixed(5), name })
-      setMobileTab('waves')
-    },
-  })
-  return null
-}
-
-function MapController({ spotId }: { spotId: string }) {
-  const map    = useMap()
-  const coords = SPOT_COORDS[spotId]
-  useEffect(() => {
-    // Use ResizeObserver to call invalidateSize whenever the container gets real dimensions
-    const container = map.getContainer()
-    const ro = new ResizeObserver(() => map.invalidateSize())
-    ro.observe(container)
-    map.invalidateSize()
-    return () => ro.disconnect()
-  }, [map])
-  useEffect(() => {
-    if (coords) map.panTo(coords, { animate: true, duration: 0.5 })
-  }, [spotId, map, coords])
-  return null
+// Shared popup content style
+const popupStyle: React.CSSProperties = {
+  background: 'rgba(13,28,42,0.98)',
+  border: '1px solid rgba(120,184,216,0.15)',
+  borderRadius: 16,
+  padding: '12px 16px',
+  minWidth: 140,
+  fontFamily: 'Inter, system-ui, sans-serif',
 }
 
 interface Props { conditions: SurfCondition[] | undefined }
 
 export function SpotMap({ conditions }: Props) {
   const { selectedSpotId, setSelectedSpot, setMobileTab, pinLatLon, setPinLatLon } = useSpotStore()
+  const [openPopup, setOpenPopup] = useState<string | null>(null)
+
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+  })
 
   const ratingMap: Record<string, number> = {}
   const nameMap:   Record<string, string>  = {}
@@ -125,141 +118,143 @@ export function SpotMap({ conditions }: Props) {
     }
   }
 
+  const handleMapClick = useCallback((e: google.maps.MapMouseEvent) => {
+    const lat = e.latLng?.lat()
+    const lng = e.latLng?.lng()
+    if (lat == null || lng == null) return
+    setOpenPopup(null)
+    const name = `${Math.abs(lat).toFixed(2)}°${lat >= 0 ? 'N' : 'S'} ${Math.abs(lng).toFixed(2)}°${lng >= 0 ? 'E' : 'W'}`
+    setPinLatLon({ lat: +lat.toFixed(5), lon: +lng.toFixed(5), name })
+    setMobileTab('waves')
+  }, [setPinLatLon, setMobileTab])
+
+  if (!isLoaded) {
+    return (
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0D1C2A' }}>
+        <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#6AAED0', letterSpacing: '0.10em', fontSize: 14 }}>
+          LOADING MAP…
+        </p>
+      </div>
+    )
+  }
+
   return (
     <div style={{ position: 'relative', flex: 1, minHeight: 0, width: '100%', height: '100%' }}>
-      <MapContainer
-        center={[33.97, -118.6]}
+      <GoogleMap
+        mapContainerStyle={{ width: '100%', height: '100%' }}
+        center={{ lat: 33.97, lng: -118.6 }}
         zoom={11}
-        style={{ width: '100%', height: '100%', minHeight: '400px' }}
-        zoomControl={false}
-        worldCopyJump={false}
-        maxBounds={[[-90, -180], [90, 180]]}
-        maxBoundsViscosity={1.0}
+        options={{
+          styles: MAP_STYLES,
+          disableDefaultUI: true,
+          zoomControl: true,
+          zoomControlOptions: { position: 7 /* RIGHT_BOTTOM */ },
+          clickableIcons: false,
+          gestureHandling: 'greedy',
+        }}
+        onClick={handleMapClick}
       >
-        <TileLayer
-          url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
-          attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
-          maxZoom={16}
-          noWrap={true}
-        />
-        <TileLayer
-          url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
-          attribution=""
-          maxZoom={16}
-          noWrap={true}
-        />
-        <MapController spotId={selectedSpotId} />
-        <MapClickHandler />
-
-        {/* Custom dropped pin */}
-        {pinLatLon && (
-          <Marker
-            position={[pinLatLon.lat, pinLatLon.lon]}
-            icon={createPinMarker()}
-          >
-            <Popup className="surf-popup" closeButton={false} offset={[0, -4]}>
-              <div style={{
-                background: 'rgba(18,37,52,0.96)',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                border: '1px solid rgba(120,184,216,0.20)',
-                borderRadius: 18,
-                padding: '12px 16px',
-                minWidth: 140,
-                fontFamily: 'Inter, system-ui, sans-serif',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.55)',
-              }}>
-                <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#78B8D8', fontSize: 12, margin: '0 0 2px', letterSpacing: '0.10em' }}>DROPPED PIN</p>
-                <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#D8EEF8', fontSize: 13, margin: '0 0 8px', letterSpacing: '0.06em' }}>{pinLatLon.name}</p>
-                <div style={{ display: 'flex', gap: 6 }}>
-                  <button
-                    onClick={() => { setMobileTab('waves') }}
-                    style={{
-                      flex: 1,
-                      background: 'linear-gradient(135deg, #78B8D8, #5AAAC8)',
-                      color: '#0D1C2A', border: 'none', borderRadius: 10,
-                      padding: '6px 0',
-                      fontFamily: "'Bangers', Impact, system-ui", fontSize: 10,
-                      cursor: 'pointer', letterSpacing: '0.10em',
-                    }}
-                  >VIEW CONDITIONS</button>
-                  <button
-                    onClick={() => setPinLatLon(null)}
-                    style={{
-                      background: 'rgba(120,184,216,0.12)',
-                      color: '#6AAED0', border: '1px solid rgba(120,184,216,0.20)',
-                      borderRadius: 10, padding: '6px 10px',
-                      fontFamily: "'Bangers', Impact, system-ui", fontSize: 10,
-                      cursor: 'pointer', letterSpacing: '0.08em',
-                    }}
-                  >CLEAR</button>
-                </div>
-              </div>
-            </Popup>
-          </Marker>
-        )}
-
-        {Object.entries(SPOT_COORDS).map(([spotId, coords]) => {
+        {/* Known LA spot markers */}
+        {Object.entries(SPOT_COORDS).map(([spotId, [lat, lng]]) => {
           const rating   = ratingMap[spotId] ?? 0
           const selected = spotId === selectedSpotId
+          const color    = ratingColor(Math.max(rating, 1))
           const name     = nameMap[spotId] ?? spotId
           const wave     = waveMap[spotId] ?? '--'
-          const color    = ratingColor(rating)
 
           return (
-            <Marker key={spotId} position={coords} icon={createMarker(rating, selected)}
-              eventHandlers={{ click: () => { setSelectedSpot(spotId); setMobileTab('waves') } }}>
-              <Popup className="surf-popup" closeButton={false} offset={[0, -4]}>
-                <div style={{
-                  background: 'rgba(18,37,52,0.96)',
-                  backdropFilter: 'blur(20px)',
-                  WebkitBackdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(168,200,220,0.12)',
-                  borderRadius: 18,
-                  padding: '12px 16px',
-                  minWidth: 140,
-                  fontFamily: 'Inter, system-ui, sans-serif',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.55)',
-                }}>
-                  <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#D8EEF8', fontSize: 14, margin: '0 0 4px', letterSpacing: '0.06em' }}>{name}</p>
-                  <p style={{ fontFamily: "'Bangers', Impact, system-ui", color, fontSize: 20, margin: '0 0 2px', letterSpacing: '0.04em' }}>{wave}</p>
-                  <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#6AAED0', fontSize: 10, margin: 0, letterSpacing: '0.10em' }}>
-                    RATING {rating}/10
-                  </p>
-                  <button
-                    onClick={() => { setSelectedSpot(spotId); setMobileTab('waves') }}
-                    style={{
-                      marginTop: 10, width: '100%',
-                      background: color, color: '#0D1C2A',
-                      border: 'none', borderRadius: 12,
-                      padding: '7px 0',
-                      fontFamily: "'Bangers', Impact, system-ui", fontWeight: 400,
-                      fontSize: 11, cursor: 'pointer',
-                      letterSpacing: '0.12em',
-                      boxShadow: `0 2px 10px ${color}55`,
-                    }}
-                  >
-                    VIEW CONDITIONS
-                  </button>
-                </div>
-              </Popup>
+            <Marker
+              key={spotId}
+              position={{ lat, lng }}
+              icon={spotIcon(rating, selected)}
+              zIndex={selected ? 10 : 1}
+              onClick={() => {
+                setOpenPopup(spotId)
+                setSelectedSpot(spotId)
+              }}
+            >
+              {openPopup === spotId && (
+                <InfoWindow
+                  position={{ lat, lng }}
+                  onCloseClick={() => setOpenPopup(null)}
+                  options={{ disableAutoPan: false, pixelOffset: new window.google.maps.Size(0, -8) }}
+                >
+                  <div style={popupStyle}>
+                    <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#D8EEF8', fontSize: 14, margin: '0 0 2px', letterSpacing: '0.06em' }}>{name}</p>
+                    <p style={{ fontFamily: "'Bangers', Impact, system-ui", color, fontSize: 22, margin: '0 0 2px', letterSpacing: '0.04em' }}>{wave}</p>
+                    <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#6AAED0', fontSize: 10, margin: '0 0 10px', letterSpacing: '0.10em' }}>RATING {Math.max(rating, 1)}/10</p>
+                    <button
+                      onClick={() => { setSelectedSpot(spotId); setMobileTab('waves'); setOpenPopup(null) }}
+                      style={{
+                        width: '100%', background: color, color: '#0D1C2A',
+                        border: 'none', borderRadius: 10, padding: '7px 0',
+                        fontFamily: "'Bangers', Impact, system-ui", fontSize: 11,
+                        cursor: 'pointer', letterSpacing: '0.12em',
+                        boxShadow: `0 2px 10px ${color}55`,
+                      }}
+                    >VIEW CONDITIONS</button>
+                  </div>
+                </InfoWindow>
+              )}
             </Marker>
           )
         })}
-      </MapContainer>
+
+        {/* Dropped pin */}
+        {pinLatLon && (
+          <Marker
+            position={{ lat: pinLatLon.lat, lng: pinLatLon.lon }}
+            icon={pinIcon()}
+            zIndex={20}
+            onClick={() => setOpenPopup('pin')}
+          >
+            {openPopup === 'pin' && (
+              <InfoWindow
+                position={{ lat: pinLatLon.lat, lng: pinLatLon.lon }}
+                onCloseClick={() => setOpenPopup(null)}
+                options={{ disableAutoPan: false, pixelOffset: new window.google.maps.Size(0, -8) }}
+              >
+                <div style={popupStyle}>
+                  <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#78B8D8', fontSize: 11, margin: '0 0 2px', letterSpacing: '0.10em' }}>DROPPED PIN</p>
+                  <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#D8EEF8', fontSize: 13, margin: '0 0 10px', letterSpacing: '0.06em' }}>{pinLatLon.name}</p>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button
+                      onClick={() => { setMobileTab('waves'); setOpenPopup(null) }}
+                      style={{
+                        flex: 1, background: 'linear-gradient(135deg,#78B8D8,#5AAAC8)',
+                        color: '#0D1C2A', border: 'none', borderRadius: 10,
+                        padding: '6px 0', fontFamily: "'Bangers', Impact, system-ui",
+                        fontSize: 10, cursor: 'pointer', letterSpacing: '0.10em',
+                      }}
+                    >VIEW CONDITIONS</button>
+                    <button
+                      onClick={() => { setPinLatLon(null); setOpenPopup(null) }}
+                      style={{
+                        background: 'rgba(120,184,216,0.12)', color: '#6AAED0',
+                        border: '1px solid rgba(120,184,216,0.20)', borderRadius: 10,
+                        padding: '6px 10px', fontFamily: "'Bangers', Impact, system-ui",
+                        fontSize: 10, cursor: 'pointer', letterSpacing: '0.08em',
+                      }}
+                    >CLEAR</button>
+                  </div>
+                </div>
+              </InfoWindow>
+            )}
+          </Marker>
+        )}
+      </GoogleMap>
 
       {/* Legend */}
       <div style={{
         position: 'absolute', bottom: 16, left: 16, zIndex: 1000,
-        background: 'rgba(18,37,52,0.92)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
+        background: 'rgba(13,28,42,0.92)',
+        backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
         border: '1px solid rgba(168,200,220,0.10)',
         borderRadius: 16, padding: '10px 14px',
         boxShadow: '0 4px 20px rgba(0,0,0,0.45)',
       }}>
         <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#6AAED0', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', margin: '0 0 6px' }}>RATING</p>
-        {[['7–10', '#4ADE80', 'FIRING'], ['5–6', '#A3E635', 'GOOD'], ['3–4', '#FACC15', 'FAIR'], ['0–2', '#F87171', 'FLAT']].map(([range, color, label]) => (
+        {([['7–10','#4ADE80','FIRING'],['5–6','#A3E635','GOOD'],['3–4','#FACC15','FAIR'],['0–2','#F87171','FLAT']] as const).map(([range, color, label]) => (
           <div key={range} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 4 }}>
             <div style={{ width: 9, height: 9, borderRadius: '50%', background: color, flexShrink: 0, boxShadow: `0 0 5px ${color}88` }} />
             <span style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#A0C0D8', fontSize: 10, letterSpacing: '0.04em' }}>{range}</span>

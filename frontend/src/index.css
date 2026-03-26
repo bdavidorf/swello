@@ -181,15 +181,29 @@
   .ask-swello-btn:active { transform: scale(0.97); }
 }
 
-/* ── Leaflet popup overrides ── */
-.leaflet-popup-content-wrapper,
-.leaflet-popup-tip {
-  background: transparent !important;
-  box-shadow: none !important;
+/* ── Google Maps InfoWindow dark theme ── */
+.gm-style .gm-style-iw-c {
+  background: rgba(13,28,42,0.98) !important;
+  border: 1px solid rgba(120,184,216,0.15) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.60) !important;
   padding: 0 !important;
 }
-.leaflet-popup-content { margin: 0 !important; }
-.leaflet-container { font-family: 'Inter', system-ui, sans-serif; }
+.gm-style .gm-style-iw-d {
+  overflow: hidden !important;
+}
+.gm-style .gm-style-iw-t::after {
+  background: rgba(13,28,42,0.98) !important;
+  box-shadow: -2px 2px 4px rgba(0,0,0,0.30) !important;
+}
+/* Close button */
+.gm-style .gm-style-iw-c button.gm-ui-hover-effect {
+  top: 4px !important;
+  right: 4px !important;
+  opacity: 0.7 !important;
+  filter: invert(1) brightness(1.5) !important;
+}
+.gm-style .gm-style-iw-c button.gm-ui-hover-effect:hover { opacity: 1 !important; }
 
 /* ── Wave height — Inter for clear numeral distinction ── */
 .wave-height-display {

@@ -109,6 +109,7 @@ class SpotRecommendation:
     confidence:       int            # 0-100 %
     breakdown:        ScoreBreakdown
     face_height_label: str
+    wave_power_kw:    float          # kW/m (physics value)
     wave_power_label: str            # "low" / "moderate" / "high" / "powerful"
     crowd:            str            # "low" / "moderate" / "high"
     best_window_start: str           # "6:00 AM"
