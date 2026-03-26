@@ -125,7 +125,30 @@ Be conversational, knowledgeable, and use surf lingo naturally. Give specific sp
 
     import httpx
 
-    # Try Groq first (fast, free)
+    # Try Gemini first
+    if _gemini_key():
+        try:
+            # Gemini uses "model" instead of "assistant" for role names
+            gemini_contents = [
+                {"role": "model" if m["role"] == "assistant" else "user",
+                 "parts": [{"text": m["content"]}]}
+                for m in messages
+            ]
+            async with httpx.AsyncClient(timeout=30) as client:
+                resp = await client.post(
+                    f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={_gemini_key()}",
+                    json={
+                        "systemInstruction": {"parts": [{"text": system}]},
+                        "contents": gemini_contents,
+                        "generationConfig": {"temperature": 0.7, "maxOutputTokens": 512},
+                    },
+                )
+                resp.raise_for_status()
+                return resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+        except Exception:
+            pass
+
+    # Fallback to Groq
     if _groq_key():
         try:
             groq_msgs = [{"role": "system", "content": system}] + \
@@ -161,7 +184,7 @@ Be conversational, knowledgeable, and use surf lingo naturally. Give specific sp
             resp.raise_for_status()
             return resp.json()["content"][0]["text"]
 
-    raise RuntimeError("No AI API key configured (GROQ_API_KEY or ANTHROPIC_API_KEY)")
+    raise RuntimeError("No AI API key configured")
 
 
 # ── Groq / Claude fallbacks ───────────────────────────────────────────────────
