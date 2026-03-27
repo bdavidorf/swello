@@ -330,12 +330,12 @@ function SurfboardButton({ onClick }: { onClick: () => void }) {
 }
 
 export function SurfChatWidget() {
-  const [open, setOpen] = useState(false)
+  const { aiPanelOpen, setAiPanelOpen } = useSpotStore()
 
   return (
     <>
-      {open && <ChatWindow onClose={() => setOpen(false)} />}
-      {!open && <SurfboardButton onClick={() => setOpen(true)} />}
+      {aiPanelOpen && <ChatWindow onClose={() => setAiPanelOpen(false)} />}
+      {!aiPanelOpen && <SurfboardButton onClick={() => setAiPanelOpen(true)} />}
     </>
   )
 }

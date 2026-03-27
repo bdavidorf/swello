@@ -29,7 +29,7 @@ export default function App() {
     (ratingsQuery.data ?? []).map(r => [r.spot_id, r])
   )
 
-  const { mobileTab } = useSpotStore()
+  const { mobileTab, aiPanelOpen } = useSpotStore()
 
   return (
     <BrowserRouter>
@@ -38,8 +38,8 @@ export default function App() {
 
         <TopBar />
 
-        {/* Spot picker — visible on all screen sizes except map and AI tabs */}
-        {mobileTab !== 'spots' && mobileTab !== 'ai' && (
+        {/* Spot picker — hidden on map tab, AI tab, and when chat is open */}
+        {mobileTab !== 'spots' && mobileTab !== 'ai' && !aiPanelOpen && (
           <MobileSpotPicker spots={spotMeta.data} ratingsMap={ratingsMap} />
         )}
 
