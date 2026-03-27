@@ -13,7 +13,7 @@ import { FriendsPanel } from './components/layout/FriendsPanel'
 import { AuthPage } from './pages/AuthPage'
 import { ProfileSetupWizard } from './pages/ProfileSetupWizard'
 import { useQuery } from '@tanstack/react-query'
-import { fetchSpotMeta, fetchSpotRatings, sendFriendRequest } from './api/client'
+import { fetchSpotMeta, fetchSpotRatings, sendFriendRequest, fetchUserProfile } from './api/client'
 import { useSpotStore } from './store/spotStore'
 import { useAuthStore } from './store/authStore'
 import type { SpotMeta } from './types/surf'
@@ -69,8 +69,23 @@ function MainApp() {
     (ratingsQuery.data ?? []).map(r => [r.spot_id, r])
   )
 
-  const { mobileTab, aiPanelOpen, setFriendsOpen } = useSpotStore()
+  const { mobileTab, aiPanelOpen, setFriendsOpen, setUserProfile } = useSpotStore()
   const { pullY, refreshing, onTouchStart, onTouchMove, onTouchEnd } = usePullToRefresh()
+
+  // Fetch server-side profile on load and merge into local store
+  useEffect(() => {
+    fetchUserProfile().then(p => {
+      if (p.skill_level) {
+        setUserProfile({
+          skill: p.skill_level as any,
+          board: p.board_type as any,
+          prefers_bigger: p.prefers_bigger,
+          prefers_cleaner: p.prefers_cleaner,
+          prefers_uncrowded: p.prefers_uncrowded,
+        })
+      }
+    }).catch(() => {})
+  }, [])
 
   // Deep-link: ?add=username → auto-send friend request and open Friends panel
   useEffect(() => {

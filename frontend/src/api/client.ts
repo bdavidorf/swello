@@ -150,6 +150,32 @@ export async function fetchMySession(): Promise<FriendSurfSession | null> {
   return data
 }
 
+// ── Profile API ───────────────────────────────────────────────────────────────
+
+export interface UserProfileRemote {
+  skill_level: string | null
+  board_type: string | null
+  prefers_bigger: boolean
+  prefers_cleaner: boolean
+  prefers_uncrowded: boolean
+}
+
+export async function fetchUserProfile(): Promise<UserProfileRemote> {
+  const { data } = await api.get('/profile')
+  return data
+}
+
+export async function saveUserProfile(profile: {
+  skill_level: string
+  board_type: string
+  prefers_bigger: boolean
+  prefers_cleaner: boolean
+  prefers_uncrowded: boolean
+}) {
+  const { data } = await api.put('/profile', profile)
+  return data
+}
+
 export async function fetchAIChat(
   messages: { role: string; content: string }[],
   spotId: string,

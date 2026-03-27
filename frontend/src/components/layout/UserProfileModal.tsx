@@ -3,7 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, MapPin, CheckCircle, AlertCircle, LogOut } from 'lucide-react'
 import { useSpotStore } from '../../store/spotStore'
 import { useAuthStore } from '../../store/authStore'
+import { saveUserProfile } from '../../api/client'
 import type { SkillLevel, BoardType } from '../../types/swelloAI'
+import type { UserProfile } from '../../store/spotStore'
 
 const SKILLS: { id: SkillLevel; label: string; desc: string }[] = [
   { id: 'beginner',     label: 'Beginner',     desc: 'Learning the basics' },
@@ -30,6 +32,18 @@ export function UserProfileModal() {
   const [locStatus, setLocStatus] = useState<'idle' | 'loading' | 'granted' | 'denied'>(
     userLocation ? 'granted' : 'idle'
   )
+
+  function updateProfile(patch: Partial<UserProfile>) {
+    setUserProfile(patch)
+    const updated = { ...userProfile, ...patch }
+    saveUserProfile({
+      skill_level: updated.skill,
+      board_type: updated.board,
+      prefers_bigger: updated.prefers_bigger,
+      prefers_cleaner: updated.prefers_cleaner,
+      prefers_uncrowded: updated.prefers_uncrowded,
+    }).catch(() => {})
+  }
 
   function requestLocation() {
     if (!navigator.geolocation) {
@@ -214,7 +228,7 @@ export function UserProfileModal() {
                     return (
                       <button
                         key={s.id}
-                        onClick={() => setUserProfile({ skill: s.id })}
+                        onClick={() => updateProfile({ skill: s.id })}
                         style={{
                           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                           padding: '12px 16px', borderRadius: 14, textAlign: 'left',
@@ -254,7 +268,7 @@ export function UserProfileModal() {
                     return (
                       <button
                         key={b.id}
-                        onClick={() => setUserProfile({ board: b.id })}
+                        onClick={() => updateProfile({ board: b.id })}
                         style={{
                           display: 'flex', alignItems: 'center', gap: 10,
                           padding: '12px 14px', borderRadius: 14,
@@ -291,7 +305,7 @@ export function UserProfileModal() {
                     return (
                       <button
                         key={key}
-                        onClick={() => setUserProfile({ [key]: !active })}
+                        onClick={() => updateProfile({ [key]: !active })}
                         style={{
                           display: 'flex', alignItems: 'center', gap: 12,
                           padding: '12px 16px', borderRadius: 14, textAlign: 'left',
