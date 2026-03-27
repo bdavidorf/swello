@@ -39,9 +39,11 @@ export default function App() {
 
         <TopBar />
 
-        {/* Spot picker — hidden on map tab, AI tab, and when chat is open */}
-        {mobileTab !== 'spots' && mobileTab !== 'ai' && !aiPanelOpen && (
-          <MobileSpotPicker spots={spotMeta.data} ratingsMap={ratingsMap} />
+        {/* Spot picker — always on desktop; hidden on mobile when on AI tab or chat is open */}
+        {mobileTab !== 'spots' && (
+          <div className={(mobileTab === 'ai' || aiPanelOpen) ? 'hidden md:block' : undefined}>
+            <MobileSpotPicker spots={spotMeta.data} ratingsMap={ratingsMap} />
+          </div>
         )}
 
         <div className="flex flex-1 min-h-0 overflow-hidden">

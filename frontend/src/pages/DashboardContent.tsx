@@ -26,7 +26,7 @@ function Section({ tab, children }: { tab: string; children: React.ReactNode }) 
 }
 
 export function DashboardContent() {
-  const { selectedSpotId, pinLatLon } = useSpotStore()
+  const { selectedSpotId, pinLatLon, mobileTab } = useSpotStore()
   const isPin = selectedSpotId === 'pin'
 
   const spotCondition = useQuery<SurfCondition>({
@@ -145,10 +145,10 @@ export function DashboardContent() {
         )}
       </Section>
 
-      {/* ── AI tab ── */}
-      <Section tab="ai">
+      {/* ── AI tab — only show when explicitly on AI tab (not always-on like waves/forecast) ── */}
+      <div className={clsx(mobileTab === 'ai' ? 'block' : 'hidden')}>
         <SwelloAIPanel />
-      </Section>
+      </div>
 
     </main>
   )
