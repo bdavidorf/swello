@@ -33,10 +33,12 @@ export interface SpotPick {
   reasons:           string[]
   warnings:          string[]
   data_age_minutes:  number | null
+  distance_km:       number | null
 }
 
 export interface SwelloAIResponse {
   top_picks:          SpotPick[]
   generated_at:       string
   conditions_summary: string
+  ai_narrative:       string
 }

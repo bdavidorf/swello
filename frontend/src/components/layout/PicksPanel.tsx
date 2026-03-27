@@ -31,6 +31,7 @@ export function PicksPanel() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [picks, setPicks] = useState<SpotPick[]>([])
+  const [narrative, setNarrative] = useState('')
 
   // Cache key: serialize profile to detect meaningful changes
   const lastFetchKey = useRef<string | null>(null)
@@ -51,6 +52,7 @@ export function PicksPanel() {
           userLocation ?? undefined,
         )
         setPicks(result.top_picks.slice(0, 3))
+        setNarrative(result.ai_narrative ?? '')
         lastFetchKey.current = key
       } catch {
         setError(true)
@@ -78,6 +80,7 @@ export function PicksPanel() {
     fetchSwelloAI(userProfile, userLocation ?? undefined)
       .then((result: SwelloAIResponse) => {
         setPicks(result.top_picks.slice(0, 3))
+        setNarrative(result.ai_narrative ?? '')
         lastFetchKey.current = JSON.stringify({ ...userProfile, userLocation })
         setLoading(false)
       })
@@ -193,6 +196,24 @@ export function PicksPanel() {
                 </div>
               )}
 
+              {/* AI narrative */}
+              {!loading && !error && narrative && (
+                <div style={{
+                  background: 'rgba(120,184,216,0.07)',
+                  border: '1px solid rgba(120,184,216,0.14)',
+                  borderRadius: 14, padding: '12px 14px',
+                  marginBottom: 16,
+                }}>
+                  <p style={{
+                    fontFamily: "'Inter', system-ui", fontSize: 13,
+                    color: '#A0C8E0', lineHeight: 1.55, margin: 0,
+                    fontStyle: 'italic',
+                  }}>
+                    "{narrative}"
+                  </p>
+                </div>
+              )}
+
               {/* Picks cards */}
               {!loading && !error && picks.length > 0 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 8 }}>
@@ -224,15 +245,25 @@ export function PicksPanel() {
                           </span>
                         </div>
 
-                        {/* Spot name */}
-                        <p style={{
-                          fontFamily: "'Bangers', Impact, system-ui",
-                          fontSize: 20, letterSpacing: '0.06em',
-                          color: '#D8EEF8', margin: 0, flex: 1,
-                          lineHeight: 1.1,
-                        }}>
-                          {pick.spot_name}
-                        </p>
+                        {/* Spot name + distance */}
+                        <div style={{ flex: 1 }}>
+                          <p style={{
+                            fontFamily: "'Bangers', Impact, system-ui",
+                            fontSize: 20, letterSpacing: '0.06em',
+                            color: '#D8EEF8', margin: 0,
+                            lineHeight: 1.1,
+                          }}>
+                            {pick.spot_name}
+                          </p>
+                          {pick.distance_km != null && (
+                            <p style={{
+                              fontFamily: "'Inter', system-ui", fontSize: 11,
+                              color: '#5AAAC8', margin: '2px 0 0', letterSpacing: '0.01em',
+                            }}>
+                              {Math.round(pick.distance_km * 0.621)} mi away
+                            </p>
+                          )}
+                        </div>
 
                         {/* Score */}
                         <p style={{

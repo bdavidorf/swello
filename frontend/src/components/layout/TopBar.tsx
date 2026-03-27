@@ -1,9 +1,11 @@
 import { Settings, RefreshCw, Map, UserCircle, Star } from 'lucide-react'
 import { useSpotStore } from '../../store/spotStore'
+import { useAuthStore } from '../../store/authStore'
 import { useQueryClient } from '@tanstack/react-query'
 
 export function TopBar() {
-  const { setPreferencesOpen, preferencesOpen, setMobileTab, mobileTab, setProfileOpen, userProfile, setPicksOpen } = useSpotStore()
+  const { setPreferencesOpen, preferencesOpen, setMobileTab, mobileTab, setProfileOpen, setPicksOpen } = useSpotStore()
+  const { username } = useAuthStore()
   const qc = useQueryClient()
 
   return (
@@ -116,7 +118,7 @@ export function TopBar() {
             fontFamily: "'Bangers', Impact, system-ui", fontWeight: 400,
             fontSize: 11, letterSpacing: '0.14em', color: '#78B8D8',
           }}>
-            {userProfile.skill.toUpperCase()}
+            {username ? username.toUpperCase() : 'PROFILE'}
           </span>
         </button>
       </div>

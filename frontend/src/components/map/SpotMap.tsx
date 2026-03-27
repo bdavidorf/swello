@@ -91,17 +91,22 @@ export function SpotMap({ spots, ratingsMap }: Props) {
   const [openPopup, setOpenPopup] = useState<string | null>(null)
   const mapRef = useRef<google.maps.Map | null>(null)
 
-  // Center map on selected spot whenever it changes
-  useEffect(() => {
+  // Center map on selected spot — extracted so we can call it on load AND on spot change
+  const centerOnSelected = useCallback(() => {
     if (!mapRef.current || !spots) return
     const target = pinLatLon
       ? { lat: pinLatLon.lat, lng: pinLatLon.lon }
       : spots.find(s => s.id === selectedSpotId)
-    if (target && 'lat' in target) {
-      mapRef.current.panTo({ lat: target.lat, lng: 'lng' in target ? target.lng : (target as SpotMeta).lon })
-      mapRef.current.setZoom(11)
+    if (target) {
+      const lat = pinLatLon ? pinLatLon.lat : (target as SpotMeta).lat
+      const lng = pinLatLon ? pinLatLon.lon : (target as SpotMeta).lon
+      mapRef.current.panTo({ lat, lng })
+      mapRef.current.setZoom(12)
     }
   }, [selectedSpotId, pinLatLon, spots])
+
+  // Re-center whenever the selected spot changes
+  useEffect(() => { centerOnSelected() }, [centerOnSelected])
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -134,7 +139,7 @@ export function SpotMap({ spots, ratingsMap }: Props) {
         mapContainerStyle={{ width: '100%', height: '100%' }}
         center={{ lat: 38.5, lng: -96.0 }}
         zoom={4}
-        onLoad={map => { mapRef.current = map }}
+        onLoad={map => { mapRef.current = map; setTimeout(centerOnSelected, 50) }}
         options={{
           styles: MAP_STYLES,
           disableDefaultUI: true,
