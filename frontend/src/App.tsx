@@ -1,5 +1,5 @@
 import { BrowserRouter } from 'react-router-dom'
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { TopBar } from './components/layout/TopBar'
 import { MobileNav } from './components/layout/MobileNav'
 import { MobileSpotPicker } from './components/layout/MobileSpotPicker'
@@ -13,7 +13,7 @@ import { FriendsPanel } from './components/layout/FriendsPanel'
 import { AuthPage } from './pages/AuthPage'
 import { ProfileSetupWizard } from './pages/ProfileSetupWizard'
 import { useQuery } from '@tanstack/react-query'
-import { fetchSpotMeta, fetchSpotRatings } from './api/client'
+import { fetchSpotMeta, fetchSpotRatings, sendFriendRequest } from './api/client'
 import { useSpotStore } from './store/spotStore'
 import { useAuthStore } from './store/authStore'
 import type { SpotMeta } from './types/surf'
@@ -69,8 +69,21 @@ function MainApp() {
     (ratingsQuery.data ?? []).map(r => [r.spot_id, r])
   )
 
-  const { mobileTab, aiPanelOpen } = useSpotStore()
+  const { mobileTab, aiPanelOpen, setFriendsOpen } = useSpotStore()
   const { pullY, refreshing, onTouchStart, onTouchMove, onTouchEnd } = usePullToRefresh()
+
+  // Deep-link: ?add=username → auto-send friend request and open Friends panel
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const addUser = params.get('add')
+    if (!addUser) return
+    // Remove the param from the URL without reloading
+    const clean = window.location.pathname
+    window.history.replaceState({}, '', clean)
+    sendFriendRequest(addUser)
+      .then(() => { setFriendsOpen(true) })
+      .catch(() => { setFriendsOpen(true) }) // open panel even on error so user sees it
+  }, [])
 
   return (
     <div
