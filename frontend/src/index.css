@@ -249,7 +249,7 @@
     transform: scale(0.58);
     transform-origin: bottom right;
     right: 16px !important;
-    bottom: calc(env(safe-area-inset-bottom) + 150px) !important;
+    bottom: calc(env(safe-area-inset-bottom) + 110px) !important;
   }
   .map-fab {
     transform: scale(0.50);

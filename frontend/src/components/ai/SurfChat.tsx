@@ -72,7 +72,7 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
     <div
       className="fixed z-50 surf-chat-window"
       style={{
-        bottom: 'calc(env(safe-area-inset-bottom) + 240px)',
+        bottom: 'calc(env(safe-area-inset-bottom) + 188px)',
         right: 16,
         width: 'min(340px, calc(100vw - 32px))',
         background: 'rgba(18,42,66,0.95)',
@@ -234,7 +234,7 @@ function SurfboardButton({ onClick }: { onClick: () => void }) {
       className="surf-chat-fab"
       style={{
         position: 'fixed',
-        bottom: 'calc(env(safe-area-inset-bottom) + 178px)',
+        bottom: 'calc(env(safe-area-inset-bottom) + 120px)',
         right: 16,
         width: `min(${BOARD_W}px, calc(100vw - 32px))`,
         height: BOARD_H,
