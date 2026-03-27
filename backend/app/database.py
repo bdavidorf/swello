@@ -13,13 +13,33 @@ def get_db() -> sqlite3.Connection:
     conn = sqlite3.connect(str(DB_PATH), check_same_thread=False)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
-    # Ensure schema exists — handles cases where the DB file exists but is empty
     conn.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id            INTEGER PRIMARY KEY AUTOINCREMENT,
             username      TEXT    UNIQUE NOT NULL COLLATE NOCASE,
             password_hash TEXT    NOT NULL,
             created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS friendships (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            requester  TEXT NOT NULL COLLATE NOCASE,
+            addressee  TEXT NOT NULL COLLATE NOCASE,
+            status     TEXT NOT NULL DEFAULT 'pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(requester, addressee)
+        )
+    """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS surf_sessions (
+            username   TEXT PRIMARY KEY COLLATE NOCASE,
+            spot_id    TEXT NOT NULL,
+            spot_name  TEXT NOT NULL,
+            lat        REAL NOT NULL,
+            lon        REAL NOT NULL,
+            started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            expires_at TEXT NOT NULL
         )
     """)
     conn.commit()
@@ -28,17 +48,9 @@ def get_db() -> sqlite3.Connection:
 
 def init_db() -> None:
     conn = get_db()
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id            INTEGER PRIMARY KEY AUTOINCREMENT,
-            username      TEXT    UNIQUE NOT NULL COLLATE NOCASE,
-            password_hash TEXT    NOT NULL,
-            created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
     conn.commit()
     conn.close()
-    print(f"[db] Users DB ready at {DB_PATH}")
+    print(f"[db] DB ready at {DB_PATH}")
 
 
 # Run on module import — ensures table exists on Vercel cold starts where

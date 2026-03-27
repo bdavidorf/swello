@@ -62,6 +62,9 @@ interface SpotStore {
 
   picksOpen: boolean
   setPicksOpen: (open: boolean) => void
+
+  friendsOpen: boolean
+  setFriendsOpen: (open: boolean) => void
 }
 
 const DEFAULT_PREFS: UserPreferences = {
@@ -107,6 +110,9 @@ export const useSpotStore = create<SpotStore>()(
 
       picksOpen: false,
       setPicksOpen: (open) => set({ picksOpen: open }),
+
+      friendsOpen: false,
+      setFriendsOpen: (open) => set({ friendsOpen: open }),
     }),
     {
       name: 'surf-forecast-prefs',

@@ -1,4 +1,5 @@
 import { BrowserRouter } from 'react-router-dom'
+import { useRef, useState } from 'react'
 import { TopBar } from './components/layout/TopBar'
 import { MobileNav } from './components/layout/MobileNav'
 import { MobileSpotPicker } from './components/layout/MobileSpotPicker'
@@ -8,6 +9,7 @@ import { SurfChatWidget } from './components/ai/SurfChat'
 import { MapFAB } from './components/map/MapFAB'
 import { UserProfileModal } from './components/layout/UserProfileModal'
 import { PicksPanel } from './components/layout/PicksPanel'
+import { FriendsPanel } from './components/layout/FriendsPanel'
 import { AuthPage } from './pages/AuthPage'
 import { ProfileSetupWizard } from './pages/ProfileSetupWizard'
 import { useQuery } from '@tanstack/react-query'
@@ -15,6 +17,39 @@ import { fetchSpotMeta, fetchSpotRatings } from './api/client'
 import { useSpotStore } from './store/spotStore'
 import { useAuthStore } from './store/authStore'
 import type { SpotMeta } from './types/surf'
+
+const PULL_THRESHOLD = 72  // px of pull needed to trigger refresh
+
+function usePullToRefresh() {
+  const startY = useRef(0)
+  const [pullY, setPullY] = useState(0)
+  const [refreshing, setRefreshing] = useState(false)
+
+  function onTouchStart(e: React.TouchEvent) {
+    // Only activate when scrolled to the very top
+    const el = e.currentTarget as HTMLElement
+    if (el.scrollTop > 0) return
+    startY.current = e.touches[0].clientY
+  }
+
+  function onTouchMove(e: React.TouchEvent) {
+    if (!startY.current) return
+    const dy = e.touches[0].clientY - startY.current
+    if (dy > 0) setPullY(Math.min(dy * 0.45, PULL_THRESHOLD + 16))
+  }
+
+  function onTouchEnd() {
+    if (pullY >= PULL_THRESHOLD) {
+      setRefreshing(true)
+      setTimeout(() => window.location.reload(), 300)
+    } else {
+      setPullY(0)
+    }
+    startY.current = 0
+  }
+
+  return { pullY, refreshing, onTouchStart, onTouchMove, onTouchEnd }
+}
 
 function MainApp() {
   const spotMeta = useQuery<SpotMeta[]>({
@@ -35,10 +70,35 @@ function MainApp() {
   )
 
   const { mobileTab, aiPanelOpen } = useSpotStore()
+  const { pullY, refreshing, onTouchStart, onTouchMove, onTouchEnd } = usePullToRefresh()
 
   return (
-    <div className="flex flex-col text-ocean-50"
-         style={{ height: '100dvh', overflow: 'hidden' }}>
+    <div
+      className="flex flex-col text-ocean-50"
+      style={{ height: '100dvh', overflow: 'hidden', overscrollBehavior: 'none' }}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
+      {/* Pull-to-refresh indicator */}
+      {pullY > 0 && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          height: pullY,
+          background: 'rgba(13,28,42,0.92)',
+          transition: pullY >= PULL_THRESHOLD ? 'none' : 'height 0.05s',
+        }}>
+          <div style={{
+            width: 28, height: 28, borderRadius: '50%',
+            border: `2px solid ${pullY >= PULL_THRESHOLD ? '#4ADE80' : 'rgba(120,184,216,0.40)'}`,
+            borderTopColor: pullY >= PULL_THRESHOLD ? '#4ADE80' : '#78B8D8',
+            animation: pullY >= PULL_THRESHOLD ? 'spin 0.6s linear infinite' : 'none',
+            transition: 'border-color 0.2s',
+          }} />
+          <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+        </div>
+      )}
 
       <TopBar />
 
@@ -51,8 +111,7 @@ function MainApp() {
 
       <div className="flex flex-1 min-h-0 overflow-hidden">
         {mobileTab === 'spots' ? (
-          <div className="flex-1 flex flex-col overflow-hidden"
-               style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)', height: '100%' }}>
+          <div className="flex-1 flex flex-col overflow-hidden" style={{ height: '100%' }}>
             <SpotMap spots={spotMeta.data} ratingsMap={ratingsMap} />
           </div>
         ) : (
@@ -65,6 +124,7 @@ function MainApp() {
       <SurfChatWidget />
       <UserProfileModal />
       <PicksPanel />
+      <FriendsPanel />
     </div>
   )
 }

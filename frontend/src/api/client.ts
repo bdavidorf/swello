@@ -99,6 +99,57 @@ export async function fetchPinConditions(lat: number, lon: number, name = 'Dropp
   return data
 }
 
+// ── Friends API ───────────────────────────────────────────────────────────────
+
+export interface FriendSurfSession {
+  spot_id: string
+  spot_name: string
+  lat: number
+  lon: number
+  started_at: string
+}
+
+export interface FriendOut {
+  username: string
+  status: 'accepted' | 'pending_sent' | 'pending_received'
+  surfing: FriendSurfSession | null
+}
+
+export async function fetchFriendsList(): Promise<FriendOut[]> {
+  const { data } = await api.get('/friends/list')
+  return data
+}
+
+export async function sendFriendRequest(username: string) {
+  const { data } = await api.post(`/friends/request/${username}`)
+  return data
+}
+
+export async function acceptFriendRequest(username: string) {
+  const { data } = await api.post(`/friends/accept/${username}`)
+  return data
+}
+
+export async function removeFriend(username: string) {
+  const { data } = await api.delete(`/friends/remove/${username}`)
+  return data
+}
+
+export async function setMySurfSession(session: { spot_id: string; spot_name: string; lat: number; lon: number }) {
+  const { data } = await api.put('/friends/session', session)
+  return data
+}
+
+export async function clearMySurfSession() {
+  const { data } = await api.delete('/friends/session')
+  return data
+}
+
+export async function fetchMySession(): Promise<FriendSurfSession | null> {
+  const { data } = await api.get('/friends/my-session')
+  return data
+}
+
 export async function fetchAIChat(
   messages: { role: string; content: string }[],
   spotId: string,

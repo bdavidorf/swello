@@ -1,12 +1,10 @@
-import { Settings, RefreshCw, Map, UserCircle, Star } from 'lucide-react'
+import { RefreshCw, Map, UserCircle, Star, Users } from 'lucide-react'
 import { useSpotStore } from '../../store/spotStore'
 import { useAuthStore } from '../../store/authStore'
-import { useQueryClient } from '@tanstack/react-query'
 
 export function TopBar() {
-  const { setPreferencesOpen, preferencesOpen, setMobileTab, mobileTab, setProfileOpen, setPicksOpen } = useSpotStore()
+  const { setMobileTab, mobileTab, setProfileOpen, setPicksOpen, setFriendsOpen } = useSpotStore()
   const { username } = useAuthStore()
-  const qc = useQueryClient()
 
   return (
     <header
@@ -48,6 +46,27 @@ export function TopBar() {
           <RefreshCw size={15} />
         </button>
 
+        {/* FRIENDS button */}
+        <button
+          onClick={() => setFriendsOpen(true)}
+          style={{
+            padding: '5px 8px', borderRadius: 10,
+            background: 'rgba(120,184,216,0.10)',
+            border: '1px solid rgba(120,184,216,0.20)',
+            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
+            transition: 'all 0.2s',
+          }}
+          title="Friends"
+        >
+          <Users size={17} style={{ color: '#78B8D8' }} />
+          <span className="hidden md:inline" style={{
+            fontFamily: "'Bangers', Impact, system-ui", fontWeight: 400,
+            fontSize: 11, letterSpacing: '0.14em', color: '#78B8D8',
+          }}>
+            FRIENDS
+          </span>
+        </button>
+
         {/* PICKS button */}
         <button
           onClick={() => setPicksOpen(true)}
@@ -83,22 +102,6 @@ export function TopBar() {
           }}
         >
           <Map size={11} /> MAP
-        </button>
-
-        <button
-          onClick={() => setPreferencesOpen(!preferencesOpen)}
-          className="hidden md:flex items-center gap-1.5"
-          style={{
-            padding: '6px 14px', borderRadius: 20,
-            fontFamily: "'Bangers', Impact, system-ui", fontWeight: 400,
-            fontSize: 11, letterSpacing: '0.14em',
-            background: preferencesOpen ? 'rgba(120,184,216,0.18)' : 'rgba(26,48,72,0.60)',
-            border: `1px solid ${preferencesOpen ? 'rgba(120,184,216,0.40)' : 'rgba(168,200,220,0.10)'}`,
-            color: preferencesOpen ? '#78B8D8' : '#6AAED0',
-            cursor: 'pointer', transition: 'all 0.2s',
-          }}
-        >
-          <Settings size={11} /> PREFS
         </button>
 
         {/* Profile button — visible on all screen sizes */}

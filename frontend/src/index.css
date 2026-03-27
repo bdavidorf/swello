@@ -248,16 +248,21 @@
 /* ── Mobile: reposition + shrink Ask Swello + Map FAB ── */
 @media (max-width: 499px) {
   .surf-chat-fab {
-    transform: scale(0.65);
+    transform: scale(0.58);
     transform-origin: bottom right;
     right: 16px !important;
-    bottom: calc(env(safe-area-inset-bottom) + 148px) !important;
+    bottom: calc(env(safe-area-inset-bottom) + 150px) !important;
   }
   .map-fab {
-    transform: scale(0.65);
+    transform: scale(0.50);
     transform-origin: bottom right;
     right: 16px !important;
-    bottom: calc(env(safe-area-inset-bottom) + 76px) !important;
+    bottom: calc(env(safe-area-inset-bottom) + 62px) !important;
+  }
+
+  /* ── Map legend clears MobileNav on mobile ── */
+  .map-legend {
+    bottom: calc(env(safe-area-inset-bottom) + 72px) !important;
   }
 
   /* ── Chat window goes full-screen on mobile ── */

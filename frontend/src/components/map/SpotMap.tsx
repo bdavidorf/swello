@@ -1,8 +1,9 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api'
 import { useSpotStore } from '../../store/spotStore'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQueryClient, useQuery } from '@tanstack/react-query'
 import type { SpotMeta, SurfCondition } from '../../types/surf'
+import { fetchFriendsList } from '../../api/client'
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY ?? ''
 
@@ -69,6 +70,25 @@ function pinIcon(): google.maps.Icon {
   }
 }
 
+function friendIcon(initial: string): google.maps.Icon {
+  const colors = ['#78B8D8', '#5AAAC8', '#4ADE80', '#FBBF24', '#F87171', '#C084FC']
+  const color = colors[initial.charCodeAt(0) % colors.length]
+  const svg = encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="38" height="46">
+      <path d="M19 0C10.7 0 4 6.7 4 15c0 11.2 15 25 15 25S30 26.2 30 15C30 6.7 23.3 0 19 0z"
+        fill="${color}" stroke="rgba(13,28,42,0.9)" stroke-width="1.5"/>
+      <circle cx="19" cy="15" r="8" fill="rgba(13,28,42,0.92)"/>
+      <text x="19" y="20" text-anchor="middle" fill="${color}"
+        font-family="Impact,system-ui" font-size="12">${initial.toUpperCase()}</text>
+    </svg>`
+  )
+  return {
+    url: `data:image/svg+xml;charset=utf-8,${svg}`,
+    scaledSize: new window.google.maps.Size(38, 46),
+    anchor: new window.google.maps.Point(19, 46),
+  }
+}
+
 const popupStyle: React.CSSProperties = {
   background: 'rgba(13,28,42,0.98)',
   border: '1px solid rgba(120,184,216,0.15)',
@@ -89,7 +109,13 @@ export function SpotMap({ spots, ratingsMap }: Props) {
   const { selectedSpotId, setSelectedSpot, setMobileTab, pinLatLon, setPinLatLon, aiPanelOpen } = useSpotStore()
   const qc = useQueryClient()
   const [openPopup, setOpenPopup] = useState<string | null>(null)
+  const [hoverSpot, setHoverSpot] = useState<string | null>(null)
   const mapRef = useRef<google.maps.Map | null>(null)
+
+  // Auto-open popup for the currently selected spot
+  useEffect(() => {
+    if (selectedSpotId) setOpenPopup(selectedSpotId)
+  }, [selectedSpotId])
 
   // Center map on selected spot — extracted so we can call it on load AND on spot change
   const centerOnSelected = useCallback(() => {
@@ -107,6 +133,15 @@ export function SpotMap({ spots, ratingsMap }: Props) {
 
   // Re-center whenever the selected spot changes
   useEffect(() => { centerOnSelected() }, [centerOnSelected])
+
+  // Friends surfing sessions — poll every 60s
+  const friendsQ = useQuery({
+    queryKey: ['friends'],
+    queryFn: fetchFriendsList,
+    staleTime: 60_000,
+    refetchInterval: 60_000,
+  })
+  const friendsOnMap = (friendsQ.data ?? []).filter(f => f.status === 'accepted' && f.surfing)
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -175,10 +210,24 @@ export function SpotMap({ spots, ratingsMap }: Props) {
               icon={spotIcon(rating, selected)}
               zIndex={selected ? 10 : 1}
               onClick={() => {
+                setHoverSpot(null)
                 setOpenPopup(spot.id)
                 setSelectedSpot(spot.id)
               }}
+              onMouseOver={() => { if (openPopup !== spot.id) setHoverSpot(spot.id) }}
+              onMouseOut={() => setHoverSpot(null)}
             >
+              {/* Hover tooltip — spot name only */}
+              {hoverSpot === spot.id && openPopup !== spot.id && (
+                <InfoWindow
+                  position={{ lat: spot.lat, lng: spot.lon }}
+                  options={{ disableAutoPan: true, pixelOffset: new window.google.maps.Size(0, -20) }}
+                >
+                  <div style={{ background: 'rgba(13,28,42,0.95)', borderRadius: 8, padding: '4px 8px', border: '1px solid rgba(120,184,216,0.20)' }}>
+                    <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#D8EEF8', fontSize: 12, margin: 0, letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{spot.name}</p>
+                  </div>
+                </InfoWindow>
+              )}
               {openPopup === spot.id && (
                 <InfoWindow
                   position={{ lat: spot.lat, lng: spot.lon }}
@@ -250,10 +299,35 @@ export function SpotMap({ spots, ratingsMap }: Props) {
             )}
           </Marker>
         )}
+
+        {/* Friends surfing now */}
+        {friendsOnMap.map(f => (
+          <Marker
+            key={`friend-${f.username}`}
+            position={{ lat: f.surfing!.lat, lng: f.surfing!.lon }}
+            icon={friendIcon(f.username[0])}
+            zIndex={15}
+            onClick={() => setOpenPopup(`friend-${f.username}`)}
+          >
+            {openPopup === `friend-${f.username}` && (
+              <InfoWindow
+                position={{ lat: f.surfing!.lat, lng: f.surfing!.lon }}
+                onCloseClick={() => setOpenPopup(null)}
+                options={{ disableAutoPan: false, pixelOffset: new window.google.maps.Size(0, -10) }}
+              >
+                <div style={popupStyle}>
+                  <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#4ADE80', fontSize: 10, margin: '0 0 2px', letterSpacing: '0.12em' }}>● SURFING NOW</p>
+                  <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#D8EEF8', fontSize: 14, margin: '0 0 4px', letterSpacing: '0.06em' }}>{f.username}</p>
+                  <p style={{ fontFamily: "'Inter', system-ui", color: '#78B8D8', fontSize: 11, margin: '0 0 0', letterSpacing: '0.04em' }}>{f.surfing!.spot_name}</p>
+                </div>
+              </InfoWindow>
+            )}
+          </Marker>
+        ))}
       </GoogleMap>
 
       {/* Legend — hidden when Ask Swello chat is open */}
-      {!aiPanelOpen && <div style={{
+      {!aiPanelOpen && <div className="map-legend" style={{
         position: 'absolute', bottom: 16, left: 16, zIndex: 1000,
         background: 'rgba(13,28,42,0.92)',
         backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
