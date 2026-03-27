@@ -47,7 +47,9 @@ export function AuthPage({ onSuccess }: Props) {
       setAuth(data.token, data.username)
       onSuccess(mode === 'signup')
     } catch (e: any) {
-      const msg = e?.response?.data?.detail ?? 'Something went wrong. Try again.'
+      const msg = e?.response?.data?.detail
+        ?? e?.message
+        ?? 'Something went wrong. Try again.'
       setError(msg)
     } finally {
       setLoading(false)
