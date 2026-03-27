@@ -85,9 +85,12 @@ export function DashboardContent() {
             <ConditionsCard condition={condition} />
           </>
         ) : (
-          <div className="card p-6 border-red-500/30">
-            <p className="text-ocean-400 text-sm">
-              Conditions unavailable — backend may be starting up. Check that the FastAPI server is running on port 8001.
+          <div className="card p-6" style={{ borderColor: 'rgba(120,184,216,0.15)' }}>
+            <p style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 20, letterSpacing: '0.10em', color: '#78B8D8', margin: '0 0 6px' }}>
+              BUOY'S GOING ROGUE 🤙
+            </p>
+            <p style={{ fontFamily: 'Inter, system-ui', fontSize: 13, color: '#6AAED0', lineHeight: 1.55 }}>
+              No data from this spot right now — the buoy might be wiping out or the swell's just too flat to measure. Paddle over to another break, there's always a wave somewhere.
             </p>
           </div>
         )}

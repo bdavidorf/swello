@@ -201,8 +201,12 @@ async def _build_rating(spot: dict) -> SpotRating:
         fetch_current_wind(spot["lat"], spot["lon"]),
         return_exceptions=True,
     )
-    if buoy is None or isinstance(buoy, BaseException) or buoy.wvht_m is None or buoy.dpd_s is None:
-        return SpotRating(spot_id=spot["id"])
+    if buoy is None or isinstance(buoy, BaseException):
+        return SpotRating(spot_id=spot["id"])  # buoy completely unreachable → dot
+
+    # Buoy connected but no wave data → flat/calm conditions
+    if buoy.wvht_m is None or buoy.dpd_s is None:
+        return SpotRating(spot_id=spot["id"], rating=0, wave_height_str="flat")
 
     om_wind = om_wind if isinstance(om_wind, tuple) else (None, None)
     om_spd, om_deg = om_wind
