@@ -173,40 +173,90 @@ export function ConditionsCard({ condition }: Props) {
           </span>
         </BentoTile>
 
-        {/* Wind — taller, spans 2 rows on desktop, has compass */}
+        {/* Wind + Sun — spans 2 rows on desktop, split into top (wind) + bottom (sun) */}
         <motion.div
           className="bento-tile bento-wind-tile"
-          style={{
-            padding: '14px 12px',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8,
-          }}
+          style={{ padding: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
           whileHover={{ y: -4, scale: 1.02 }}
           transition={{ type: 'spring', stiffness: 300, damping: 20 }}
         >
-          <p className="stat-label">WIND</p>
-          {wind && <CompassRose deg={wind.direction_deg} size={52} color={wColor} />}
-          <span style={{ fontFamily: "'Inter', system-ui", fontWeight: 800, fontSize: 'clamp(28px, 7.5vw, 48px)', color: wColor, lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
-            {wind ? `${wind.speed_mph.toFixed(0)}` : '--'}
-          </span>
-          <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 14, color: '#6AAED0', letterSpacing: '0.10em' }}>
-            MPH {wind?.direction_label ?? ''}
-          </span>
-          {wind && (
-            <div style={{
-              background: `${wColor}22`,
-              border: `1px solid ${wColor}44`,
-              borderRadius: 20,
-              padding: '3px 10px',
-              fontFamily: "'Bangers', Impact, system-ui",
-              fontWeight: 400,
-              fontSize: 13,
-              color: wColor,
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-            }}>
-              {wind.quality_label}
-            </div>
-          )}
+          {/* Top half: Wind */}
+          <div style={{
+            flex: 1,
+            padding: '12px 12px 10px',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6,
+          }}>
+            <p className="stat-label">WIND</p>
+            {wind && <CompassRose deg={wind.direction_deg} size={46} color={wColor} />}
+            <span style={{ fontFamily: "'Inter', system-ui", fontWeight: 800, fontSize: 'clamp(24px, 6.5vw, 42px)', color: wColor, lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
+              {wind ? `${wind.speed_mph.toFixed(0)}` : '--'}
+            </span>
+            <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 13, color: '#6AAED0', letterSpacing: '0.10em' }}>
+              MPH {wind?.direction_label ?? ''}
+            </span>
+            {wind && (
+              <div style={{
+                background: `${wColor}22`, border: `1px solid ${wColor}44`,
+                borderRadius: 20, padding: '2px 9px',
+                fontFamily: "'Bangers', Impact, system-ui", fontSize: 12,
+                color: wColor, letterSpacing: '0.12em', textTransform: 'uppercase',
+              }}>
+                {wind.quality_label}
+              </div>
+            )}
+          </div>
+
+          {/* Divider */}
+          <div style={{ height: 1, background: 'rgba(120,184,216,0.10)', margin: '0 10px' }} />
+
+          {/* Bottom half: Sun times */}
+          <div style={{
+            flex: 1,
+            padding: '10px 12px 12px',
+            display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 5,
+          }}>
+            <p className="stat-label" style={{ marginBottom: 2 }}>SUN</p>
+            {sun ? (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Sunrise size={11} style={{ color: '#F8C96A', flexShrink: 0 }} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 9, color: '#6AAED0', letterSpacing: '0.12em' }}>FIRST LIGHT</div>
+                    <div style={{ fontFamily: "'Inter', system-ui", fontWeight: 700, fontSize: 12, color: '#D8EEF8', letterSpacing: '-0.01em' }}>{sun.first_light_display}</div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 9, color: '#6AAED0', letterSpacing: '0.12em' }}>SUNRISE</div>
+                    <div style={{ fontFamily: "'Inter', system-ui", fontWeight: 700, fontSize: 12, color: '#F8C96A', letterSpacing: '-0.01em' }}>{sun.sunrise_display}</div>
+                  </div>
+                </div>
+                <div style={{ height: 1, background: 'rgba(120,184,216,0.07)' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Sunset size={11} style={{ color: '#E88A4A', flexShrink: 0 }} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 9, color: '#6AAED0', letterSpacing: '0.12em' }}>SUNSET</div>
+                    <div style={{ fontFamily: "'Inter', system-ui", fontWeight: 700, fontSize: 12, color: '#E88A4A', letterSpacing: '-0.01em' }}>{sun.sunset_display}</div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 9, color: '#6AAED0', letterSpacing: '0.12em' }}>LAST LIGHT</div>
+                    <div style={{ fontFamily: "'Inter', system-ui", fontWeight: 700, fontSize: 12, color: '#D8EEF8', letterSpacing: '-0.01em' }}>{sun.last_light_display}</div>
+                  </div>
+                </div>
+                {sun.is_dawn_patrol_window && (
+                  <div style={{
+                    textAlign: 'center', marginTop: 2,
+                    fontFamily: "'Bangers', Impact, system-ui", fontSize: 10,
+                    color: '#F8C96A', background: 'rgba(248,201,106,0.10)',
+                    border: '1px solid rgba(248,201,106,0.30)',
+                    borderRadius: 20, padding: '2px 8px', letterSpacing: '0.12em',
+                  }}>
+                    🌅 DAWN PATROL
+                  </div>
+                )}
+              </>
+            ) : (
+              <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 20, color: '#6AAED0' }}>--</span>
+            )}
+          </div>
         </motion.div>
 
         {/* Water temp */}
@@ -364,35 +414,6 @@ export function ConditionsCard({ condition }: Props) {
 
       </div>
 
-      {/* ── Sun times strip ── */}
-      {sun && (
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 16, justifyContent: 'center',
-          padding: '8px 16px 10px',
-          borderTop: '1px solid rgba(168,200,220,0.06)',
-        }}>
-          <div className="flex items-center gap-1.5" style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 11, color: '#6AAED0', letterSpacing: '0.08em' }}>
-            <Sunrise size={11} style={{ color: '#88C8E8' }} />
-            {sun.sunrise_display}
-          </div>
-          <div className="flex items-center gap-1.5" style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 11, color: '#6AAED0', letterSpacing: '0.08em' }}>
-            <Sunset size={11} style={{ color: '#78B8D8' }} />
-            {sun.sunset_display}
-          </div>
-          {sun.is_dawn_patrol_window && (
-            <span style={{
-              fontFamily: "'Bangers', Impact, system-ui", fontSize: 10,
-              color: '#88C8E8',
-              background: 'rgba(136,200,232,0.12)',
-              border: '1px solid rgba(136,200,232,0.30)',
-              borderRadius: 20, padding: '3px 10px', letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-            }}>
-              Dawn Patrol
-            </span>
-          )}
-        </div>
-      )}
 
       {/* ── Forecaster's Log (sky note) ── */}
       <div style={{ padding: '0 16px 18px' }}>
