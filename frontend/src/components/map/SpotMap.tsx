@@ -98,6 +98,21 @@ const popupStyle: React.CSSProperties = {
   fontFamily: 'Inter, system-ui, sans-serif',
 }
 
+// Stable constants — defined outside component so references never change between renders.
+// @react-google-maps/api watches `center` and `options` with useEffect and re-applies them
+// whenever the reference changes, which causes the map to snap/glitch on every re-render.
+const DEFAULT_CENTER = { lat: 38.5, lng: -96.0 }
+const DEFAULT_ZOOM = 4
+const MAP_CONTAINER_STYLE = { width: '100%', height: '100%' }
+const MAP_OPTIONS: google.maps.MapOptions = {
+  styles: MAP_STYLES,
+  disableDefaultUI: true,
+  zoomControl: true,
+  zoomControlOptions: { position: 7 /* RIGHT_BOTTOM */ },
+  clickableIcons: false,
+  gestureHandling: 'greedy',
+}
+
 type RatingEntry = { spot_id: string; rating: number | null; wave_height_str: string | null }
 
 interface Props {
@@ -169,18 +184,11 @@ export function SpotMap({ spots, ratingsMap }: Props) {
   return (
     <div style={{ position: 'relative', flex: 1, minHeight: 0, width: '100%' }}>
       <GoogleMap
-        mapContainerStyle={{ width: '100%', height: '100%' }}
-        center={{ lat: 38.5, lng: -96.0 }}
-        zoom={4}
+        mapContainerStyle={MAP_CONTAINER_STYLE}
+        center={DEFAULT_CENTER}
+        zoom={DEFAULT_ZOOM}
         onLoad={handleMapLoad}
-        options={{
-          styles: MAP_STYLES,
-          disableDefaultUI: true,
-          zoomControl: true,
-          zoomControlOptions: { position: 7 /* RIGHT_BOTTOM */ },
-          clickableIcons: false,
-          gestureHandling: 'greedy',
-        }}
+        options={MAP_OPTIONS}
         onClick={handleMapClick}
       >
         {/* Spot markers */}
