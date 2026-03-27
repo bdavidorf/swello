@@ -346,9 +346,17 @@ async def spot_forecast(spot_id: str):
     today_str = datetime.now(_LA_TZ).date().isoformat()
     daily = []
 
+    current_hour = now_la.hour
+
     for day_str in sorted(by_day.keys()):
         all_h = by_day[day_str]
-        surf_h = [h for h in all_h if 6 <= h["hour"] <= 18] or all_h
+        if day_str == today_str:
+            # For today, extend the surf window to the current hour so live
+            # buoy-anchored readings (which may be after 6pm) are considered.
+            upper = max(18, current_hour)
+            surf_h = [h for h in all_h if 6 <= h["hour"] <= upper] or all_h
+        else:
+            surf_h = [h for h in all_h if 6 <= h["hour"] <= 18] or all_h
         peak   = max(surf_h, key=lambda h: h["face_height_max_ft"])
 
         periods    = [h["swell_period_s"] for h in surf_h if h["swell_period_s"]]

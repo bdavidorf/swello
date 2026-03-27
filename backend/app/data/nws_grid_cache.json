@@ -64,5 +64,11 @@
     "gridX": 148,
     "gridY": 38,
     "forecast_hourly_url": "https://api.weather.gov/gridpoints/LOX/148,38/forecast/hourly"
+  },
+  "41.377,-71.558": {
+    "office": "BOX",
+    "gridX": 62,
+    "gridY": 43,
+    "forecast_hourly_url": "https://api.weather.gov/gridpoints/BOX/62,43/forecast/hourly"
   }
 }

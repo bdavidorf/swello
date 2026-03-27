@@ -38,8 +38,8 @@ export default function App() {
 
         <TopBar />
 
-        {/* Spot picker — visible on all screen sizes when not on map tab */}
-        {mobileTab !== 'spots' && (
+        {/* Spot picker — visible on all screen sizes except map and AI tabs */}
+        {mobileTab !== 'spots' && mobileTab !== 'ai' && (
           <MobileSpotPicker spots={spotMeta.data} ratingsMap={ratingsMap} />
         )}
 

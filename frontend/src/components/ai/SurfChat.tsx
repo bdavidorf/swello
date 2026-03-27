@@ -193,7 +193,7 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
             border: '1px solid rgba(120,184,216,0.18)',
             borderRadius: 14,
             padding: '8px 12px',
-            fontSize: 13,
+            fontSize: 16,
             color: '#A0C0D8',
             resize: 'none',
             outline: 'none',
