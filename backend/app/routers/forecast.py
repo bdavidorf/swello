@@ -12,7 +12,7 @@ from app.services.openmeteo import fetch_marine_forecast, fetch_wind_forecast, M
 from app.services.wave_power import wind_quality_for_spot, CARDINAL_TO_DEG
 from app.services.wave_interpreter import interpret_breaking_conditions
 from app.services.coops import fetch_tide_predictions
-from app.services.ndbc import deg_to_label
+from app.services.ndbc import fetch_buoy_with_fallback, deg_to_label
 from app.ml.crowd_model import predict_crowd
 
 _LA_TZ = ZoneInfo("America/Los_Angeles")
@@ -170,13 +170,17 @@ async def spot_forecast(spot_id: str):
     if not spot:
         raise HTTPException(404, f"Spot '{spot_id}' not found")
 
-    marine, nws, tide_window, om_wind = await asyncio.gather(
+    tide_station = spot.get("tide_station")
+    marine, nws, tide_window, om_wind, buoy = await asyncio.gather(
         fetch_marine_forecast(spot["lat"], spot["lon"]),
         fetch_hourly_forecast(spot["lat"], spot["lon"]),
-        fetch_tide_predictions(spot["tide_station"], days=15),
+        fetch_tide_predictions(tide_station, days=15) if tide_station else asyncio.sleep(0),
         fetch_wind_forecast(spot["lat"], spot["lon"]),
+        fetch_buoy_with_fallback(spot["buoy_primary"], spot.get("buoy_fallback")),
         return_exceptions=True,
     )
+    if not tide_station:
+        tide_window = None
 
     if isinstance(marine, Exception) or not marine:
         raise HTTPException(503, "Marine forecast unavailable")
@@ -203,13 +207,29 @@ async def spot_forecast(spot_id: str):
         for tp in (tide_window.predictions or []):
             tide_by_hour[(tp.timestamp.date(), tp.timestamp.hour)] = tp.height_ft
 
+    # Current time in LA timezone (marine timestamps are naive LA time)
+    now_la = datetime.now(_LA_TZ).replace(tzinfo=None)
+
+    # Valid buoy reading to anchor forecast near present
+    live_buoy = buoy if (buoy and not isinstance(buoy, BaseException) and
+                         buoy.wvht_m is not None and buoy.dpd_s is not None) else None
+
     # ── Hourly interpreted forecast ──────────────────────────────────────────
     hourly = []
     for mh in marine:
         ts = mh.timestamp
-        wvht_m  = mh.swell_height_m  or mh.wave_height_m
-        dpd_s   = mh.swell_period_s   or mh.wave_period_s
-        mwd_deg = mh.swell_direction_deg or mh.wave_direction_deg
+        hours_from_now = (ts - now_la).total_seconds() / 3600
+
+        # Anchor current window (±3h) to actual buoy reading so the forecast
+        # matches the live conditions card instead of the (often lower) model data.
+        if live_buoy and -3 <= hours_from_now <= 3:
+            wvht_m  = live_buoy.wvht_m
+            dpd_s   = live_buoy.dpd_s
+            mwd_deg = live_buoy.mwd_deg if live_buoy.mwd_deg is not None else (mh.swell_direction_deg or mh.wave_direction_deg)
+        else:
+            wvht_m  = mh.swell_height_m  or mh.wave_height_m
+            dpd_s   = mh.swell_period_s   or mh.wave_period_s
+            mwd_deg = mh.swell_direction_deg or mh.wave_direction_deg
 
         breaking = None
         face_min = face_max = 0.0
@@ -323,7 +343,7 @@ async def spot_forecast(spot_id: str):
     for h in hourly:
         by_day[h["date"]].append(h)
 
-    today_str = datetime.now().date().isoformat()
+    today_str = datetime.now(_LA_TZ).date().isoformat()
     daily = []
 
     for day_str in sorted(by_day.keys()):
