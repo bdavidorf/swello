@@ -30,7 +30,7 @@ async def fetch_tide_predictions(
         "station": station_id,
         "product": "predictions",
         "datum": "MLLW",
-        "time_zone": "lst_ldt",   # local time
+        "time_zone": "gmt",   # UTC — consistent across all US stations incl. Hawaii/PR
         "interval": "h",
         "units": "english",
         "application": "surf_forecast_app",
@@ -65,7 +65,7 @@ async def fetch_tide_predictions(
         try:
             ts = datetime.strptime(item["t"], "%Y-%m-%d %H:%M")
             etype = "high" if item["type"] == "H" else "low"
-            hrs_away = (ts - datetime.now()).total_seconds() / 3600
+            hrs_away = (ts - datetime.utcnow()).total_seconds() / 3600
             events.append(TideEvent(
                 event_type=etype,
                 timestamp=ts,

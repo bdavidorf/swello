@@ -5,8 +5,9 @@ from datetime import datetime, timezone
 from app.models.ai import AIRankingRequest, AIRankingResponse
 from app.config import get_spots, get_spot_by_id
 from app.services.nws import fetch_hourly_forecast
-from app.services.ndbc import fetch_buoy_with_fallback
+from app.services.ndbc import fetch_buoy_with_fallback, deg_to_label
 from app.services.wave_power import wind_quality_for_spot, CARDINAL_TO_DEG
+from app.services.openmeteo import fetch_current_wind
 from app.ml.crowd_model import predict_crowd
 from app.services.claude_client import get_ai_ranking, get_chat_reply, get_spot_analysis
 import asyncio
@@ -20,7 +21,7 @@ async def _build_spot_forecast_summary(spot: dict, hours: int = 48) -> dict:
     """Compact forecast for feeding to AI (keep token count reasonable)."""
     try:
         nws = await fetch_hourly_forecast(spot["lat"], spot["lon"])
-        buoy = await fetch_buoy_with_fallback(spot["buoy_primary"], spot["buoy_fallback"])
+        buoy = await fetch_buoy_with_fallback(spot["buoy_primary"], spot.get("buoy_fallback"))
     except Exception:
         return {}
 
@@ -63,51 +64,60 @@ async def _build_spot_forecast_summary(spot: dict, hours: int = 48) -> dict:
 
 
 async def _build_conditions_context(spot_id: str = "malibu") -> str:
-    """Rich conditions summary for the chat system prompt — uses all live data."""
+    """
+    Conditions context for the chat system prompt.
+    Fetches live buoy + wind for the selected spot only (fast, 2 concurrent calls).
+    All 115 US spots included as static metadata — no serial NWS loop.
+    """
     spots = get_spots()
-    lines = [f"LA surf conditions as of {datetime.now().strftime('%A %B %d, %I:%M %p')} PT:\n"]
+    selected = get_spot_by_id(spot_id) if spot_id and spot_id not in ("pin", "") else None
 
-    # Fetch buoy data (shared across LA spots)
-    try:
-        buoy = await fetch_buoy_with_fallback("46221", "46069")
-        if buoy.wvht_ft:
-            lines.append(
-                f"Buoy 46221 (Santa Monica Bay): {buoy.wvht_ft:.1f}ft Hs @ "
-                f"{(buoy.dpd_s or 0):.0f}s, {buoy.mwd_label or '--'} swell, "
-                f"wind {(buoy.wspd_mph or 0):.0f}mph {buoy.wdir_label or '--'}, "
-                f"water {(buoy.wtmp_f or 0):.0f}°F\n"
-            )
-    except Exception:
-        pass
+    lines = [f"Swello — US surf forecast as of {datetime.now().strftime('%A %B %d, %I:%M %p')}:\n"]
 
-    # Fetch wind + crowd for each spot
-    lines.append("All spots:")
-    for spot in spots:
+    # Live data for currently selected spot only
+    if selected:
         try:
-            nws_data = await fetch_hourly_forecast(spot["lat"], spot["lon"])
-            first_wind = nws_data[0] if nws_data else None
-            wind_str = ""
-            if first_wind:
-                wq = wind_quality_for_spot(
-                    first_wind.wind_dir, first_wind.wind_speed_mph,
-                    spot["offshore_wind_dir_min"], spot["offshore_wind_dir_max"],
+            buoy, (wind_mph, wind_deg) = await asyncio.gather(
+                fetch_buoy_with_fallback(selected["buoy_primary"], selected.get("buoy_fallback")),
+                fetch_current_wind(selected["lat"], selected["lon"]),
+            )
+            if buoy and buoy.wvht_ft:
+                wind_str = ""
+                if wind_mph is not None and wind_deg is not None:
+                    wq = wind_quality_for_spot(
+                        deg_to_label(wind_deg), wind_mph,
+                        selected["offshore_wind_dir_min"], selected["offshore_wind_dir_max"],
+                    )
+                    wind_str = f", wind {wind_mph:.0f}mph {wq.quality_label}"
+                lines.append(
+                    f"USER IS CURRENTLY VIEWING: {selected['name']} ({selected.get('region','')})\n"
+                    f"Live conditions — {buoy.wvht_ft:.1f}ft @ {(buoy.dpd_s or 0):.0f}s, "
+                    f"{buoy.mwd_label or '--'} swell{wind_str}, water {(buoy.wtmp_f or 0):.0f}°F\n"
+                    f"Break: {selected['break_type']}, {selected['difficulty']}, "
+                    f"faces {selected['facing_dir']}, ideal swell {selected.get('ideal_swell_dir_label','--')}\n"
                 )
-                wind_str = f", wind {first_wind.wind_speed_mph:.0f}mph {wq.quality_label}"
-
-            crowd = predict_crowd(
-                spot_id=spot["id"], wvht_m=0.8, dpd_s=10.0,
-                wind_speed_ms=0, wind_dir_deg=270, dt=datetime.now(),
-            )
-            crowd_str = f", crowd {crowd.level}"
-
-            marker = " ← currently selected" if spot["id"] == spot_id else ""
-            lines.append(
-                f"- {spot['name']}: {spot['break_type']}, {spot['difficulty']}, "
-                f"faces {spot['facing_dir']}{wind_str}{crowd_str}{marker}"
-            )
         except Exception:
-            lines.append(f"- {spot['name']}: {spot['break_type']}, {spot['difficulty']}, faces {spot['facing_dir']}")
+            pass
 
+    # Static directory — all 115 spots grouped by region (no API calls)
+    lines.append(f"All {len(spots)} US surf spots in the database:")
+    regions: dict[str, list] = {}
+    for s in spots:
+        regions.setdefault(s.get("region", "Other"), []).append(s)
+    for region in sorted(regions):
+        lines.append(f"\n{region}:")
+        for s in regions[region]:
+            marker = " ← CURRENTLY VIEWING" if s["id"] == spot_id else ""
+            lines.append(
+                f"  {s['name']}: {s['break_type']}, {s['difficulty']}, "
+                f"faces {s['facing_dir']}, ideal {s.get('ideal_swell_dir_label','--')}{marker}"
+            )
+
+    lines.append(
+        "\nYou are Swello, a knowledgeable US surf forecaster covering all 115 spots "
+        "from Hawaii to Puerto Rico, California to New England. "
+        "Help users find the best sessions, understand conditions, and discover spots suited to their skill level and board."
+    )
     return "\n".join(lines)
 
 

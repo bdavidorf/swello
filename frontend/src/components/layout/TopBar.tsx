@@ -27,17 +27,9 @@ export function TopBar() {
           <path d="M1 16 C4 11, 7 9, 10 9 C13 9, 14 13, 17 13 C20 13, 22 10, 26 8"
             stroke="#78B8D8" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.4" />
         </svg>
-        <div className="flex items-baseline gap-1.5">
-          <span className="font-display" style={{ fontSize: 26, color: '#D8EEF8', letterSpacing: '0.08em', lineHeight: 1 }}>
-            SWELLO
-          </span>
-          <span style={{
-            fontFamily: "'Bangers', Impact, system-ui", fontWeight: 400,
-            fontSize: 10, color: '#78B8D8', letterSpacing: '0.20em',
-          }}>
-            LA
-          </span>
-        </div>
+        <span className="font-display" style={{ fontSize: 26, color: '#D8EEF8', letterSpacing: '0.08em', lineHeight: 1 }}>
+          SWELLO
+        </span>
       </div>
 
       {/* Actions */}

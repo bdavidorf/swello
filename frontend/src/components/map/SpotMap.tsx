@@ -128,10 +128,6 @@ export function SpotMap({ spots, ratingsMap }: Props) {
           zoomControlOptions: { position: 7 /* RIGHT_BOTTOM */ },
           clickableIcons: false,
           gestureHandling: 'greedy',
-          restriction: {
-            latLngBounds: { north: 72, south: 14, west: -180, east: -60 },
-            strictBounds: false,
-          },
         }}
         onClick={handleMapClick}
       >

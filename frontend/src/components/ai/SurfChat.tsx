@@ -10,7 +10,7 @@ interface Message {
 
 const GREETING: Message = {
   role: 'assistant',
-  content: "Hey! I'm your Swello Surf Advisor 🤙 Tell me your skill level and what you're after, and I'll find you the best spots and windows across all 11 LA breaks.",
+  content: "Hey! I'm Swello 🤙 Tell me your skill level and what you're after, and I'll find you the best spots across all 115 US surf breaks — from Hawaii to Puerto Rico.",
 }
 
 // ── Surfboard button clip-path ───────────────────────────────────────────────
