@@ -145,7 +145,8 @@ export function ForecastPanel({ daily, hourly = [] }: Props) {
         {daily.map((day, i) => {
           const isToday    = i === 0
           const isSelected = selectedDate === day.date
-          const faceStr    = fmtFace(day.face_height_min_ft, day.face_height_max_ft)
+          const fmt        = (n: number) => n < 4 ? n.toFixed(1) : n.toFixed(0)
+          const faceStr    = fmt(day.face_height_max_ft)
           const hasHourly  = hourly.some(h => h.date === day.date)
 
           return (
