@@ -107,26 +107,6 @@ export function TideChart({ predictions, events, hoursToShow = 36 }: Props) {
     ctx.lineJoin    = 'round'
     ctx.stroke()
 
-    // ── "Now" marker ────────────────────────────────────────────────────────────
-    const now     = new Date()
-    const firstTs = new Date(slice[0].timestamp)
-    const lastTs  = new Date(slice[slice.length - 1].timestamp)
-    const totalMs = lastTs.getTime() - firstTs.getTime()
-    const nowMs   = now.getTime()    - firstTs.getTime()
-    if (nowMs > 0 && nowMs < totalMs) {
-      const nowX = PAD.left + (nowMs / totalMs) * plotW
-      ctx.save()
-      ctx.setLineDash([5, 4])
-      ctx.strokeStyle = 'rgba(244,199,122,0.75)'
-      ctx.lineWidth   = 1.5
-      ctx.beginPath(); ctx.moveTo(nowX, PAD.top); ctx.lineTo(nowX, H - PAD.bottom); ctx.stroke()
-      ctx.restore()
-      ctx.fillStyle = '#f4c77a'
-      ctx.font      = 'bold 10px Inter, system-ui'
-      ctx.textAlign = 'center'
-      ctx.fillText('Now', nowX, PAD.top - 6)
-    }
-
     // ── Y-axis labels ───────────────────────────────────────────────────────────
     ctx.fillStyle = '#5a90b8'
     ctx.font      = '11px Inter, system-ui'
@@ -159,6 +139,56 @@ export function TideChart({ predictions, events, hoursToShow = 36 }: Props) {
       ctx.textAlign = 'center'
       ctx.fillText(`${isHigh ? '▲' : '▼'} ${ev.height_ft.toFixed(1)}ft`, x, isHigh ? y - 11 : y + 16)
     })
+
+    // ── "Now" vertical line (drawn last so it's on top) ─────────────────────────
+    const now     = new Date()
+    const firstTs = new Date(slice[0].timestamp)
+    const lastTs  = new Date(slice[slice.length - 1].timestamp)
+    const totalMs = lastTs.getTime() - firstTs.getTime()
+    const nowMs   = now.getTime() - firstTs.getTime()
+    if (nowMs >= 0 && nowMs <= totalMs) {
+      const nowX = PAD.left + (nowMs / totalMs) * plotW
+
+      // Solid bright line
+      ctx.save()
+      ctx.strokeStyle = '#f4c77a'
+      ctx.lineWidth   = 2
+      ctx.beginPath(); ctx.moveTo(nowX, PAD.top); ctx.lineTo(nowX, H - PAD.bottom); ctx.stroke()
+      ctx.restore()
+
+      // Small "NOW" pill label just above the x-axis
+      ctx.font = 'bold 10px Inter, system-ui'
+      const labelW = 30, labelH = 16, labelR = 4
+      let lx = nowX - labelW / 2
+      lx = Math.max(PAD.left, Math.min(W - PAD.right - labelW, lx))
+      const ly = H - PAD.bottom + 16
+
+      ctx.beginPath()
+      ctx.roundRect(lx, ly, labelW, labelH, labelR)
+      ctx.fillStyle = '#f4c77a'
+      ctx.fill()
+
+      ctx.fillStyle = '#0d1c2a'
+      ctx.textAlign = 'center'
+      ctx.fillText('NOW', lx + labelW / 2, ly + 11)
+
+      // Dot on the curve at current time
+      const nowFrac = nowMs / totalMs
+      const nowIdxF = nowFrac * (slice.length - 1)
+      const nowIdxLo = Math.floor(nowIdxF)
+      const nowIdxHi = Math.min(nowIdxLo + 1, slice.length - 1)
+      const frac2 = nowIdxF - nowIdxLo
+      const nowH = heights[nowIdxLo] + (heights[nowIdxHi] - heights[nowIdxLo]) * frac2
+      const nowY = toY(nowH)
+
+      ctx.beginPath()
+      ctx.arc(nowX, nowY, 5, 0, Math.PI * 2)
+      ctx.fillStyle   = '#f4c77a'
+      ctx.strokeStyle = '#0d1c2a'
+      ctx.lineWidth   = 1.5
+      ctx.fill()
+      ctx.stroke()
+    }
 
     // ── Scrubber ────────────────────────────────────────────────────────────────
     if (scrubIdx !== null) {
