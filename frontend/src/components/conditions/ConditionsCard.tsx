@@ -307,14 +307,40 @@ export function ConditionsCard({ condition }: Props) {
         {/* Tide */}
         {(() => {
           const isHigh = next_tide?.event_type === 'high'
-          const tideColor = next_tide ? (isHigh ? '#88C8E8' : '#5AAAC8') : undefined
+          const tideColor = next_tide ? (isHigh ? '#88C8E8' : '#5AAAC8') : '#6AAED0'
           const tideLabel = next_tide ? (isHigh ? 'RISING' : 'DROPPING') : 'TIDE'
           const tideTime = next_tide?.timestamp
             ? new Date(next_tide.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).replace(':00', '').toLowerCase()
             : null
+
+          // Bar: position current tide between 0 and ~6ft (typical max)
+          const cur = condition.current_tide_ft
+          const barMax = next_tide ? Math.max(next_tide.height_ft + 0.5, 6) : 6
+          const barPct = cur != null ? Math.min(100, Math.max(2, (cur / barMax) * 100)) : null
+
           return (
             <BentoTile label={tideLabel} accent={tideColor}>
-              {next_tide ? (
+              {cur != null ? (
+                <>
+                  <div className="flex items-end gap-1 leading-none">
+                    <span style={{ fontFamily: "'Inter', system-ui", fontWeight: 800, fontSize: 'clamp(24px, 6.5vw, 42px)', color: tideColor, lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
+                      {cur.toFixed(1)}
+                    </span>
+                    <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 14, color: '#6AAED0', letterSpacing: '0.10em', marginBottom: 4 }}>FT</span>
+                  </div>
+                  {/* Tide level bar */}
+                  {barPct != null && (
+                    <div style={{ width: '100%', height: 5, background: 'rgba(120,184,216,0.12)', borderRadius: 4, overflow: 'hidden', margin: '2px 0' }}>
+                      <div style={{ height: '100%', width: `${barPct}%`, background: tideColor, borderRadius: 4, transition: 'width 0.4s ease' }} />
+                    </div>
+                  )}
+                  {next_tide && (
+                    <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 11, color: '#4A7A9A', letterSpacing: '0.08em' }}>
+                      {isHigh ? '▲ HIGH' : '▼ LOW'} {next_tide.height_ft.toFixed(1)}ft{tideTime ? ` · ${tideTime}` : ''}
+                    </span>
+                  )}
+                </>
+              ) : next_tide ? (
                 <>
                   <div className="flex items-end gap-1 leading-none">
                     <span style={{ fontFamily: "'Inter', system-ui", fontWeight: 800, fontSize: 'clamp(24px, 6.5vw, 42px)', color: tideColor, lineHeight: 1, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
@@ -322,8 +348,8 @@ export function ConditionsCard({ condition }: Props) {
                     </span>
                     <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 14, color: '#6AAED0', letterSpacing: '0.10em', marginBottom: 4 }}>FT</span>
                   </div>
-                  <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 13, color: tideColor, letterSpacing: '0.10em' }}>
-                    {isHigh ? '▲ HIGH' : '▼ LOW'} {next_tide.height_ft.toFixed(1)}ft{tideTime ? ` · ${tideTime}` : ''}
+                  <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 11, color: '#4A7A9A', letterSpacing: '0.08em' }}>
+                    {isHigh ? '▲ HIGH' : '▼ LOW'}{tideTime ? ` · ${tideTime}` : ''}
                   </span>
                 </>
               ) : (

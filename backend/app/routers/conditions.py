@@ -70,6 +70,14 @@ async def _build_condition(spot: dict) -> SurfCondition | None:
         if future:
             next_tide = future[0]
 
+    # Current tide height — closest hourly prediction to now
+    current_tide_ft = None
+    if tide_data and tide_data.predictions:
+        now_utc = datetime.now(timezone.utc)
+        closest = min(tide_data.predictions, key=lambda p: abs((p.timestamp - now_utc).total_seconds()))
+        if abs((closest.timestamp - now_utc).total_seconds()) < 7200:  # within 2h
+            current_tide_ft = round(closest.height_ft, 1)
+
     # Wind: prefer NWS (accurate gridded model), fall back to Open-Meteo (global coverage)
     nws = nws_raw
     current_nws = nws[0] if nws else None
@@ -175,6 +183,7 @@ async def _build_condition(spot: dict) -> SurfCondition | None:
         crowd=crowd,
         sun=sun_times,
         next_tide=next_tide,
+        current_tide_ft=current_tide_ft,
         swells=swells,
     )
 

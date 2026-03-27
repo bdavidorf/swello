@@ -376,8 +376,8 @@ async def spot_forecast(spot_id: str):
         daily.append({
             "date": day_str,
             "day_label": day_label,
-            "face_height_min_ft": round(min(h["face_height_min_ft"] for h in surf_h), 1),
-            "face_height_max_ft": round(max(h["face_height_max_ft"] for h in surf_h), 1),
+            "face_height_min_ft": round(peak["face_height_min_ft"], 1),
+            "face_height_max_ft": round(peak["face_height_max_ft"], 1),
             "face_height_label": peak["face_height_label"],
             "peak_face_ft": round(peak["face_height_max_ft"], 1),
             "peak_hour": peak["hour"],

@@ -55,7 +55,7 @@ async def fetch_tide_predictions(
     predictions = []
     for item in hourly_data:
         try:
-            ts = datetime.strptime(item["t"], "%Y-%m-%d %H:%M")
+            ts = datetime.strptime(item["t"], "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
             predictions.append(TidePrediction(timestamp=ts, height_ft=float(item["v"])))
         except Exception:
             continue
@@ -63,9 +63,9 @@ async def fetch_tide_predictions(
     events = []
     for item in hl_data:
         try:
-            ts = datetime.strptime(item["t"], "%Y-%m-%d %H:%M")
+            ts = datetime.strptime(item["t"], "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
             etype = "high" if item["type"] == "H" else "low"
-            hrs_away = (ts - datetime.utcnow()).total_seconds() / 3600
+            hrs_away = (ts - datetime.now(tz=timezone.utc)).total_seconds() / 3600
             events.append(TideEvent(
                 event_type=etype,
                 timestamp=ts,

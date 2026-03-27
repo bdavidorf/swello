@@ -118,6 +118,7 @@ export interface SurfCondition {
   wind: WindQuality | null
   crowd: CrowdPrediction | null
   next_tide: TideEvent | null
+  current_tide_ft: number | null
   sun: SunTimes | null
   swells: SwellComponent[]
 }
