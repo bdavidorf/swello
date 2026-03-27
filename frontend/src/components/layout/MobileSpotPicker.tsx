@@ -35,7 +35,12 @@ export function MobileSpotPicker({ spots, ratingsMap }: Props) {
       )
     : spots
 
-  const suggestions = q ? filtered.slice(0, 8) : []
+  const suggestions = q
+    ? spots.filter(s =>
+        s.name.toLowerCase().startsWith(q) ||
+        s.short_name.toLowerCase().startsWith(q)
+      ).slice(0, 8)
+    : []
 
   function pickSpot(id: string) {
     setSelectedSpot(id)
