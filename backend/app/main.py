@@ -36,17 +36,17 @@ app.add_middleware(
 
 # pin must be registered BEFORE conditions so /conditions/pin (literal)
 # takes priority over /conditions/{spot_id} (parameterized)
-app.include_router(pin.router, prefix="/api/v1")
-app.include_router(conditions.router, prefix="/api/v1")
-app.include_router(forecast.router, prefix="/api/v1")
-app.include_router(tides.router, prefix="/api/v1")
-app.include_router(crowd.router, prefix="/api/v1")
-app.include_router(ai.router, prefix="/api/v1")
-app.include_router(sun.router, prefix="/api/v1")
-app.include_router(swello_ai.router, prefix="/api/v1")
+app.include_router(pin.router, prefix="/v1")
+app.include_router(conditions.router, prefix="/v1")
+app.include_router(forecast.router, prefix="/v1")
+app.include_router(tides.router, prefix="/v1")
+app.include_router(crowd.router, prefix="/v1")
+app.include_router(ai.router, prefix="/v1")
+app.include_router(sun.router, prefix="/v1")
+app.include_router(swello_ai.router, prefix="/v1")
 
 
-@app.get("/api/v1/health")
+@app.get("/v1/health")
 async def health():
     import os
     from app.ml.crowd_model import _model
