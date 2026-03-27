@@ -108,31 +108,29 @@ interface Props {
 export function SpotMap({ spots, ratingsMap }: Props) {
   const { selectedSpotId, setSelectedSpot, setMobileTab, pinLatLon, setPinLatLon, aiPanelOpen } = useSpotStore()
   const qc = useQueryClient()
-  const [openPopup, setOpenPopup] = useState<string | null>(null)
+  const [openPopup, setOpenPopup] = useState<string | null>(selectedSpotId ?? null)
   const [hoverSpot, setHoverSpot] = useState<string | null>(null)
   const mapRef = useRef<google.maps.Map | null>(null)
+  const centeredRef = useRef(false)
 
-  // Auto-open popup for the currently selected spot
-  useEffect(() => {
-    if (selectedSpotId) setOpenPopup(selectedSpotId)
-  }, [selectedSpotId])
-
-  // Center map on selected spot — extracted so we can call it on load AND on spot change
-  const centerOnSelected = useCallback(() => {
-    if (!mapRef.current || !spots) return
-    const target = pinLatLon
-      ? { lat: pinLatLon.lat, lng: pinLatLon.lon }
-      : spots.find(s => s.id === selectedSpotId)
-    if (target) {
-      const lat = pinLatLon ? pinLatLon.lat : (target as SpotMeta).lat
-      const lng = pinLatLon ? pinLatLon.lon : (target as SpotMeta).lon
-      mapRef.current.panTo({ lat, lng })
-      mapRef.current.setZoom(12)
-    }
-  }, [selectedSpotId, pinLatLon, spots])
-
-  // Re-center whenever the selected spot changes
-  useEffect(() => { centerOnSelected() }, [centerOnSelected])
+  // Center once on initial map load — never again (lets user pan freely)
+  const handleMapLoad = useCallback((map: google.maps.Map) => {
+    mapRef.current = map
+    if (centeredRef.current) return
+    centeredRef.current = true
+    setTimeout(() => {
+      if (pinLatLon) {
+        map.panTo({ lat: pinLatLon.lat, lng: pinLatLon.lon })
+        map.setZoom(12)
+        return
+      }
+      const spot = spots?.find(s => s.id === selectedSpotId)
+      if (spot) {
+        map.panTo({ lat: spot.lat, lng: spot.lon })
+        map.setZoom(12)
+      }
+    }, 80)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps — intentionally no deps, run once
 
   // Friends surfing sessions — poll every 60s
   const friendsQ = useQuery({
@@ -169,12 +167,12 @@ export function SpotMap({ spots, ratingsMap }: Props) {
   }
 
   return (
-    <div style={{ position: 'relative', flex: 1, minHeight: 0, width: '100%', height: '100%' }}>
+    <div style={{ position: 'relative', flex: 1, minHeight: 0, width: '100%' }}>
       <GoogleMap
         mapContainerStyle={{ width: '100%', height: '100%' }}
         center={{ lat: 38.5, lng: -96.0 }}
         zoom={4}
-        onLoad={map => { mapRef.current = map; setTimeout(centerOnSelected, 50) }}
+        onLoad={handleMapLoad}
         options={{
           styles: MAP_STYLES,
           disableDefaultUI: true,

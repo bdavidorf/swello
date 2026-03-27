@@ -10,26 +10,24 @@
     -moz-osx-font-smoothing: grayscale;
     overflow: hidden;
     height: 100%;
+    height: -webkit-fill-available;
   }
 
   body {
     font-family: 'Bangers', Impact, system-ui, sans-serif;
     letter-spacing: 0.04em;
-    /*
-      Deep Ocean — dark navy, like dawn breaking over the Pacific.
-      Cool blue bloom top-right, teal trace bottom-left.
-    */
     background:
       radial-gradient(ellipse at 85% 5%,  rgba(120,184,216,0.10) 0%, transparent 50%),
       radial-gradient(ellipse at 10% 95%, rgba(90,170,200,0.08) 0%, transparent 50%),
       #0D1C2A;
     color: #C8E0F0;
     height: 100%;
+    height: -webkit-fill-available;
     overflow: hidden;
     -webkit-tap-highlight-color: transparent;
   }
 
-  #root { height: 100%; }
+  #root { height: 100%; height: -webkit-fill-available; }
 
   /* ── Film grain — essential for the tactile feel ── */
   body::after {

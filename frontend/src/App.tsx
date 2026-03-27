@@ -18,7 +18,7 @@ import { useSpotStore } from './store/spotStore'
 import { useAuthStore } from './store/authStore'
 import type { SpotMeta } from './types/surf'
 
-const PULL_THRESHOLD = 72  // px of pull needed to trigger refresh
+const PULL_THRESHOLD = 130  // px of pull needed to trigger refresh
 
 function usePullToRefresh() {
   const startY = useRef(0)
@@ -75,7 +75,7 @@ function MainApp() {
   return (
     <div
       className="flex flex-col text-ocean-50"
-      style={{ height: '100dvh', overflow: 'hidden', overscrollBehavior: 'none' }}
+      style={{ height: '100dvh', maxHeight: '-webkit-fill-available', overflow: 'hidden', overscrollBehavior: 'none' } as React.CSSProperties}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
@@ -111,7 +111,7 @@ function MainApp() {
 
       <div className="flex flex-1 min-h-0 overflow-hidden">
         {mobileTab === 'spots' ? (
-          <div className="flex-1 flex flex-col overflow-hidden" style={{ height: '100%' }}>
+          <div className="flex-1 flex flex-col overflow-hidden">
             <SpotMap spots={spotMeta.data} ratingsMap={ratingsMap} />
           </div>
         ) : (
