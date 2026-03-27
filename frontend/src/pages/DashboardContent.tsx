@@ -64,7 +64,7 @@ export function DashboardContent() {
   return (
     <main
       className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5 w-full"
-      style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 80px)' }}
+      style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 62px)' }}
     >
       {/* ── Waves tab ── */}
       <Section tab="waves">
@@ -125,7 +125,16 @@ export function DashboardContent() {
 
       {/* ── Forecast tab ── */}
       <Section tab="forecast">
-        {forecast.data?.daily && forecast.data.daily.length > 0 && (
+        {isPin ? (
+          <div className="card p-5" style={{ borderColor: 'rgba(120,184,216,0.20)' }}>
+            <p style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 18, letterSpacing: '0.10em', color: '#78B8D8', margin: '0 0 6px' }}>
+              NO FORECAST FOR DROPPED PINS
+            </p>
+            <p style={{ fontFamily: "'Inter', system-ui", fontSize: 13, color: '#6AAED0', lineHeight: 1.55, margin: 0 }}>
+              14-day forecasts are only available for named surf spots. Select a spot from the list or map for full forecast data.
+            </p>
+          </div>
+        ) : forecast.data?.daily && forecast.data.daily.length > 0 && (
           <ForecastPanel daily={forecast.data.daily} hourly={forecast.data.hourly} />
         )}
       </Section>
@@ -141,7 +150,6 @@ export function DashboardContent() {
         <SwelloAIPanel />
       </Section>
 
-      <div className="h-2" />
     </main>
   )
 }

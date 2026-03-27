@@ -303,7 +303,7 @@ export function ConditionsCard({ condition }: Props) {
         })()}
 
         {/* Crowd badge row */}
-        <BentoTile label="CROWD">
+        <BentoTile label="CROWD-O-METER">
           <span className="font-display" style={{ fontSize: 'clamp(20px, 5.5vw, 36px)', color: crowd ? '#D8EEF8' : '#6AAED0', lineHeight: 1, letterSpacing: '0.04em' }}>
             {crowd ? crowd.level.toUpperCase() : 'N/A'}
           </span>

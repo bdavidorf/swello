@@ -51,7 +51,7 @@ export function CrowdMeter({ score, level, confidence, peakHour }: Props) {
 
   return (
     <div className="card p-5">
-      <p className="stat-label mb-1">CROWD</p>
+      <p className="stat-label mb-1">CROWD-O-METER</p>
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <svg width="200" height="118" viewBox="0 0 200 118">
           <defs>

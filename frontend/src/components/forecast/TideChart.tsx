@@ -50,7 +50,7 @@ export function TideChart({ predictions, events, hoursToShow = 36 }: Props) {
   const onTouchEnd     = useCallback(() => setScrubIdx(null), [])
 
   // ── Draw ─────────────────────────────────────────────────────────────────────
-  useEffect(() => {
+  const drawChart = useCallback(() => {
     const canvas = canvasRef.current
     if (!canvas || slice.length === 0) return
 
@@ -58,6 +58,8 @@ export function TideChart({ predictions, events, hoursToShow = 36 }: Props) {
     const rect = canvas.getBoundingClientRect()
     const W    = rect.width
     const H    = rect.height
+    if (W === 0 || H === 0) return   // still hidden — skip
+
     canvas.width  = Math.round(W * dpr)
     canvas.height = Math.round(H * dpr)
 
@@ -250,6 +252,17 @@ export function TideChart({ predictions, events, hoursToShow = 36 }: Props) {
     }
 
   }, [slice, events, scrubIdx])
+
+  useEffect(() => { drawChart() }, [drawChart])
+
+  // Re-draw when canvas becomes visible (e.g. mobile tab switch hides/shows it)
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ro = new ResizeObserver(() => drawChart())
+    ro.observe(canvas)
+    return () => ro.disconnect()
+  }, [drawChart])
 
   return (
     <div className="card p-5">
