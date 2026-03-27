@@ -75,15 +75,16 @@ export function ProfileSetupWizard({ onComplete }: { onComplete: () => void }) {
 
   return (
     <div style={{
-      minHeight: '100dvh', width: '100vw',
+      position: 'fixed', inset: 0,
       background: 'linear-gradient(160deg, #050f1a 0%, #0a1e30 40%, #091828 100%)',
-      overflowY: 'auto', WebkitOverflowScrolling: 'touch' as any,
+      overflowY: 'auto',
+      WebkitOverflowScrolling: 'touch' as any,
       display: 'flex', flexDirection: 'column', alignItems: 'center',
-      padding: '24px 16px',
       paddingTop: 'max(env(safe-area-inset-top), 24px)',
       paddingBottom: 'calc(env(safe-area-inset-bottom) + 32px)',
+      paddingLeft: 16, paddingRight: 16,
     }}>
-      <div style={{ width: '100%', maxWidth: 440, margin: 'auto 0' }}>
+      <div style={{ width: '100%', maxWidth: 440, paddingTop: 8 }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <svg width="32" height="20" viewBox="0 0 28 18" fill="none" style={{ margin: '0 auto 8px', display: 'block' }}>

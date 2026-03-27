@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, MapPin, CheckCircle, AlertCircle } from 'lucide-react'
+import { X, MapPin, CheckCircle, AlertCircle, LogOut } from 'lucide-react'
 import { useSpotStore } from '../../store/spotStore'
+import { useAuthStore } from '../../store/authStore'
 import type { SkillLevel, BoardType } from '../../types/swelloAI'
 
 const SKILLS: { id: SkillLevel; label: string; desc: string }[] = [
@@ -24,6 +25,7 @@ export function UserProfileModal() {
     userProfile, setUserProfile,
     userLocation, setUserLocation,
   } = useSpotStore()
+  const { username, logout } = useAuthStore()
 
   const [locStatus, setLocStatus] = useState<'idle' | 'loading' | 'granted' | 'denied'>(
     userLocation ? 'granted' : 'idle'
@@ -272,7 +274,7 @@ export function UserProfileModal() {
               </section>
 
               {/* Preferences */}
-              <section style={{ marginBottom: 8 }}>
+              <section style={{ marginBottom: 24 }}>
                 <p style={{
                   fontFamily: "'Bangers', Impact, system-ui",
                   fontSize: 11, letterSpacing: '0.18em', color: '#5AAAC8', margin: '0 0 10px',
@@ -314,6 +316,25 @@ export function UserProfileModal() {
                     )
                   })}
                 </div>
+              </section>
+
+              {/* Logout */}
+              <section style={{ marginBottom: 8 }}>
+                <div style={{ height: 1, background: 'rgba(120,184,216,0.08)', marginBottom: 20 }} />
+                <button
+                  onClick={() => { setProfileOpen(false); logout() }}
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    padding: '13px', borderRadius: 14, cursor: 'pointer',
+                    background: 'rgba(248,113,113,0.08)',
+                    border: '1px solid rgba(248,113,113,0.22)',
+                    fontFamily: "'Bangers', Impact, system-ui",
+                    fontSize: 15, letterSpacing: '0.14em', color: '#F87171',
+                  }}
+                >
+                  <LogOut size={15} />
+                  LOG OUT {username ? `(${username.toUpperCase()})` : ''}
+                </button>
               </section>
             </div>
           </motion.div>
