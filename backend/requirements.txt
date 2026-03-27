@@ -13,5 +13,3 @@ python-dateutil==2.9.0
 pytz==2024.2
 astral==3.2
 global-land-mask==1.0.0
-passlib[bcrypt]==1.7.4
-python-jose[cryptography]==3.3.0

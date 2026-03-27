@@ -239,13 +239,38 @@ async def spot_forecast(spot_id: str):
 
         if wvht_m and dpd_s:
             try:
-                bc = interpret_breaking_conditions(wvht_m, dpd_s, mwd_deg, spot)
-                breaking = bc
-                face_min = bc.face_height_min_ft
-                face_max = bc.face_height_max_ft
-                period_quality = bc.period_quality
-                swell_type_short = bc.swell_type_short
-                direction_rating = bc.direction_rating
+                # Primary swell (or buoy-anchored reading)
+                bc1 = interpret_breaking_conditions(wvht_m, dpd_s, mwd_deg, spot)
+                bcs = [bc1]
+
+                # Only process secondary/tertiary when NOT in buoy-anchor window
+                # (buoy Hs already captures all components via spectral RMS)
+                if not (live_buoy and -3 <= hours_from_now <= 3):
+                    for sh, sp, sd in [
+                        (mh.swell2_height_m, mh.swell2_period_s, mh.swell2_direction_deg),
+                        (mh.swell3_height_m, mh.swell3_period_s, mh.swell3_direction_deg),
+                    ]:
+                        if sh and sp and sh >= 0.2:  # skip trivial components
+                            try:
+                                bc_extra = interpret_breaking_conditions(
+                                    sh, sp, sd or mwd_deg, spot
+                                )
+                                # Only include if the component meaningfully reaches this spot
+                                if bc_extra.breaking_hs_ft >= 0.3:
+                                    bcs.append(bc_extra)
+                            except Exception:
+                                pass
+
+                # Combine face heights via RMS (energy addition), use primary for labels
+                combined_face_min = math.sqrt(sum(bc.face_height_min_ft ** 2 for bc in bcs))
+                combined_face_max = math.sqrt(sum(bc.face_height_max_ft ** 2 for bc in bcs))
+
+                breaking = bc1  # primary drives labels/interpretation
+                face_min = round(combined_face_min, 1)
+                face_max = round(combined_face_max, 1)
+                period_quality = bc1.period_quality
+                swell_type_short = bc1.swell_type_short
+                direction_rating = bc1.direction_rating
             except Exception:
                 pass
 

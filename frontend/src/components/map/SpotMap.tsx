@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api'
 import { useSpotStore } from '../../store/spotStore'
 import { useQueryClient } from '@tanstack/react-query'
@@ -86,9 +86,22 @@ interface Props {
 }
 
 export function SpotMap({ spots, ratingsMap }: Props) {
-  const { selectedSpotId, setSelectedSpot, setMobileTab, pinLatLon, setPinLatLon } = useSpotStore()
+  const { selectedSpotId, setSelectedSpot, setMobileTab, pinLatLon, setPinLatLon, aiPanelOpen } = useSpotStore()
   const qc = useQueryClient()
   const [openPopup, setOpenPopup] = useState<string | null>(null)
+  const mapRef = useRef<google.maps.Map | null>(null)
+
+  // Center map on selected spot whenever it changes
+  useEffect(() => {
+    if (!mapRef.current || !spots) return
+    const target = pinLatLon
+      ? { lat: pinLatLon.lat, lng: pinLatLon.lon }
+      : spots.find(s => s.id === selectedSpotId)
+    if (target && 'lat' in target) {
+      mapRef.current.panTo({ lat: target.lat, lng: 'lng' in target ? target.lng : (target as SpotMeta).lon })
+      mapRef.current.setZoom(11)
+    }
+  }, [selectedSpotId, pinLatLon, spots])
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -121,6 +134,7 @@ export function SpotMap({ spots, ratingsMap }: Props) {
         mapContainerStyle={{ width: '100%', height: '100%' }}
         center={{ lat: 38.5, lng: -96.0 }}
         zoom={4}
+        onLoad={map => { mapRef.current = map }}
         options={{
           styles: MAP_STYLES,
           disableDefaultUI: true,
@@ -233,8 +247,8 @@ export function SpotMap({ spots, ratingsMap }: Props) {
         )}
       </GoogleMap>
 
-      {/* Legend */}
-      <div style={{
+      {/* Legend — hidden when Ask Swello chat is open */}
+      {!aiPanelOpen && <div style={{
         position: 'absolute', bottom: 16, left: 16, zIndex: 1000,
         background: 'rgba(13,28,42,0.92)',
         backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
@@ -251,7 +265,7 @@ export function SpotMap({ spots, ratingsMap }: Props) {
           </div>
         ))}
         <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#3A6A8A', fontSize: 8, letterSpacing: '0.08em', margin: '6px 0 0' }}>· = not yet loaded</p>
-      </div>
+      </div>}
     </div>
   )
 }

@@ -35,7 +35,7 @@ export function TopBar() {
       {/* Actions */}
       <div className="flex items-center gap-2">
         <button
-          onClick={() => qc.invalidateQueries()}
+          onClick={() => window.location.reload()}
           style={{
             padding: '6px 8px', borderRadius: 10, color: '#6AAED0',
             background: 'transparent', border: 'none', cursor: 'pointer',

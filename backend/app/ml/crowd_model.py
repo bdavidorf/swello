@@ -36,6 +36,13 @@ def predict_crowd(
     if dt is None:
         dt = datetime.now()
 
+    # Hard gate: nobody surfs in the dark. Pitch-black hours → always empty.
+    # Civil twilight (first/last light) is roughly 30min before sunrise / after sunset.
+    # Use a conservative hour window: before 5:30am or after 8:30pm.
+    h = dt.hour + dt.minute / 60
+    if h < 5.5 or h >= 20.5:
+        return CrowdPrediction(score=0.0, level="empty", confidence=1.0)
+
     features = build_features(spot_id, wvht_m, dpd_s, wind_speed_ms, wind_dir_deg, dt)
     X = np.array([features])
 
