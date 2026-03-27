@@ -7,6 +7,7 @@ import { DashboardContent } from './pages/DashboardContent'
 import { SurfChatWidget } from './components/ai/SurfChat'
 import { MapFAB } from './components/map/MapFAB'
 import { UserProfileModal } from './components/layout/UserProfileModal'
+import { PicksPanel } from './components/layout/PicksPanel'
 import { useQuery } from '@tanstack/react-query'
 import { fetchSpotMeta, fetchSpotRatings } from './api/client'
 import { useSpotStore } from './store/spotStore'
@@ -61,6 +62,7 @@ export default function App() {
         <MapFAB />
         <SurfChatWidget />
         <UserProfileModal />
+        <PicksPanel />
       </div>
     </BrowserRouter>
   )

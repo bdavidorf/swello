@@ -13,6 +13,7 @@ export interface UserProfile {
   prefers_bigger: boolean
   prefers_cleaner: boolean
   prefers_uncrowded: boolean
+  username: string
 }
 
 export interface UserLocation {
@@ -26,6 +27,7 @@ const DEFAULT_PROFILE: UserProfile = {
   prefers_bigger: false,
   prefers_cleaner: true,
   prefers_uncrowded: false,
+  username: '',
 }
 
 interface SpotStore {
@@ -57,6 +59,9 @@ interface SpotStore {
 
   profileOpen: boolean
   setProfileOpen: (open: boolean) => void
+
+  picksOpen: boolean
+  setPicksOpen: (open: boolean) => void
 }
 
 const DEFAULT_PREFS: UserPreferences = {
@@ -99,6 +104,9 @@ export const useSpotStore = create<SpotStore>()(
 
       profileOpen: false,
       setProfileOpen: (open) => set({ profileOpen: open }),
+
+      picksOpen: false,
+      setPicksOpen: (open) => set({ picksOpen: open }),
     }),
     {
       name: 'surf-forecast-prefs',

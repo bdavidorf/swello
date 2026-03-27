@@ -90,7 +90,9 @@ export async function fetchPinConditions(lat: number, lon: number, name = 'Dropp
 export async function fetchAIChat(
   messages: { role: string; content: string }[],
   spotId: string,
+  userProfile?: { skill: string; board: string; prefers_bigger: boolean; prefers_cleaner: boolean; prefers_uncrowded: boolean; username?: string },
+  userLocation?: { lat: number; lon: number },
 ) {
-  const { data } = await api.post('/ai/chat', { messages, spot_id: spotId })
+  const { data } = await api.post('/ai/chat', { messages, spot_id: spotId, user_profile: userProfile, user_location: userLocation })
   return data as { reply: string; model_used: string }
 }

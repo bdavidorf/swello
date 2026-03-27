@@ -22,7 +22,7 @@ const BOARD_H = 54
 const SURFBOARD_BTN_CLIP = `path('M 2 27 C 12 6 42 2 80 2 L 168 2 C 196 2 218 12 218 27 C 218 42 196 52 168 52 L 80 52 C 42 52 12 48 2 27 Z')`
 
 function ChatWindow({ onClose }: { onClose: () => void }) {
-  const { selectedSpotId } = useSpotStore()
+  const { selectedSpotId, userProfile, userLocation } = useSpotStore()
   const [messages, setMessages] = useState<Message[]>([GREETING])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -45,6 +45,8 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
       const { reply, model_used } = await fetchAIChat(
         next.map(m => ({ role: m.role, content: m.content })),
         selectedSpotId,
+        userProfile,
+        userLocation ?? undefined,
       )
       setModelUsed(model_used)
       setMessages(prev => [...prev, { role: 'assistant', content: reply }])

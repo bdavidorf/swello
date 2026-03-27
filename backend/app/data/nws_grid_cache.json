@@ -82,5 +82,11 @@
     "gridX": 74,
     "gridY": 131,
     "forecast_hourly_url": "https://api.weather.gov/gridpoints/SJU/74,131/forecast/hourly"
+  },
+  "18.475,-67.16": {
+    "office": "SJU",
+    "gridX": 74,
+    "gridY": 132,
+    "forecast_hourly_url": "https://api.weather.gov/gridpoints/SJU/74,132/forecast/hourly"
   }
 }

@@ -1,9 +1,9 @@
-import { Settings, RefreshCw, Map, UserCircle } from 'lucide-react'
+import { Settings, RefreshCw, Map, UserCircle, Star } from 'lucide-react'
 import { useSpotStore } from '../../store/spotStore'
 import { useQueryClient } from '@tanstack/react-query'
 
 export function TopBar() {
-  const { setPreferencesOpen, preferencesOpen, setMobileTab, mobileTab, setProfileOpen, userProfile } = useSpotStore()
+  const { setPreferencesOpen, preferencesOpen, setMobileTab, mobileTab, setProfileOpen, userProfile, setPicksOpen } = useSpotStore()
   const qc = useQueryClient()
 
   return (
@@ -44,6 +44,27 @@ export function TopBar() {
           title="Refresh"
         >
           <RefreshCw size={15} />
+        </button>
+
+        {/* PICKS button */}
+        <button
+          onClick={() => setPicksOpen(true)}
+          style={{
+            padding: '5px 8px', borderRadius: 10,
+            background: 'rgba(120,184,216,0.10)',
+            border: '1px solid rgba(120,184,216,0.20)',
+            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
+            transition: 'all 0.2s',
+          }}
+          title="My Picks"
+        >
+          <Star size={17} style={{ color: '#78B8D8' }} />
+          <span className="hidden md:inline" style={{
+            fontFamily: "'Bangers', Impact, system-ui", fontWeight: 400,
+            fontSize: 11, letterSpacing: '0.14em', color: '#78B8D8',
+          }}>
+            PICKS
+          </span>
         </button>
 
         <button

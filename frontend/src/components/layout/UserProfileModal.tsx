@@ -114,6 +114,34 @@ export function UserProfileModal() {
                 </button>
               </div>
 
+              {/* Username / Handle */}
+              <section style={{ marginBottom: 24 }}>
+                <p style={{
+                  fontFamily: "'Bangers', Impact, system-ui",
+                  fontSize: 11, letterSpacing: '0.18em', color: '#5AAAC8', margin: '0 0 10px',
+                }}>
+                  🤙 YOUR HANDLE
+                </p>
+                <input
+                  type="text"
+                  value={userProfile.username}
+                  onChange={e => setUserProfile({ username: e.target.value })}
+                  placeholder="e.g. grommet42"
+                  style={{
+                    width: '100%',
+                    background: 'rgba(13,28,42,0.80)',
+                    border: '1px solid rgba(120,184,216,0.20)',
+                    borderRadius: 14,
+                    padding: '12px 16px',
+                    fontSize: 16,
+                    color: '#A0C0D8',
+                    fontFamily: "'Inter', system-ui",
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </section>
+
               {/* Location */}
               <section style={{ marginBottom: 24 }}>
                 <p style={{

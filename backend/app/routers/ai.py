@@ -1,6 +1,7 @@
 from __future__ import annotations
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from typing import Optional
 from datetime import datetime, timezone
 from app.models.ai import AIRankingRequest, AIRankingResponse
 from app.config import get_spots, get_spot_by_id
@@ -63,7 +64,7 @@ async def _build_spot_forecast_summary(spot: dict, hours: int = 48) -> dict:
     }
 
 
-async def _build_conditions_context(spot_id: str = "malibu") -> str:
+async def _build_conditions_context(spot_id: str = "malibu", user_profile: dict = None, user_location: dict = None) -> str:
     """
     Conditions context for the chat system prompt.
     Fetches live buoy + wind for the selected spot only (fast, 2 concurrent calls).
@@ -73,6 +74,22 @@ async def _build_conditions_context(spot_id: str = "malibu") -> str:
     selected = get_spot_by_id(spot_id) if spot_id and spot_id not in ("pin", "") else None
 
     lines = [f"Swello — US surf forecast as of {datetime.now().strftime('%A %B %d, %I:%M %p')}:\n"]
+
+    # User profile context
+    if user_profile:
+        username = user_profile.get("username", "")
+        name_str = f" ({username})" if username else ""
+        prefs = []
+        if user_profile.get("prefers_bigger"): prefs.append("prefers bigger waves")
+        if user_profile.get("prefers_cleaner"): prefs.append("prefers clean conditions")
+        if user_profile.get("prefers_uncrowded"): prefs.append("avoids crowds")
+        pref_str = ", ".join(prefs) if prefs else "no specific preferences"
+        loc_str = ""
+        if user_location:
+            loc_str = f"\nUser location: {user_location.get('lat',0):.2f}°N, {abs(user_location.get('lon',0)):.2f}°W"
+        lines.append(
+            f"SURFER PROFILE{name_str}: {user_profile.get('skill','intermediate')} {user_profile.get('board','shortboard')} rider, {pref_str}.{loc_str}"
+        )
 
     # Live data for currently selected spot only
     if selected:
@@ -143,6 +160,8 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     messages: list[ChatMessage]
     spot_id: str = "malibu"
+    user_profile: Optional[dict] = None
+    user_location: Optional[dict] = None  # {lat, lon}
 
 class ChatResponse(BaseModel):
     reply: str
@@ -154,7 +173,7 @@ async def chat(request: ChatRequest):
     if not request.messages:
         raise HTTPException(400, "No messages provided")
 
-    context = await _build_conditions_context(request.spot_id)
+    context = await _build_conditions_context(request.spot_id, request.user_profile, request.user_location)
     msgs = [{"role": m.role, "content": m.content} for m in request.messages]
 
     try:
