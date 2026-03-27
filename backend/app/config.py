@@ -40,7 +40,7 @@ DATA_DIR = Path(__file__).parent / "data"
 
 @lru_cache()
 def get_spots() -> list[dict]:
-    with open(DATA_DIR / "la_spots.json") as f:
+    with open(DATA_DIR / "us_spots.json") as f:
         return json.load(f)
 
 

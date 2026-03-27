@@ -45,13 +45,16 @@ def _build_swells(marine_hour) -> list[SwellComponent]:
 
 
 async def _build_condition(spot: dict) -> SurfCondition | None:
-    buoy, nws_raw, tide_data, marine_data = await asyncio.gather(
-        fetch_buoy_with_fallback(spot["buoy_primary"], spot["buoy_fallback"]),
+    tide_station = spot.get("tide_station")
+    tasks = [
+        fetch_buoy_with_fallback(spot["buoy_primary"], spot.get("buoy_fallback")),
         fetch_hourly_forecast(spot["lat"], spot["lon"]),
-        fetch_tide_predictions(spot["tide_station"], days=2),
+        fetch_tide_predictions(tide_station, days=2) if tide_station else asyncio.sleep(0),
         fetch_marine_forecast(spot["lat"], spot["lon"]),
-        return_exceptions=True,
-    )
+    ]
+    buoy, nws_raw, tide_data, marine_data = await asyncio.gather(*tasks, return_exceptions=True)
+    if not tide_station:
+        tide_data = None
     if buoy is None or isinstance(buoy, BaseException):
         return None
     nws_raw = nws_raw if not isinstance(nws_raw, BaseException) else []
@@ -166,7 +169,7 @@ async def _build_condition(spot: dict) -> SurfCondition | None:
 
 @router.get("", response_model=list[SurfCondition])
 async def all_conditions():
-    """Current conditions for all LA spots."""
+    """Current conditions for all spots. Expensive — use /meta/all for lightweight listing."""
     spots = get_spots()
     tasks = [_build_condition(s) for s in spots]
     results = await asyncio.gather(*tasks, return_exceptions=True)

@@ -1,0 +1,173 @@
+{
+  "metadata": {
+    "source": "NOAA NDBC activestations.xml",
+    "fetched": "2026-03-26",
+    "description": "Active NDBC buoy stations by US coastal region. Station IDs, names, and coordinates verified against NDBC activestations.xml and station status report."
+  },
+  "regions": {
+    "hawaii": {
+      "label": "Hawaii",
+      "buoys": [
+        { "id": "51000", "name": "Northern Hawaii One", "description": "245 NM NE of Honolulu, HI", "lat": 23.534, "lon": -153.752, "type": "buoy" },
+        { "id": "51001", "name": "Northwestern Hawaii One", "description": "188 NM NW of Kauai Island, HI", "lat": 24.475, "lon": -162.030, "type": "buoy" },
+        { "id": "51002", "name": "Southwestern Hawaii", "description": "215 NM SSW of Hilo, HI", "lat": 17.070, "lon": -157.755, "type": "buoy" },
+        { "id": "51003", "name": "Western Hawaii", "description": "205 NM SW of Honolulu, HI", "lat": 19.143, "lon": -160.645, "type": "buoy" },
+        { "id": "51004", "name": "Southeastern Hawaii", "description": "205 NM SE of Hilo, HI", "lat": 17.504, "lon": -152.197, "type": "buoy" },
+        { "id": "51101", "name": "Northwestern Hawaii Two", "description": "186 NM NW of Kauai, HI", "lat": 24.359, "lon": -162.081, "type": "buoy" },
+        { "id": "51201", "name": "Waimea Bay, HI", "description": "PacIOOS nearshore waverider buoy, North Shore Oahu", "lat": 21.671, "lon": -158.118, "type": "buoy" },
+        { "id": "51207", "name": "Kaneohe Bay, HI", "description": "PacIOOS nearshore buoy, Windward Oahu", "lat": 21.477, "lon": -157.752, "type": "buoy" }
+      ]
+    },
+    "northern_california": {
+      "label": "Northern California (Crescent City to Santa Cruz)",
+      "buoys": [
+        { "id": "46213", "name": "Cape Mendocino", "description": "Offshore N California big wave region", "lat": 40.292, "lon": -124.748, "type": "buoy" },
+        { "id": "46022", "name": "Eel River", "description": "Offshore Humboldt County", "lat": 40.716, "lon": -124.540, "type": "buoy" },
+        { "id": "46244", "name": "Humboldt Bay North Spit", "description": "Nearshore Humboldt Bay", "lat": 40.896, "lon": -124.358, "type": "buoy" },
+        { "id": "46014", "name": "Point Arena", "description": "Offshore Mendocino Coast", "lat": 39.225, "lon": -123.980, "type": "buoy" },
+        { "id": "46013", "name": "Bodega Bay", "description": "Offshore Sonoma County", "lat": 38.235, "lon": -123.317, "type": "buoy" },
+        { "id": "46214", "name": "Point Reyes", "description": "Offshore Marin County", "lat": 37.944, "lon": -123.466, "type": "buoy" },
+        { "id": "46237", "name": "San Francisco Bar", "description": "SF Bay entrance, nearshore", "lat": 37.788, "lon": -122.634, "type": "buoy" },
+        { "id": "46012", "name": "Half Moon Bay", "description": "Offshore San Mateo County, near Mavericks", "lat": 37.356, "lon": -122.881, "type": "buoy" },
+        { "id": "46236", "name": "Monterey Canyon Outer", "description": "Outer Monterey Bay", "lat": 36.759, "lon": -121.950, "type": "buoy" },
+        { "id": "46240", "name": "Cabrillo Point Monterey Bay", "description": "Inner Monterey Bay", "lat": 36.626, "lon": -121.907, "type": "buoy" },
+        { "id": "46092", "name": "MBM1 Monterey Bay", "description": "Monterey Bay inner buoy", "lat": 36.751, "lon": -122.029, "type": "buoy" },
+        { "id": "46239", "name": "Point Sur", "description": "Offshore Big Sur coast", "lat": 36.342, "lon": -122.110, "type": "buoy" }
+      ]
+    },
+    "southern_california": {
+      "label": "Central/Southern California (Monterey to San Diego)",
+      "buoys": [
+        { "id": "46011", "name": "Santa Maria", "description": "Offshore Santa Barbara/SLO coast", "lat": 34.937, "lon": -120.999, "type": "buoy" },
+        { "id": "46054", "name": "West Santa Barbara", "description": "Offshore western Santa Barbara Channel", "lat": 34.274, "lon": -120.468, "type": "buoy" },
+        { "id": "46053", "name": "East Santa Barbara", "description": "Offshore eastern Santa Barbara Channel", "lat": 34.241, "lon": -119.839, "type": "buoy" },
+        { "id": "46218", "name": "Harvest Platform", "description": "Offshore Pt. Conception area", "lat": 34.452, "lon": -120.780, "type": "buoy" },
+        { "id": "46215", "name": "Diablo Canyon", "description": "Offshore SLO/Avila Beach", "lat": 35.204, "lon": -120.859, "type": "buoy" },
+        { "id": "46025", "name": "Santa Monica Basin", "description": "Offshore LA County, primary offshore buoy for SoCal", "lat": 33.755, "lon": -119.045, "type": "buoy" },
+        { "id": "46221", "name": "Santa Monica Bay", "description": "Inner Santa Monica Bay, primary nearshore LA", "lat": 33.860, "lon": -118.641, "type": "buoy" },
+        { "id": "46222", "name": "San Pedro", "description": "San Pedro Channel nearshore", "lat": 33.614, "lon": -118.314, "type": "buoy" },
+        { "id": "46268", "name": "Topanga Nearshore", "description": "Nearshore South Bay / Topanga", "lat": 34.022, "lon": -118.578, "type": "buoy" },
+        { "id": "46256", "name": "Long Beach Channel", "description": "Long Beach harbor entrance", "lat": 33.700, "lon": -118.201, "type": "buoy" },
+        { "id": "46086", "name": "San Clemente Basin", "description": "Offshore OC/San Diego border, key for Trestles", "lat": 32.504, "lon": -118.029, "type": "buoy" },
+        { "id": "46285", "name": "Capistrano Beach Nearshore", "description": "Nearshore South OC / San Clemente area", "lat": 33.445, "lon": -117.680, "type": "buoy" },
+        { "id": "46277", "name": "Green Beach Offshore", "description": "Offshore San Onofre / Camp Pendleton area", "lat": 33.336, "lon": -117.659, "type": "buoy" },
+        { "id": "46275", "name": "Red Beach Nearshore", "description": "Nearshore Oceanside area", "lat": 33.291, "lon": -117.501, "type": "buoy" },
+        { "id": "46274", "name": "Leucadia Nearshore", "description": "Nearshore Leucadia/Encinitas", "lat": 33.062, "lon": -117.314, "type": "buoy" },
+        { "id": "46224", "name": "Oceanside Offshore", "description": "Offshore Oceanside", "lat": 33.178, "lon": -117.472, "type": "buoy" },
+        { "id": "46266", "name": "Del Mar Nearshore", "description": "Nearshore Del Mar", "lat": 32.957, "lon": -117.279, "type": "buoy" },
+        { "id": "46225", "name": "Torrey Pines Outer", "description": "Offshore La Jolla/Black's Beach", "lat": 32.933, "lon": -117.391, "type": "buoy" },
+        { "id": "46254", "name": "SCRIPPS Nearshore", "description": "Nearshore La Jolla/Scripps Pier", "lat": 32.868, "lon": -117.267, "type": "buoy" },
+        { "id": "46258", "name": "Mission Bay West", "description": "Offshore Mission Bay / Pacific Beach", "lat": 32.749, "lon": -117.502, "type": "buoy" },
+        { "id": "46232", "name": "Point Loma South", "description": "Offshore Point Loma / OB", "lat": 32.517, "lon": -117.425, "type": "buoy" },
+        { "id": "46235", "name": "Imperial Beach Nearshore", "description": "Nearshore Imperial Beach / US-Mexico border", "lat": 32.570, "lon": -117.169, "type": "buoy" },
+        { "id": "46219", "name": "San Nicolas Island", "description": "Offshore Channel Islands", "lat": 33.226, "lon": -119.891, "type": "buoy" },
+        { "id": "46047", "name": "Tanner Bank", "description": "Offshore Channel Islands outer area", "lat": 32.418, "lon": -119.535, "type": "buoy" }
+      ]
+    },
+    "pacific_northwest": {
+      "label": "Pacific Northwest (Oregon and Washington)",
+      "buoys": [
+        { "id": "46027", "name": "St. Georges", "description": "Offshore northern California/Oregon border", "lat": 41.840, "lon": -124.382, "type": "buoy" },
+        { "id": "46015", "name": "Port Orford", "description": "Offshore southern Oregon coast", "lat": 42.754, "lon": -124.839, "type": "buoy" },
+        { "id": "46229", "name": "Umpqua Offshore", "description": "Offshore central Oregon, near Winchester Bay", "lat": 43.772, "lon": -124.549, "type": "buoy" },
+        { "id": "46098", "name": "OOI Waldport Offshore", "description": "OOI offshore mooring, central Oregon", "lat": 44.378, "lon": -124.947, "type": "buoy" },
+        { "id": "46097", "name": "OOI Newport Shelf", "description": "OOI shelf mooring, Newport OR", "lat": 44.639, "lon": -124.304, "type": "buoy" },
+        { "id": "46280", "name": "Newport PWS North", "description": "Nearshore Newport/Yaquina Bay OR", "lat": 44.575, "lon": -124.234, "type": "buoy" },
+        { "id": "46050", "name": "Stonewall Bank", "description": "Offshore central Oregon, key for Lincoln City/Nelscott", "lat": 44.679, "lon": -124.535, "type": "buoy" },
+        { "id": "46278", "name": "Tillamook Bay South Jetty", "description": "Nearshore Tillamook Bay, OR", "lat": 45.561, "lon": -123.991, "type": "buoy" },
+        { "id": "46243", "name": "Clatsop Spit", "description": "Columbia River entrance south side", "lat": 46.215, "lon": -124.129, "type": "buoy" },
+        { "id": "46248", "name": "Astoria Canyon", "description": "Offshore Columbia River bar area", "lat": 46.133, "lon": -124.640, "type": "buoy" },
+        { "id": "46029", "name": "Columbia River Bar", "description": "At the Columbia River bar, key OR/WA border buoy", "lat": 46.148, "lon": -124.508, "type": "buoy" },
+        { "id": "46211", "name": "Grays Harbor", "description": "Offshore Grays Harbor / Westport WA", "lat": 46.857, "lon": -124.243, "type": "buoy" },
+        { "id": "46099", "name": "OOI Westport Shelf", "description": "OOI shelf mooring, Westport WA area", "lat": 46.988, "lon": -124.567, "type": "buoy" },
+        { "id": "46100", "name": "OOI Westport Offshore", "description": "OOI offshore mooring, Westport WA area", "lat": 46.851, "lon": -124.964, "type": "buoy" },
+        { "id": "46041", "name": "Cape Elizabeth", "description": "Offshore Olympic Peninsula, WA", "lat": 47.352, "lon": -124.739, "type": "buoy" },
+        { "id": "46087", "name": "Neah Bay", "description": "Offshore Cape Flattery / Neah Bay WA", "lat": 48.493, "lon": -124.727, "type": "buoy" },
+        { "id": "46005", "name": "West Washington", "description": "Deep water offshore Washington coast", "lat": 46.143, "lon": -131.090, "type": "buoy" },
+        { "id": "46002", "name": "West Oregon", "description": "Deep water offshore Oregon coast", "lat": 42.560, "lon": -130.523, "type": "buoy" }
+      ]
+    },
+    "northeast": {
+      "label": "Northeast (Maine to New Jersey)",
+      "buoys": [
+        { "id": "44034", "name": "Eastern Maine Shelf (I01)", "description": "Gulf of Maine, eastern shelf buoy", "lat": 44.103, "lon": -68.112, "type": "buoy" },
+        { "id": "44030", "name": "Western Maine Shelf (B01)", "description": "Gulf of Maine, western shelf buoy", "lat": 43.179, "lon": -70.426, "type": "buoy" },
+        { "id": "44007", "name": "Portland, ME", "description": "Offshore Portland Maine", "lat": 43.525, "lon": -70.140, "type": "buoy" },
+        { "id": "44098", "name": "Jeffrey's Ledge", "description": "Offshore NH/N Mass coast", "lat": 42.800, "lon": -70.169, "type": "buoy" },
+        { "id": "44029", "name": "Massachusetts Bay (A01)", "description": "Massachusetts Bay buoy", "lat": 42.523, "lon": -70.566, "type": "buoy" },
+        { "id": "44013", "name": "Boston", "description": "Offshore Boston Harbor", "lat": 42.346, "lon": -70.651, "type": "buoy" },
+        { "id": "44005", "name": "Gulf of Maine", "description": "Offshore Gulf of Maine, central", "lat": 43.201, "lon": -69.127, "type": "buoy" },
+        { "id": "44090", "name": "Cape Cod Bay", "description": "Inner Cape Cod Bay", "lat": 41.840, "lon": -70.329, "type": "buoy" },
+        { "id": "44020", "name": "Nantucket Sound", "description": "Inner Nantucket Sound", "lat": 41.497, "lon": -70.283, "type": "buoy" },
+        { "id": "44008", "name": "Nantucket", "description": "Offshore Nantucket / SE Mass Bight", "lat": 40.500, "lon": -69.254, "type": "buoy" },
+        { "id": "44085", "name": "Buzzards Bay", "description": "Inner Buzzards Bay, MA", "lat": 41.387, "lon": -71.032, "type": "buoy" },
+        { "id": "44097", "name": "Block Island", "description": "Block Island Sound, RI", "lat": 40.967, "lon": -71.124, "type": "buoy" },
+        { "id": "44091", "name": "Barnegat, NJ", "description": "Offshore New Jersey coast (Barnegat)", "lat": 39.772, "lon": -73.769, "type": "buoy" },
+        { "id": "44009", "name": "Delaware Bay", "description": "Delaware Bay entrance, offshore NJ", "lat": 38.460, "lon": -74.692, "type": "buoy" }
+      ]
+    },
+    "mid_atlantic_southeast": {
+      "label": "Mid-Atlantic / Southeast (Delaware to North Carolina)",
+      "buoys": [
+        { "id": "44084", "name": "Bethany Beach, DE", "description": "Nearshore Delaware/Maryland coast", "lat": 38.537, "lon": -75.044, "type": "buoy" },
+        { "id": "44099", "name": "Cape Henry, VA", "description": "Offshore Virginia Beach / Cape Henry", "lat": 36.915, "lon": -75.722, "type": "buoy" },
+        { "id": "44088", "name": "Virginia Beach Offshore", "description": "Offshore Virginia Beach", "lat": 36.612, "lon": -74.839, "type": "buoy" },
+        { "id": "44014", "name": "Virginia Beach", "description": "Offshore Virginia Beach, key buoy", "lat": 36.603, "lon": -74.837, "type": "buoy" },
+        { "id": "44100", "name": "Duck FRF 26m", "description": "Offshore Duck NC, FRF research buoy", "lat": 36.258, "lon": -75.593, "type": "buoy" },
+        { "id": "44056", "name": "Duck FRF", "description": "Nearshore Duck NC, FRF research buoy", "lat": 36.200, "lon": -75.714, "type": "buoy" },
+        { "id": "44086", "name": "Nags Head, NC", "description": "Nearshore Nags Head, OBX", "lat": 36.001, "lon": -75.421, "type": "buoy" },
+        { "id": "44095", "name": "Oregon Inlet, NC", "description": "Nearshore Oregon Inlet, OBX", "lat": 35.750, "lon": -75.330, "type": "buoy" },
+        { "id": "44025", "name": "Diamond Shoals, NC", "description": "Offshore Cape Hatteras area, key OBX buoy", "lat": 35.026, "lon": -75.380, "type": "buoy" },
+        { "id": "44064", "name": "Onslow Bay Outer, NC", "description": "Offshore Onslow Bay, NC", "lat": 34.207, "lon": -76.949, "type": "buoy" },
+        { "id": "41013", "name": "Frying Pan Shoals, NC", "description": "Offshore Cape Fear / Wilmington area", "lat": 33.441, "lon": -77.764, "type": "buoy" },
+        { "id": "41037", "name": "Wrightsville Beach Offshore, NC", "description": "Offshore Wrightsville Beach NC", "lat": 33.988, "lon": -77.362, "type": "buoy" },
+        { "id": "41001", "name": "East Hatteras", "description": "Deep water offshore Cape Hatteras", "lat": 34.791, "lon": -72.420, "type": "buoy" },
+        { "id": "41004", "name": "Edisto, SC", "description": "Offshore Edisto Island, SC", "lat": 32.502, "lon": -79.099, "type": "buoy" },
+        { "id": "41008", "name": "Grays Reef, GA", "description": "Offshore Georgia coast, Grays Reef NMS", "lat": 31.400, "lon": -80.866, "type": "buoy" }
+      ]
+    },
+    "florida_east": {
+      "label": "Florida East Coast (Jacksonville to Miami)",
+      "buoys": [
+        { "id": "41112", "name": "Offshore Fernandina Beach, FL", "description": "Offshore Nassau County / NE Florida", "lat": 30.709, "lon": -81.292, "type": "buoy" },
+        { "id": "41117", "name": "St. Augustine, FL", "description": "Nearshore St. Augustine FL", "lat": 29.999, "lon": -81.079, "type": "buoy" },
+        { "id": "41069", "name": "Ponce de Leon Inlet, FL", "description": "Nearshore Ponce Inlet / New Smyrna Beach area", "lat": 29.289, "lon": -80.803, "type": "buoy" },
+        { "id": "41113", "name": "Cape Canaveral Nearshore, FL", "description": "Nearshore Brevard County / Space Coast", "lat": 28.400, "lon": -80.533, "type": "buoy" },
+        { "id": "41009", "name": "Canaveral, FL", "description": "Offshore Cape Canaveral / Space Coast, key buoy", "lat": 28.508, "lon": -80.185, "type": "buoy" },
+        { "id": "41068", "name": "Fort Pierce, FL", "description": "Offshore Fort Pierce / Treasure Coast", "lat": 27.593, "lon": -80.189, "type": "buoy" },
+        { "id": "41114", "name": "Fort Pierce Nearshore, FL", "description": "Nearshore Fort Pierce", "lat": 27.552, "lon": -80.216, "type": "buoy" },
+        { "id": "41002", "name": "South Hatteras / East Florida", "description": "Deep water offshore eastern Florida", "lat": 31.743, "lon": -74.955, "type": "buoy" }
+      ]
+    },
+    "puerto_rico_usvi": {
+      "label": "Puerto Rico / US Virgin Islands",
+      "buoys": [
+        { "id": "41115", "name": "Rincon, PR", "description": "Nearshore Rincon, northwest Puerto Rico, key surf buoy", "lat": 18.376, "lon": -67.280, "type": "buoy" },
+        { "id": "41121", "name": "Arecibo, PR", "description": "Nearshore Arecibo, north Puerto Rico", "lat": 18.491, "lon": -66.701, "type": "buoy" },
+        { "id": "41053", "name": "San Juan, PR", "description": "Offshore San Juan, north Puerto Rico", "lat": 18.474, "lon": -66.099, "type": "buoy" },
+        { "id": "41056", "name": "Vieques Island, PR", "description": "Offshore Vieques Island, eastern Puerto Rico", "lat": 18.261, "lon": -65.464, "type": "buoy" },
+        { "id": "41052", "name": "South of St. John, USVI", "description": "Offshore St. John, US Virgin Islands", "lat": 18.249, "lon": -64.763, "type": "buoy" },
+        { "id": "42085", "name": "Southeast of Ponce, PR", "description": "Offshore Ponce, south Puerto Rico", "lat": 17.870, "lon": -66.537, "type": "buoy" }
+      ]
+    },
+    "gulf_coast": {
+      "label": "Gulf Coast (Texas, Louisiana, Mississippi, Alabama, Florida Panhandle)",
+      "buoys": [
+        { "id": "42020", "name": "Corpus Christi, TX", "description": "Offshore Corpus Christi, Texas coast", "lat": 26.970, "lon": -96.679, "type": "buoy" },
+        { "id": "42002", "name": "West Gulf", "description": "Deep water western Gulf of Mexico (Texas coast)", "lat": 25.950, "lon": -93.780, "type": "buoy" },
+        { "id": "42035", "name": "Galveston, TX", "description": "Offshore Galveston TX", "lat": 29.235, "lon": -94.410, "type": "buoy" },
+        { "id": "42358", "name": "FGBNMS, TX", "description": "Flower Garden Banks NMS, offshore Texas", "lat": 27.874, "lon": -93.815, "type": "buoy" },
+        { "id": "42084", "name": "Southwest Pass Entrance, LA", "description": "Offshore Mississippi River delta", "lat": 28.988, "lon": -89.649, "type": "buoy" },
+        { "id": "42040", "name": "Luke Offshore Platform, LA", "description": "Offshore Louisiana coast", "lat": 29.207, "lon": -88.237, "type": "buoy" },
+        { "id": "42354", "name": "Chandeleur Island SE, LA", "description": "Offshore Chandeleur Islands LA", "lat": 29.579, "lon": -88.643, "type": "buoy" },
+        { "id": "42001", "name": "Mid Gulf", "description": "Deep water central Gulf of Mexico", "lat": 25.925, "lon": -89.628, "type": "buoy" },
+        { "id": "42039", "name": "Pensacola, FL Panhandle", "description": "Offshore Pensacola FL, key panhandle buoy", "lat": 28.768, "lon": -86.024, "type": "buoy" },
+        { "id": "42028", "name": "FLRACEP NW Florida", "description": "Offshore NW Florida panhandle", "lat": 29.745, "lon": -86.227, "type": "buoy" },
+        { "id": "42027", "name": "FLRACEP N Florida WFS", "description": "Offshore N Florida Gulf coast", "lat": 29.045, "lon": -85.305, "type": "buoy" },
+        { "id": "42012", "name": "Orange Beach, AL", "description": "Nearshore Orange Beach Alabama", "lat": 30.060, "lon": -87.548, "type": "buoy" },
+        { "id": "42036", "name": "West Tampa, FL", "description": "Offshore central Florida Gulf coast / Tampa Bay area", "lat": 28.500, "lon": -84.505, "type": "buoy" },
+        { "id": "42095", "name": "Satan Shoal, FL Keys", "description": "Offshore Florida Keys", "lat": 24.407, "lon": -81.968, "type": "buoy" }
+      ]
+    }
+  }
+}

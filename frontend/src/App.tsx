@@ -7,15 +7,15 @@ import { DashboardContent } from './pages/DashboardContent'
 import { SurfChatWidget } from './components/ai/SurfChat'
 import { MapFAB } from './components/map/MapFAB'
 import { useQuery } from '@tanstack/react-query'
-import { fetchAllConditions } from './api/client'
+import { fetchSpotMeta } from './api/client'
 import { useSpotStore } from './store/spotStore'
+import type { SpotMeta } from './types/surf'
 
 export default function App() {
-  const allConditions = useQuery({
-    queryKey: ['all-conditions'],
-    queryFn: fetchAllConditions,
-    staleTime: 2 * 60 * 1000,
-    refetchInterval: 2 * 60 * 1000,
+  const spotMeta = useQuery<SpotMeta[]>({
+    queryKey: ['spot-meta'],
+    queryFn: fetchSpotMeta,
+    staleTime: 60 * 60 * 1000,
   })
 
   const { mobileTab } = useSpotStore()
@@ -29,14 +29,14 @@ export default function App() {
 
         {/* Spot picker — visible on all screen sizes when not on map tab */}
         {mobileTab !== 'spots' && (
-          <MobileSpotPicker conditions={allConditions.data} />
+          <MobileSpotPicker spots={spotMeta.data} />
         )}
 
         <div className="flex flex-1 min-h-0 overflow-hidden">
           {mobileTab === 'spots' ? (
             <div className="flex-1 flex flex-col overflow-hidden"
                  style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)', height: '100%' }}>
-              <SpotMap conditions={allConditions.data} />
+              <SpotMap spots={spotMeta.data} />
             </div>
           ) : (
             <DashboardContent />

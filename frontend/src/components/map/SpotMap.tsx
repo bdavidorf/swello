@@ -1,11 +1,12 @@
 import { useState, useCallback } from 'react'
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api'
 import { useSpotStore } from '../../store/spotStore'
-import type { SurfCondition } from '../../types/surf'
+import { useQueryClient } from '@tanstack/react-query'
+import type { SpotMeta, SurfCondition } from '../../types/surf'
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY ?? ''
 
-// Deep Ocean dark style — matches app theme
+// Deep Ocean dark style
 const MAP_STYLES: google.maps.MapTypeStyle[] = [
   { elementType: 'geometry',            stylers: [{ color: '#0D1C2A' }] },
   { elementType: 'labels.text.stroke',  stylers: [{ color: '#0D1C2A' }] },
@@ -22,20 +23,6 @@ const MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: 'administrative.country', elementType: 'geometry.stroke', stylers: [{ color: '#2E5275' }, { weight: 1 }] },
 ]
 
-const SPOT_COORDS: Record<string, [number, number]> = {
-  leo_carrillo:   [34.0453, -118.9365],
-  zuma:           [34.0157, -118.8226],
-  point_dume:     [34.0007, -118.8067],
-  malibu:         [34.0356, -118.6786],
-  sunset_malibu:  [34.0401, -118.6942],
-  topanga:        [34.0414, -118.5979],
-  venice:         [33.9850, -118.4730],
-  manhattan_pier: [33.8847, -118.4134],
-  hermosa:        [33.8625, -118.3995],
-  redondo:        [33.8436, -118.3932],
-  el_porto:       [33.9019, -118.4243],
-}
-
 function ratingColor(r: number) {
   if (r >= 7) return '#4ADE80'
   if (r >= 5) return '#A3E635'
@@ -43,19 +30,21 @@ function ratingColor(r: number) {
   return '#F87171'
 }
 
-function spotIcon(rating: number, selected: boolean): google.maps.Icon {
-  const color = ratingColor(Math.max(rating, 1))
-  const size  = selected ? 48 : 38
+function spotIcon(rating: number | null, selected: boolean): google.maps.Icon {
+  const hasRating = rating !== null
+  const color = hasRating ? ratingColor(Math.max(rating!, 1)) : '#3A6A8A'
+  const size  = selected ? 48 : 36
   const bg    = selected ? color : 'rgba(18,37,52,0.95)'
-  const text  = selected ? '#0D1C2A' : color
+  const text  = selected ? '#0D1C2A' : (hasRating ? color : '#3A6A8A')
   const sw    = selected ? 3 : 2
 
+  const label = hasRating ? String(Math.max(rating!, 1)) : '·'
   const svg = encodeURIComponent(
     `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
       <circle cx="${size/2}" cy="${size/2}" r="${size/2-2}" fill="${bg}" stroke="${color}" stroke-width="${sw}"/>
       <text x="${size/2}" y="${size/2+5}" text-anchor="middle" fill="${text}"
-        font-family="Impact,system-ui" font-size="${selected ? 17 : 14}"
-      >${rating > 0 ? rating : '·'}</text>
+        font-family="Impact,system-ui" font-size="${selected ? 17 : 13}"
+      >${label}</text>
     </svg>`
   )
   return {
@@ -80,7 +69,6 @@ function pinIcon(): google.maps.Icon {
   }
 }
 
-// Shared popup content style
 const popupStyle: React.CSSProperties = {
   background: 'rgba(13,28,42,0.98)',
   border: '1px solid rgba(120,184,216,0.15)',
@@ -90,33 +78,17 @@ const popupStyle: React.CSSProperties = {
   fontFamily: 'Inter, system-ui, sans-serif',
 }
 
-interface Props { conditions: SurfCondition[] | undefined }
+interface Props { spots: SpotMeta[] | undefined }
 
-export function SpotMap({ conditions }: Props) {
+export function SpotMap({ spots }: Props) {
   const { selectedSpotId, setSelectedSpot, setMobileTab, pinLatLon, setPinLatLon } = useSpotStore()
+  const qc = useQueryClient()
   const [openPopup, setOpenPopup] = useState<string | null>(null)
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
   })
-
-  const ratingMap: Record<string, number> = {}
-  const nameMap:   Record<string, string>  = {}
-  const waveMap:   Record<string, string>  = {}
-
-  for (const c of conditions ?? []) {
-    ratingMap[c.spot_id] = c.wave_power?.surf_rating ?? 0
-    nameMap[c.spot_id]   = c.spot_short_name
-    const lo = c.breaking?.face_height_min_ft
-    const hi = c.breaking?.face_height_max_ft
-    if (lo != null && hi != null) {
-      const fmt = (n: number) => n < 4 ? n.toFixed(1) : n.toFixed(0)
-      waveMap[c.spot_id] = lo === hi ? `${fmt(lo)}ft` : `${fmt(lo)}–${fmt(hi)}ft`
-    } else if (c.buoy.wvht_ft != null) {
-      waveMap[c.spot_id] = `${c.buoy.wvht_ft.toFixed(1)}ft`
-    }
-  }
 
   const handleMapClick = useCallback((e: google.maps.MapMouseEvent) => {
     const lat = e.latLng?.lat()
@@ -142,8 +114,8 @@ export function SpotMap({ conditions }: Props) {
     <div style={{ position: 'relative', flex: 1, minHeight: 0, width: '100%', height: '100%' }}>
       <GoogleMap
         mapContainerStyle={{ width: '100%', height: '100%' }}
-        center={{ lat: 33.97, lng: -118.6 }}
-        zoom={11}
+        center={{ lat: 38.5, lng: -96.0 }}
+        zoom={4}
         options={{
           styles: MAP_STYLES,
           disableDefaultUI: true,
@@ -151,40 +123,54 @@ export function SpotMap({ conditions }: Props) {
           zoomControlOptions: { position: 7 /* RIGHT_BOTTOM */ },
           clickableIcons: false,
           gestureHandling: 'greedy',
+          restriction: {
+            latLngBounds: { north: 72, south: 14, west: -180, east: -60 },
+            strictBounds: false,
+          },
         }}
         onClick={handleMapClick}
       >
-        {/* Known LA spot markers */}
-        {Object.entries(SPOT_COORDS).map(([spotId, [lat, lng]]) => {
-          const rating   = ratingMap[spotId] ?? 0
-          const selected = spotId === selectedSpotId
-          const color    = ratingColor(Math.max(rating, 1))
-          const name     = nameMap[spotId] ?? spotId
-          const wave     = waveMap[spotId] ?? '--'
+        {/* Spot markers */}
+        {(spots ?? []).map((spot) => {
+          const selected = spot.id === selectedSpotId
+          const cached = qc.getQueryData<SurfCondition>(['condition', spot.id])
+          const rating = cached?.wave_power?.surf_rating ?? null
+          const wave = (() => {
+            if (!cached) return null
+            const lo = cached.breaking?.face_height_min_ft
+            const hi = cached.breaking?.face_height_max_ft
+            const fmt = (n: number) => n < 4 ? n.toFixed(1) : n.toFixed(0)
+            if (lo != null && hi != null) return lo === hi ? `${fmt(lo)}ft` : `${fmt(lo)}–${fmt(hi)}ft`
+            if (cached.buoy.wvht_ft != null) return `${cached.buoy.wvht_ft.toFixed(1)}ft`
+            return null
+          })()
+          const color = rating !== null ? ratingColor(Math.max(rating, 1)) : '#3A6A8A'
 
           return (
             <Marker
-              key={spotId}
-              position={{ lat, lng }}
+              key={spot.id}
+              position={{ lat: spot.lat, lng: spot.lon }}
               icon={spotIcon(rating, selected)}
               zIndex={selected ? 10 : 1}
               onClick={() => {
-                setOpenPopup(spotId)
-                setSelectedSpot(spotId)
+                setOpenPopup(spot.id)
+                setSelectedSpot(spot.id)
               }}
             >
-              {openPopup === spotId && (
+              {openPopup === spot.id && (
                 <InfoWindow
-                  position={{ lat, lng }}
+                  position={{ lat: spot.lat, lng: spot.lon }}
                   onCloseClick={() => setOpenPopup(null)}
                   options={{ disableAutoPan: false, pixelOffset: new window.google.maps.Size(0, -8) }}
                 >
                   <div style={popupStyle}>
-                    <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#D8EEF8', fontSize: 14, margin: '0 0 2px', letterSpacing: '0.06em' }}>{name}</p>
-                    <p style={{ fontFamily: "'Bangers', Impact, system-ui", color, fontSize: 22, margin: '0 0 2px', letterSpacing: '0.04em' }}>{wave}</p>
-                    <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#6AAED0', fontSize: 10, margin: '0 0 10px', letterSpacing: '0.10em' }}>RATING {Math.max(rating, 1)}/10</p>
+                    <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#D8EEF8', fontSize: 13, margin: '0 0 1px', letterSpacing: '0.06em' }}>{spot.name}</p>
+                    <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#4A7A9A', fontSize: 10, margin: '0 0 4px', letterSpacing: '0.08em' }}>{spot.region}</p>
+                    {wave && <p style={{ fontFamily: "'Bangers', Impact, system-ui", color, fontSize: 22, margin: '0 0 2px', letterSpacing: '0.04em' }}>{wave}</p>}
+                    {rating !== null && <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#6AAED0', fontSize: 10, margin: '0 0 10px', letterSpacing: '0.10em' }}>RATING {Math.max(rating, 1)}/10</p>}
+                    {!wave && <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#6AAED0', fontSize: 10, margin: '0 0 10px', letterSpacing: '0.08em' }}>{spot.break_type} · {spot.difficulty}</p>}
                     <button
-                      onClick={() => { setSelectedSpot(spotId); setMobileTab('waves'); setOpenPopup(null) }}
+                      onClick={() => { setSelectedSpot(spot.id); setMobileTab('waves'); setOpenPopup(null) }}
                       style={{
                         width: '100%', background: color, color: '#0D1C2A',
                         border: 'none', borderRadius: 10, padding: '7px 0',
@@ -261,6 +247,7 @@ export function SpotMap({ conditions }: Props) {
             <span style={{ fontFamily: "'Bangers', Impact, system-ui", color, fontSize: 9, letterSpacing: '0.08em' }}>{label}</span>
           </div>
         ))}
+        <p style={{ fontFamily: "'Bangers', Impact, system-ui", color: '#3A6A8A', fontSize: 8, letterSpacing: '0.08em', margin: '6px 0 0' }}>· = not yet loaded</p>
       </div>
     </div>
   )
