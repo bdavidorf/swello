@@ -77,7 +77,7 @@ async def _build_conditions_context(spot_id: str = "malibu") -> str:
     # Live data for currently selected spot only
     if selected:
         try:
-            buoy, (wind_mph, wind_deg) = await asyncio.gather(
+            buoy, (wind_mph, wind_deg, _air) = await asyncio.gather(
                 fetch_buoy_with_fallback(selected["buoy_primary"], selected.get("buoy_fallback")),
                 fetch_current_wind(selected["lat"], selected["lon"]),
             )

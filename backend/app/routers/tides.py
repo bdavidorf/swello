@@ -15,6 +15,8 @@ async def spot_tides(
     spot = get_spot_by_id(spot_id)
     if not spot:
         raise HTTPException(404, f"Spot '{spot_id}' not found")
+    if not spot.get("tide_station"):
+        raise HTTPException(404, "No tide station for this spot")
 
     data = await fetch_tide_predictions(spot["tide_station"], days=days)
     if not data:

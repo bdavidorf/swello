@@ -118,11 +118,11 @@ async def fetch_marine_forecast(lat: float, lon: float) -> list[MarineHour]:
             return []
 
 
-async def fetch_current_wind(lat: float, lon: float) -> tuple[Optional[float], Optional[float]]:
+async def fetch_current_wind(lat: float, lon: float) -> tuple[Optional[float], Optional[float], Optional[float]]:
     """
-    Current wind speed (mph) + direction (degrees) from Open-Meteo weather API.
-    Global coverage, no API key required. Used as fallback when NWS is unavailable.
-    Returns (speed_mph, direction_deg) or (None, None) on failure.
+    Current wind speed (mph), direction (degrees), and air temperature (°F) from Open-Meteo.
+    Global coverage, no API key required.
+    Returns (speed_mph, direction_deg, air_temp_f) — any may be None on failure.
     """
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
@@ -131,16 +131,17 @@ async def fetch_current_wind(lat: float, lon: float) -> tuple[Optional[float], O
                 params={
                     "latitude": lat,
                     "longitude": lon,
-                    "current": "wind_speed_10m,wind_direction_10m",
+                    "current": "wind_speed_10m,wind_direction_10m,temperature_2m",
                     "wind_speed_unit": "mph",
+                    "temperature_unit": "fahrenheit",
                     "forecast_days": 1,
                 },
             )
             resp.raise_for_status()
             cur = resp.json().get("current", {})
-            return cur.get("wind_speed_10m"), cur.get("wind_direction_10m")
+            return cur.get("wind_speed_10m"), cur.get("wind_direction_10m"), cur.get("temperature_2m")
     except Exception:
-        return None, None
+        return None, None, None
 
 
 async def fetch_wind_forecast(lat: float, lon: float) -> list[WindHour]:

@@ -121,6 +121,7 @@ class SurfCondition(BaseModel):
     crowd: Optional["CrowdPrediction"] = None
     next_tide: Optional["TideEvent"] = None
     current_tide_ft: Optional[float] = None
+    air_temp_f: Optional[float] = None
     sun: Optional[SunTimes] = None
     swells: list[SwellComponent] = Field(default_factory=list)
 

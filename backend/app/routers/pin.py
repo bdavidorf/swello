@@ -31,7 +31,7 @@ async def pin_conditions(
     name: str = Query(default="Dropped Pin"),
 ):
     """Return surf conditions for any lat/lon in the world."""
-    marine_data, (wind_mph, wind_deg_raw) = await asyncio.gather(
+    marine_data, (wind_mph, wind_deg_raw, air_temp_f) = await asyncio.gather(
         fetch_marine_forecast(lat, lon),
         fetch_current_wind(lat, lon),
     )
@@ -175,5 +175,6 @@ async def pin_conditions(
         crowd=None,
         sun=sun_times,
         next_tide=None,
+        air_temp_f=air_temp_f,
         swells=swells,
     )

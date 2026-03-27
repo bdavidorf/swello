@@ -61,7 +61,7 @@ async def _build_condition(spot: dict) -> SurfCondition | None:
     nws_raw    = nws_raw    if not isinstance(nws_raw,    BaseException) else []
     tide_data  = tide_data  if not isinstance(tide_data,  BaseException) else None
     marine_data = marine_data if not isinstance(marine_data, BaseException) else []
-    om_wind    = om_wind    if not isinstance(om_wind,    BaseException) else (None, None)
+    om_wind    = om_wind    if not isinstance(om_wind,    BaseException) else (None, None, None)
 
     # Next upcoming tide event
     next_tide = None
@@ -78,6 +78,11 @@ async def _build_condition(spot: dict) -> SurfCondition | None:
         if abs((closest.timestamp - now_utc).total_seconds()) < 7200:  # within 2h
             current_tide_ft = round(closest.height_ft, 1)
 
+    # Air temp from Open-Meteo (3rd value in tuple)
+    air_temp_f = None
+    if isinstance(om_wind, tuple) and len(om_wind) >= 3:
+        air_temp_f = om_wind[2]
+
     # Wind: prefer NWS (accurate gridded model), fall back to Open-Meteo (global coverage)
     nws = nws_raw
     current_nws = nws[0] if nws else None
@@ -92,7 +97,7 @@ async def _build_condition(spot: dict) -> SurfCondition | None:
         )
     else:
         # NWS failed or returned nothing — use Open-Meteo wind (always available, global)
-        om_spd, om_deg = om_wind if isinstance(om_wind, tuple) else (None, None)
+        om_spd, om_deg, _air = om_wind if isinstance(om_wind, tuple) else (None, None, None)
         if om_spd is not None and om_deg is not None:
             wind = wind_quality_for_spot(
                 deg_to_label(om_deg),
@@ -184,6 +189,7 @@ async def _build_condition(spot: dict) -> SurfCondition | None:
         sun=sun_times,
         next_tide=next_tide,
         current_tide_ft=current_tide_ft,
+        air_temp_f=air_temp_f,
         swells=swells,
     )
 
@@ -217,8 +223,8 @@ async def _build_rating(spot: dict) -> SpotRating:
     if buoy.wvht_m is None or buoy.dpd_s is None:
         return SpotRating(spot_id=spot["id"], rating=0, wave_height_str="flat")
 
-    om_wind = om_wind if isinstance(om_wind, tuple) else (None, None)
-    om_spd, om_deg = om_wind
+    om_wind = om_wind if isinstance(om_wind, tuple) else (None, None, None)
+    om_spd, om_deg, _air = om_wind
 
     bc = interpret_breaking_conditions(
         wvht_m=buoy.wvht_m,

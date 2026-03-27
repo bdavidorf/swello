@@ -21,6 +21,15 @@ export function TideChart({ predictions, events, hoursToShow = 36 }: Props) {
     plotH: H - PAD.top  - PAD.bottom,
   })
 
+  // Safe rounded-rect — ctx.roundRect not available in older Safari
+  const roundRect = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) => {
+    if (typeof ctx.roundRect === 'function') {
+      ctx.roundRect(x, y, w, h, r)
+    } else {
+      ctx.rect(x, y, w, h)
+    }
+  }
+
   // ── Pointer / touch → scrub index ────────────────────────────────────────────
   const xToIdx = useCallback((clientX: number) => {
     const canvas = canvasRef.current
@@ -164,7 +173,7 @@ export function TideChart({ predictions, events, hoursToShow = 36 }: Props) {
       const ly = H - PAD.bottom + 16
 
       ctx.beginPath()
-      ctx.roundRect(lx, ly, labelW, labelH, labelR)
+      roundRect(ctx, lx, ly, labelW, labelH, labelR)
       ctx.fillStyle = '#f4c77a'
       ctx.fill()
 
@@ -227,7 +236,7 @@ export function TideChart({ predictions, events, hoursToShow = 36 }: Props) {
 
       // Box
       ctx.beginPath()
-      ctx.roundRect(bx, by, bw, bh, br)
+      roundRect(ctx, bx, by, bw, bh, br)
       ctx.fillStyle = 'rgba(10,24,38,0.92)'
       ctx.fill()
       ctx.strokeStyle = 'rgba(0,212,200,0.40)'

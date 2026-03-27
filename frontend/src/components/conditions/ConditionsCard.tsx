@@ -219,6 +219,11 @@ export function ConditionsCard({ condition }: Props) {
           <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 14, color: '#6AAED0', letterSpacing: '0.10em' }}>
             FAHRENHEIT
           </span>
+          {condition.air_temp_f != null && (
+            <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 11, color: '#4A7A9A', letterSpacing: '0.08em' }}>
+              AIR {condition.air_temp_f.toFixed(0)}°F
+            </span>
+          )}
         </BentoTile>
 
         {/* Swell dir / breakdown */}
