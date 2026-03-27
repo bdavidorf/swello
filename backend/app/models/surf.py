@@ -103,6 +103,12 @@ class SunTimes(BaseModel):
     is_golden_hour_morning: bool
 
 
+class SpotRating(BaseModel):
+    spot_id: str
+    rating: Optional[int] = None
+    wave_height_str: Optional[str] = None
+
+
 class SurfCondition(BaseModel):
     spot_id: str
     spot_name: str

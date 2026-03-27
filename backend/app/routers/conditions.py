@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 import asyncio
 
 from app.config import get_spots, get_spot_by_id
-from app.models.surf import SurfCondition, SpotMeta, BreakingConditions, SunTimes, SwellComponent
+from app.models.surf import SurfCondition, SpotMeta, SpotRating, BreakingConditions, SunTimes, SwellComponent
 from app.services.ndbc import fetch_buoy_with_fallback, deg_to_label
 from app.services.nws import fetch_hourly_forecast
 from app.services.wave_power import build_wave_power, wind_quality_for_spot
@@ -191,3 +191,33 @@ async def spot_conditions(spot_id: str):
 async def spot_metadata():
     spots = get_spots()
     return [SpotMeta(**{k: s[k] for k in SpotMeta.model_fields if k in s}) for s in spots]
+
+
+async def _build_rating(spot: dict) -> SpotRating:
+    """Lightweight rating: only buoy data (no NWS/tide/marine). Uses buoy cache."""
+    buoy = await fetch_buoy_with_fallback(spot["buoy_primary"], spot.get("buoy_fallback"))
+    if buoy is None or buoy.wvht_m is None or buoy.dpd_s is None:
+        return SpotRating(spot_id=spot["id"])
+
+    bc = interpret_breaking_conditions(
+        wvht_m=buoy.wvht_m,
+        dpd_s=buoy.dpd_s,
+        mwd_deg=buoy.mwd_deg,
+        spot=spot,
+    )
+    face_avg = (bc.face_height_min_ft + bc.face_height_max_ft) / 2
+    wp = build_wave_power(buoy.wvht_m, buoy.dpd_s, "cross", 10.0, face_avg)
+
+    lo, hi = bc.face_height_min_ft, bc.face_height_max_ft
+    fmt = lambda n: f"{n:.1f}" if n < 4 else f"{n:.0f}"
+    wave_height_str = f"{fmt(lo)}–{fmt(hi)}ft" if round(lo, 1) != round(hi, 1) else f"{fmt(lo)}ft"
+
+    return SpotRating(spot_id=spot["id"], rating=wp.surf_rating, wave_height_str=wave_height_str)
+
+
+@router.get("/ratings", response_model=list[SpotRating])
+async def spot_ratings():
+    """Lightweight ratings for all spots. Fetches only buoy data (uses cache after first call)."""
+    spots = get_spots()
+    results = await asyncio.gather(*[_build_rating(s) for s in spots], return_exceptions=True)
+    return [r for r in results if isinstance(r, SpotRating)]

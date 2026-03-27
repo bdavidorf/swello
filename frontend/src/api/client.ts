@@ -23,6 +23,11 @@ export async function fetchSpotMeta() {
   return data
 }
 
+export async function fetchSpotRatings() {
+  const { data } = await api.get('/conditions/ratings')
+  return data as { spot_id: string; rating: number | null; wave_height_str: string | null }[]
+}
+
 export async function fetchForecast(spotId: string, hours = 168) {
   const { data } = await api.get(`/forecast/${spotId}`, { params: { hours } })
   return data

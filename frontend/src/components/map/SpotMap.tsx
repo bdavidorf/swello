@@ -78,9 +78,14 @@ const popupStyle: React.CSSProperties = {
   fontFamily: 'Inter, system-ui, sans-serif',
 }
 
-interface Props { spots: SpotMeta[] | undefined }
+type RatingEntry = { spot_id: string; rating: number | null; wave_height_str: string | null }
 
-export function SpotMap({ spots }: Props) {
+interface Props {
+  spots: SpotMeta[] | undefined
+  ratingsMap?: Map<string, RatingEntry>
+}
+
+export function SpotMap({ spots, ratingsMap }: Props) {
   const { selectedSpotId, setSelectedSpot, setMobileTab, pinLatLon, setPinLatLon } = useSpotStore()
   const qc = useQueryClient()
   const [openPopup, setOpenPopup] = useState<string | null>(null)
@@ -134,15 +139,17 @@ export function SpotMap({ spots }: Props) {
         {(spots ?? []).map((spot) => {
           const selected = spot.id === selectedSpotId
           const cached = qc.getQueryData<SurfCondition>(['condition', spot.id])
-          const rating = cached?.wave_power?.surf_rating ?? null
+          const batchRating = ratingsMap?.get(spot.id)
+          const rating = cached?.wave_power?.surf_rating ?? batchRating?.rating ?? null
           const wave = (() => {
-            if (!cached) return null
-            const lo = cached.breaking?.face_height_min_ft
-            const hi = cached.breaking?.face_height_max_ft
-            const fmt = (n: number) => n < 4 ? n.toFixed(1) : n.toFixed(0)
-            if (lo != null && hi != null) return lo === hi ? `${fmt(lo)}ft` : `${fmt(lo)}–${fmt(hi)}ft`
-            if (cached.buoy.wvht_ft != null) return `${cached.buoy.wvht_ft.toFixed(1)}ft`
-            return null
+            if (cached) {
+              const lo = cached.breaking?.face_height_min_ft
+              const hi = cached.breaking?.face_height_max_ft
+              const fmt = (n: number) => n < 4 ? n.toFixed(1) : n.toFixed(0)
+              if (lo != null && hi != null) return lo === hi ? `${fmt(lo)}ft` : `${fmt(lo)}–${fmt(hi)}ft`
+              if (cached.buoy.wvht_ft != null) return `${cached.buoy.wvht_ft.toFixed(1)}ft`
+            }
+            return batchRating?.wave_height_str ?? null
           })()
           const color = rating !== null ? ratingColor(Math.max(rating, 1)) : '#3A6A8A'
 

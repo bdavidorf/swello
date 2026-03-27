@@ -7,7 +7,7 @@ import { DashboardContent } from './pages/DashboardContent'
 import { SurfChatWidget } from './components/ai/SurfChat'
 import { MapFAB } from './components/map/MapFAB'
 import { useQuery } from '@tanstack/react-query'
-import { fetchSpotMeta } from './api/client'
+import { fetchSpotMeta, fetchSpotRatings } from './api/client'
 import { useSpotStore } from './store/spotStore'
 import type { SpotMeta } from './types/surf'
 
@@ -17,6 +17,17 @@ export default function App() {
     queryFn: fetchSpotMeta,
     staleTime: 60 * 60 * 1000,
   })
+
+  const ratingsQuery = useQuery({
+    queryKey: ['spot-ratings'],
+    queryFn: fetchSpotRatings,
+    staleTime: 2 * 60 * 1000,
+    enabled: !!spotMeta.data,
+  })
+
+  const ratingsMap = new Map(
+    (ratingsQuery.data ?? []).map(r => [r.spot_id, r])
+  )
 
   const { mobileTab } = useSpotStore()
 
@@ -29,14 +40,14 @@ export default function App() {
 
         {/* Spot picker — visible on all screen sizes when not on map tab */}
         {mobileTab !== 'spots' && (
-          <MobileSpotPicker spots={spotMeta.data} />
+          <MobileSpotPicker spots={spotMeta.data} ratingsMap={ratingsMap} />
         )}
 
         <div className="flex flex-1 min-h-0 overflow-hidden">
           {mobileTab === 'spots' ? (
             <div className="flex-1 flex flex-col overflow-hidden"
                  style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)', height: '100%' }}>
-              <SpotMap spots={spotMeta.data} />
+              <SpotMap spots={spotMeta.data} ratingsMap={ratingsMap} />
             </div>
           ) : (
             <DashboardContent />

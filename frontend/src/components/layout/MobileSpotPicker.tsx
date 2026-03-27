@@ -3,7 +3,12 @@ import { useSpotStore } from '../../store/spotStore'
 import { useQueryClient } from '@tanstack/react-query'
 import type { SpotMeta, SurfCondition } from '../../types/surf'
 
-interface Props { spots: SpotMeta[] | undefined }
+type RatingEntry = { spot_id: string; rating: number | null; wave_height_str: string | null }
+
+interface Props {
+  spots: SpotMeta[] | undefined
+  ratingsMap?: Map<string, RatingEntry>
+}
 
 function ratingColor(r: number) {
   if (r >= 7) return '#4ADE80'
@@ -12,7 +17,7 @@ function ratingColor(r: number) {
   return '#F87171'
 }
 
-export function MobileSpotPicker({ spots }: Props) {
+export function MobileSpotPicker({ spots, ratingsMap }: Props) {
   const { selectedSpotId, setSelectedSpot, pinLatLon, setPinLatLon } = useSpotStore()
   const qc = useQueryClient()
   const [search, setSearch] = useState('')
@@ -84,9 +89,9 @@ export function MobileSpotPicker({ spots }: Props) {
 
         {filtered.map((s) => {
           const selected = s.id === selectedSpotId
-          // Pull cached condition for this spot if already loaded
+          // Prefer full condition cache (selected spot), fall back to batch ratings
           const cached = qc.getQueryData<SurfCondition>(['condition', s.id])
-          const rating = cached?.wave_power?.surf_rating ?? null
+          const rating = cached?.wave_power?.surf_rating ?? ratingsMap?.get(s.id)?.rating ?? null
           const rc = rating !== null ? ratingColor(Math.max(1, rating)) : null
 
           return (
