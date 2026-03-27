@@ -176,17 +176,6 @@ async def all_conditions():
     return [r for r in results if isinstance(r, SurfCondition)]
 
 
-@router.get("/{spot_id}", response_model=SurfCondition)
-async def spot_conditions(spot_id: str):
-    spot = get_spot_by_id(spot_id)
-    if not spot:
-        raise HTTPException(404, f"Spot '{spot_id}' not found")
-    result = await _build_condition(spot)
-    if not result:
-        raise HTTPException(503, "Failed to fetch buoy data")
-    return result
-
-
 @router.get("/meta/all", response_model=list[SpotMeta])
 async def spot_metadata():
     spots = get_spots()
@@ -221,3 +210,14 @@ async def spot_ratings():
     spots = get_spots()
     results = await asyncio.gather(*[_build_rating(s) for s in spots], return_exceptions=True)
     return [r for r in results if isinstance(r, SpotRating)]
+
+
+@router.get("/{spot_id}", response_model=SurfCondition)
+async def spot_conditions(spot_id: str):
+    spot = get_spot_by_id(spot_id)
+    if not spot:
+        raise HTTPException(404, f"Spot '{spot_id}' not found")
+    result = await _build_condition(spot)
+    if not result:
+        raise HTTPException(503, "Failed to fetch buoy data")
+    return result
