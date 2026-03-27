@@ -67,17 +67,6 @@ export async function triggerCrowdCollect(spotId?: string) {
   return data
 }
 
-export async function submitCrowdReport(body: {
-  spot_id: string
-  crowd_level: string
-  wvht_ft?: number | null
-  dpd_s?: number | null
-  wind_mph?: number | null
-  wind_dir?: string | null
-}) {
-  const { data } = await api.post('/crowd/report', body)
-  return data
-}
 
 export async function fetchSwelloAI(profile: {
   skill: string

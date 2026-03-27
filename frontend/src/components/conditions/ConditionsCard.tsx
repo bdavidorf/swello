@@ -5,7 +5,6 @@ import type { SurfCondition } from '../../types/surf'
 import { CompassRose } from '../shared/CompassRose'
 import { CrowdBadge, WindBadge } from '../shared/Badge'
 import { EnergyBar } from './EnergyBar'
-import { CrowdReportButton } from '../crowd/CrowdReportButton'
 import { AISpotAnalysis } from '../ai/AISpotAnalysis'
 
 interface Props { condition: SurfCondition }
@@ -121,7 +120,6 @@ export function ConditionsCard({ condition }: Props) {
             )}
           </div>
           <div className="flex items-center gap-2">
-            <CrowdReportButton condition={condition} />
             <div className="flex items-center gap-1" style={{
               fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: '#6AAED0',
             }}>
