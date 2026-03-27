@@ -2,16 +2,20 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException
 from datetime import datetime, timezone, date
 from collections import defaultdict
+from zoneinfo import ZoneInfo
 import asyncio
 import math
 
 from app.config import get_spot_by_id
 from app.services.nws import fetch_hourly_forecast
-from app.services.openmeteo import fetch_marine_forecast, MarineHour
+from app.services.openmeteo import fetch_marine_forecast, fetch_wind_forecast, MarineHour
 from app.services.wave_power import wind_quality_for_spot, CARDINAL_TO_DEG
 from app.services.wave_interpreter import interpret_breaking_conditions
 from app.services.coops import fetch_tide_predictions
+from app.services.ndbc import deg_to_label
 from app.ml.crowd_model import predict_crowd
+
+_LA_TZ = ZoneInfo("America/Los_Angeles")
 
 router = APIRouter(prefix="/forecast", tags=["forecast"])
 
@@ -166,21 +170,32 @@ async def spot_forecast(spot_id: str):
     if not spot:
         raise HTTPException(404, f"Spot '{spot_id}' not found")
 
-    marine, nws, tide_window = await asyncio.gather(
+    marine, nws, tide_window, om_wind = await asyncio.gather(
         fetch_marine_forecast(spot["lat"], spot["lon"]),
         fetch_hourly_forecast(spot["lat"], spot["lon"]),
         fetch_tide_predictions(spot["tide_station"], days=15),
+        fetch_wind_forecast(spot["lat"], spot["lon"]),
         return_exceptions=True,
     )
 
     if isinstance(marine, Exception) or not marine:
         raise HTTPException(503, "Marine forecast unavailable")
 
-    # Wind lookup: (date, hour) -> nws point
+    # NWS wind lookup: (date, hour) in LA time to match marine forecast timestamps.
+    # NWS timestamps are timezone-aware (local to forecast point). Converting to LA
+    # time ensures correct hour matching for all US spots regardless of their timezone.
     wind_by_hour: dict = {}
     if isinstance(nws, list):
         for pt in nws:
-            wind_by_hour[(pt.timestamp.date(), pt.timestamp.hour)] = pt
+            ts_la = pt.timestamp.astimezone(_LA_TZ)
+            wind_by_hour[(ts_la.date(), ts_la.hour)] = pt
+
+    # Open-Meteo wind lookup: covers 16 days, fills days 7-14 where NWS runs out.
+    # Also in LA timezone — matches marine timestamps directly.
+    om_wind_by_hour: dict = {}
+    if isinstance(om_wind, list):
+        for wh in om_wind:
+            om_wind_by_hour[(wh.timestamp.date(), wh.timestamp.hour)] = wh
 
     # Tide lookup: (date, hour) -> tide_ft (MLLW)
     tide_by_hour: dict = {}
@@ -214,17 +229,31 @@ async def spot_forecast(spot_id: str):
             except Exception:
                 pass
 
-        nws_pt = wind_by_hour.get((ts.date(), ts.hour))
+        nws_pt  = wind_by_hour.get((ts.date(), ts.hour))
+        om_wh   = om_wind_by_hour.get((ts.date(), ts.hour))
         wind_speed_mph = 0.0
         wind_quality = "cross"
         wind_quality_label = "Cross"
         if nws_pt:
+            # NWS: accurate model-based forecast (~7 days out)
             try:
                 wind = wind_quality_for_spot(
                     nws_pt.wind_dir, nws_pt.wind_speed_mph,
                     spot["offshore_wind_dir_min"], spot["offshore_wind_dir_max"],
                 )
                 wind_speed_mph = nws_pt.wind_speed_mph
+                wind_quality = wind.quality
+                wind_quality_label = wind.quality_label
+            except Exception:
+                pass
+        elif om_wh:
+            # Open-Meteo fallback: covers days 7-16 where NWS has no data
+            try:
+                wind = wind_quality_for_spot(
+                    deg_to_label(om_wh.direction_deg), om_wh.speed_mph,
+                    spot["offshore_wind_dir_min"], spot["offshore_wind_dir_max"],
+                )
+                wind_speed_mph = om_wh.speed_mph
                 wind_quality = wind.quality
                 wind_quality_label = wind.quality_label
             except Exception:
@@ -237,10 +266,15 @@ async def spot_forecast(spot_id: str):
         crowd_score = 50.0
         crowd_level = "moderate"
         try:
+            wind_dir_for_crowd = (
+                _nws_wind_to_deg(nws_pt.wind_dir) if nws_pt
+                else om_wh.direction_deg if om_wh
+                else 270.0
+            )
             crowd = predict_crowd(
                 spot_id=spot["id"], wvht_m=wvht_m or 0.5, dpd_s=dpd_s or 9.0,
                 wind_speed_ms=wind_speed_mph * 0.44704,
-                wind_dir_deg=_nws_wind_to_deg(nws_pt.wind_dir) if nws_pt else 270.0,
+                wind_dir_deg=wind_dir_for_crowd,
                 dt=ts,
             )
             crowd.peak_hour_today = None

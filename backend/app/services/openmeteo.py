@@ -53,6 +53,13 @@ _EXTRA_PARAMS = [
 ]
 
 
+@dataclass
+class WindHour:
+    timestamp: datetime       # naive, America/Los_Angeles — matches marine timestamps
+    speed_mph: float
+    direction_deg: float      # meteorological: direction wind is coming FROM (0-360)
+
+
 def _parse_hours(h: dict, has_extra: bool) -> list[MarineHour]:
     times = h.get("time", [])
     result: list[MarineHour] = []
@@ -109,3 +116,42 @@ async def fetch_marine_forecast(lat: float, lon: float) -> list[MarineHour]:
             return _parse_hours(resp.json().get("hourly", {}), has_extra=False)
         except Exception:
             return []
+
+
+async def fetch_wind_forecast(lat: float, lon: float) -> list[WindHour]:
+    """
+    16-day hourly wind forecast from Open-Meteo weather API (global, free, no key).
+    Used as fallback when NWS wind data runs out at ~7 days.
+    Timestamps are in America/Los_Angeles to match marine forecast timestamps.
+    """
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.get(
+                "https://api.open-meteo.com/v1/forecast",
+                params={
+                    "latitude": lat,
+                    "longitude": lon,
+                    "hourly": "wind_speed_10m,wind_direction_10m",
+                    "wind_speed_unit": "mph",
+                    "timezone": "America/Los_Angeles",
+                    "forecast_days": 16,
+                },
+            )
+            resp.raise_for_status()
+            h = resp.json().get("hourly", {})
+            times  = h.get("time", [])
+            speeds = h.get("wind_speed_10m", [])
+            dirs   = h.get("wind_direction_10m", [])
+            result = []
+            for i, t in enumerate(times):
+                spd = speeds[i] if i < len(speeds) else None
+                d   = dirs[i]   if i < len(dirs)   else None
+                if spd is not None and d is not None:
+                    result.append(WindHour(
+                        timestamp=datetime.fromisoformat(t),
+                        speed_mph=float(spd),
+                        direction_deg=float(d),
+                    ))
+            return result
+    except Exception:
+        return []
