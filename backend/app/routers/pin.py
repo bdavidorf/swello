@@ -4,13 +4,12 @@ On-demand surf conditions for any lat/lon worldwide.
 Uses Open-Meteo Marine (global, no API key) + Open-Meteo Weather for wind.
 """
 
-import httpx
 import asyncio
 from datetime import datetime, timezone
 from typing import Optional
 from fastapi import APIRouter, Query
 
-from app.services.openmeteo import fetch_marine_forecast
+from app.services.openmeteo import fetch_marine_forecast, fetch_current_wind
 from app.services.wave_power import build_wave_power, wind_quality_for_spot
 from app.services.wave_interpreter import interpret_breaking_conditions
 from app.services.sun_times import get_sun_times
@@ -25,27 +24,6 @@ router = APIRouter(prefix="/conditions/pin", tags=["pin"])
 M_TO_FT = 3.28084
 
 
-async def _fetch_wind_global(lat: float, lon: float) -> tuple[Optional[float], Optional[float]]:
-    """Current wind speed (mph) + direction (deg) from Open-Meteo weather (global)."""
-    try:
-        async with httpx.AsyncClient(timeout=10) as client:
-            resp = await client.get(
-                "https://api.open-meteo.com/v1/forecast",
-                params={
-                    "latitude": lat,
-                    "longitude": lon,
-                    "current": "wind_speed_10m,wind_direction_10m",
-                    "wind_speed_unit": "mph",
-                    "forecast_days": 1,
-                },
-            )
-            resp.raise_for_status()
-            cur = resp.json().get("current", {})
-            return cur.get("wind_speed_10m"), cur.get("wind_direction_10m")
-    except Exception:
-        return None, None
-
-
 @router.get("", response_model=SurfCondition)
 async def pin_conditions(
     lat: float = Query(..., ge=-90, le=90),
@@ -55,7 +33,7 @@ async def pin_conditions(
     """Return surf conditions for any lat/lon in the world."""
     marine_data, (wind_mph, wind_deg_raw) = await asyncio.gather(
         fetch_marine_forecast(lat, lon),
-        _fetch_wind_global(lat, lon),
+        fetch_current_wind(lat, lon),
     )
 
     # ── Current marine hour ───────────────────────────────────────────────────

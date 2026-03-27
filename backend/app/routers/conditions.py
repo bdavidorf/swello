@@ -11,7 +11,7 @@ from app.services.wave_power import build_wave_power, wind_quality_for_spot
 from app.services.wave_interpreter import interpret_breaking_conditions
 from app.services.sun_times import get_sun_times
 from app.services.coops import fetch_tide_predictions
-from app.services.openmeteo import fetch_marine_forecast
+from app.services.openmeteo import fetch_marine_forecast, fetch_current_wind
 from app.ml.crowd_model import predict_crowd
 
 router = APIRouter(prefix="/conditions", tags=["conditions"])
@@ -51,15 +51,17 @@ async def _build_condition(spot: dict) -> SurfCondition | None:
         fetch_hourly_forecast(spot["lat"], spot["lon"]),
         fetch_tide_predictions(tide_station, days=2) if tide_station else asyncio.sleep(0),
         fetch_marine_forecast(spot["lat"], spot["lon"]),
+        fetch_current_wind(spot["lat"], spot["lon"]),
     ]
-    buoy, nws_raw, tide_data, marine_data = await asyncio.gather(*tasks, return_exceptions=True)
+    buoy, nws_raw, tide_data, marine_data, om_wind = await asyncio.gather(*tasks, return_exceptions=True)
     if not tide_station:
         tide_data = None
     if buoy is None or isinstance(buoy, BaseException):
         return None
-    nws_raw = nws_raw if not isinstance(nws_raw, BaseException) else []
-    tide_data = tide_data if not isinstance(tide_data, BaseException) else None
+    nws_raw    = nws_raw    if not isinstance(nws_raw,    BaseException) else []
+    tide_data  = tide_data  if not isinstance(tide_data,  BaseException) else None
     marine_data = marine_data if not isinstance(marine_data, BaseException) else []
+    om_wind    = om_wind    if not isinstance(om_wind,    BaseException) else (None, None)
 
     # Next upcoming tide event
     next_tide = None
@@ -68,7 +70,7 @@ async def _build_condition(spot: dict) -> SurfCondition | None:
         if future:
             next_tide = future[0]
 
-    # NWS wind (use spot lat/lon so each spot gets its own local wind)
+    # Wind: prefer NWS (accurate gridded model), fall back to Open-Meteo (global coverage)
     nws = nws_raw
     current_nws = nws[0] if nws else None
 
@@ -80,6 +82,16 @@ async def _build_condition(spot: dict) -> SurfCondition | None:
             spot["offshore_wind_dir_min"],
             spot["offshore_wind_dir_max"],
         )
+    else:
+        # NWS failed or returned nothing — use Open-Meteo wind (always available, global)
+        om_spd, om_deg = om_wind if isinstance(om_wind, tuple) else (None, None)
+        if om_spd is not None and om_deg is not None:
+            wind = wind_quality_for_spot(
+                deg_to_label(om_deg),
+                om_spd,
+                spot["offshore_wind_dir_min"],
+                spot["offshore_wind_dir_max"],
+            )
 
     wave_power = None
     breaking = None
@@ -183,10 +195,17 @@ async def spot_metadata():
 
 
 async def _build_rating(spot: dict) -> SpotRating:
-    """Lightweight rating: only buoy data (no NWS/tide/marine). Uses buoy cache."""
-    buoy = await fetch_buoy_with_fallback(spot["buoy_primary"], spot.get("buoy_fallback"))
-    if buoy is None or buoy.wvht_m is None or buoy.dpd_s is None:
+    """Lightweight rating: buoy + Open-Meteo wind (concurrent). Uses buoy cache."""
+    buoy, om_wind = await asyncio.gather(
+        fetch_buoy_with_fallback(spot["buoy_primary"], spot.get("buoy_fallback")),
+        fetch_current_wind(spot["lat"], spot["lon"]),
+        return_exceptions=True,
+    )
+    if buoy is None or isinstance(buoy, BaseException) or buoy.wvht_m is None or buoy.dpd_s is None:
         return SpotRating(spot_id=spot["id"])
+
+    om_wind = om_wind if isinstance(om_wind, tuple) else (None, None)
+    om_spd, om_deg = om_wind
 
     bc = interpret_breaking_conditions(
         wvht_m=buoy.wvht_m,
@@ -195,7 +214,18 @@ async def _build_rating(spot: dict) -> SpotRating:
         spot=spot,
     )
     face_avg = (bc.face_height_min_ft + bc.face_height_max_ft) / 2
-    wp = build_wave_power(buoy.wvht_m, buoy.dpd_s, "cross", 10.0, face_avg)
+
+    wind_quality = "cross"
+    wind_speed = 10.0
+    if om_spd is not None and om_deg is not None:
+        wq = wind_quality_for_spot(
+            deg_to_label(om_deg), om_spd,
+            spot["offshore_wind_dir_min"], spot["offshore_wind_dir_max"],
+        )
+        wind_quality = wq.quality
+        wind_speed = om_spd
+
+    wp = build_wave_power(buoy.wvht_m, buoy.dpd_s, wind_quality, wind_speed, face_avg)
 
     lo, hi = bc.face_height_min_ft, bc.face_height_max_ft
     fmt = lambda n: f"{n:.1f}" if n < 4 else f"{n:.0f}"

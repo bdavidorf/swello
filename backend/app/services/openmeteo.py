@@ -118,6 +118,31 @@ async def fetch_marine_forecast(lat: float, lon: float) -> list[MarineHour]:
             return []
 
 
+async def fetch_current_wind(lat: float, lon: float) -> tuple[Optional[float], Optional[float]]:
+    """
+    Current wind speed (mph) + direction (degrees) from Open-Meteo weather API.
+    Global coverage, no API key required. Used as fallback when NWS is unavailable.
+    Returns (speed_mph, direction_deg) or (None, None) on failure.
+    """
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(
+                "https://api.open-meteo.com/v1/forecast",
+                params={
+                    "latitude": lat,
+                    "longitude": lon,
+                    "current": "wind_speed_10m,wind_direction_10m",
+                    "wind_speed_unit": "mph",
+                    "forecast_days": 1,
+                },
+            )
+            resp.raise_for_status()
+            cur = resp.json().get("current", {})
+            return cur.get("wind_speed_10m"), cur.get("wind_direction_10m")
+    except Exception:
+        return None, None
+
+
 async def fetch_wind_forecast(lat: float, lon: float) -> list[WindHour]:
     """
     16-day hourly wind forecast from Open-Meteo weather API (global, free, no key).
