@@ -7,6 +7,18 @@ export const api = axios.create({
   timeout: 15000,
 })
 
+// Attach JWT token from localStorage to every request
+api.interceptors.request.use(config => {
+  try {
+    const raw = localStorage.getItem('swello-auth')
+    if (raw) {
+      const { state } = JSON.parse(raw)
+      if (state?.token) config.headers.Authorization = `Bearer ${state.token}`
+    }
+  } catch {}
+  return config
+})
+
 export async function fetchConditions(spotId?: string) {
   const url = spotId ? `/conditions/${spotId}` : '/conditions'
   const { data } = await api.get(url)

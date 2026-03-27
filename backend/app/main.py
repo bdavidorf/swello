@@ -5,7 +5,8 @@ from contextlib import asynccontextmanager
 
 from app.config import get_settings
 from app.ml.crowd_model import load_model
-from app.routers import conditions, forecast, tides, crowd, ai, sun, swello_ai, pin
+from app.database import init_db
+from app.routers import conditions, forecast, tides, crowd, ai, sun, swello_ai, pin, auth
 
 settings = get_settings()
 
@@ -13,6 +14,7 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
+    init_db()
     load_model()
     print("[startup] Crowd prediction model loaded.")
     yield
@@ -36,6 +38,7 @@ app.add_middleware(
 
 # pin must be registered BEFORE conditions so /conditions/pin (literal)
 # takes priority over /conditions/{spot_id} (parameterized)
+app.include_router(auth.router, prefix="/v1")
 app.include_router(pin.router, prefix="/v1")
 app.include_router(conditions.router, prefix="/v1")
 app.include_router(forecast.router, prefix="/v1")
