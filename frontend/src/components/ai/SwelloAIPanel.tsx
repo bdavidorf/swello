@@ -1,24 +1,9 @@
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Zap, Wind, Waves, Clock, Users, ChevronRight, AlertTriangle, RefreshCw } from 'lucide-react'
+import { Zap, Wind, Waves, Clock, Users, ChevronRight, AlertTriangle, RefreshCw, UserCircle } from 'lucide-react'
 import { fetchSwelloAI } from '../../api/client'
 import { useSpotStore } from '../../store/spotStore'
-import type { UserProfile, SwelloAIResponse, SpotPick, SkillLevel, BoardType } from '../../types/swelloAI'
-
-// ── Persist profile in localStorage ──────────────────────────────────────────
-const PROFILE_KEY = 'swello_user_profile'
-
-function loadProfile(): UserProfile {
-  try {
-    const saved = localStorage.getItem(PROFILE_KEY)
-    if (saved) return JSON.parse(saved)
-  } catch {}
-  return { skill: 'intermediate', board: 'shortboard', prefers_bigger: false, prefers_cleaner: true, prefers_uncrowded: false }
-}
-
-function saveProfile(p: UserProfile) {
-  try { localStorage.setItem(PROFILE_KEY, JSON.stringify(p)) } catch {}
-}
+import type { SwelloAIResponse, SpotPick } from '../../types/swelloAI'
 
 // ── Colors ────────────────────────────────────────────────────────────────────
 function scoreColor(s: number) {
@@ -286,134 +271,18 @@ function SpotCard({ pick, rank, onSelect }: {
   )
 }
 
-// ── Profile selector ──────────────────────────────────────────────────────────
-function ProfilePicker({ profile, onChange }: {
-  profile: UserProfile
-  onChange: (p: UserProfile) => void
-}) {
-  const SKILLS: { id: SkillLevel; label: string }[] = [
-    { id: 'beginner',     label: 'Beginner' },
-    { id: 'intermediate', label: 'Intermediate' },
-    { id: 'advanced',     label: 'Advanced' },
-    { id: 'expert',       label: 'Expert' },
-  ]
-  const BOARDS: { id: BoardType; label: string }[] = [
-    { id: 'longboard',  label: 'Longboard' },
-    { id: 'funboard',   label: 'Funboard' },
-    { id: 'fish',       label: 'Fish' },
-    { id: 'shortboard', label: 'Shortboard' },
-  ]
-
-  return (
-    <div style={{
-      background: 'rgba(13,28,42,0.80)',
-      border: '1px solid rgba(120,184,216,0.10)',
-      borderRadius: 18, padding: '14px 16px',
-    }}>
-      <p style={{
-        fontFamily: "'Bangers', Impact, system-ui",
-        fontSize: 9, letterSpacing: '0.18em', color: '#6AAED0',
-        margin: '0 0 10px',
-      }}>YOUR PROFILE</p>
-
-      {/* Skill */}
-      <p style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 11, letterSpacing: '0.12em', color: '#A0C0D8', margin: '0 0 6px' }}>SKILL LEVEL</p>
-      <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
-        {SKILLS.map(s => (
-          <button
-            key={s.id}
-            onClick={() => onChange({ ...profile, skill: s.id })}
-            style={{
-              padding: '5px 12px',
-              borderRadius: 20,
-              border: `1px solid ${profile.skill === s.id ? '#78B8D8' : 'rgba(120,184,216,0.15)'}`,
-              background: profile.skill === s.id ? 'rgba(120,184,216,0.15)' : 'transparent',
-              fontFamily: "'Bangers', Impact, system-ui",
-              fontSize: 12, letterSpacing: '0.10em',
-              color: profile.skill === s.id ? '#D8EEF8' : '#6AAED0',
-              cursor: 'pointer', transition: 'all 0.15s',
-            }}
-          >
-            {s.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Board */}
-      <p style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 11, letterSpacing: '0.12em', color: '#A0C0D8', margin: '0 0 6px' }}>BOARD TYPE</p>
-      <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
-        {BOARDS.map(b => (
-          <button
-            key={b.id}
-            onClick={() => onChange({ ...profile, board: b.id })}
-            style={{
-              padding: '5px 12px',
-              borderRadius: 20,
-              border: `1px solid ${profile.board === b.id ? '#78B8D8' : 'rgba(120,184,216,0.15)'}`,
-              background: profile.board === b.id ? 'rgba(120,184,216,0.15)' : 'transparent',
-              fontFamily: "'Bangers', Impact, system-ui",
-              fontSize: 12, letterSpacing: '0.10em',
-              color: profile.board === b.id ? '#D8EEF8' : '#6AAED0',
-              cursor: 'pointer', transition: 'all 0.15s',
-            }}
-          >
-            {b.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Preferences */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {([
-          ['prefers_bigger',    'I prefer bigger waves'],
-          ['prefers_cleaner',   'Prioritize clean, groomed conditions'],
-          ['prefers_uncrowded', 'Avoid crowded spots'],
-        ] as const).map(([key, label]) => (
-          <label key={key} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-            <div
-              onClick={() => onChange({ ...profile, [key]: !profile[key] })}
-              style={{
-                width: 18, height: 18, borderRadius: 5, flexShrink: 0,
-                border: `1.5px solid ${profile[key] ? '#78B8D8' : 'rgba(120,184,216,0.25)'}`,
-                background: profile[key] ? 'rgba(120,184,216,0.22)' : 'transparent',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                transition: 'all 0.15s',
-              }}
-            >
-              {profile[key] && <span style={{ color: '#88C8E8', fontSize: 11, lineHeight: 1 }}>✓</span>}
-            </div>
-            <span
-              style={{ fontFamily: "'Inter', system-ui", fontSize: 13, color: '#A0C0D8' }}
-              onClick={() => onChange({ ...profile, [key]: !profile[key] })}
-            >
-              {label}
-            </span>
-          </label>
-        ))}
-      </div>
-    </div>
-  )
-}
-
 // ── Main panel ────────────────────────────────────────────────────────────────
 export function SwelloAIPanel() {
-  const { setSelectedSpot, setMobileTab } = useSpotStore()
-  const [profile, setProfile]   = useState<UserProfile>(loadProfile)
-  const [result, setResult]     = useState<SwelloAIResponse | null>(null)
-  const [loading, setLoading]   = useState(false)
-  const [error, setError]       = useState<string | null>(null)
-
-  const handleProfileChange = useCallback((p: UserProfile) => {
-    setProfile(p)
-    saveProfile(p)
-    setResult(null)  // clear stale results when profile changes
-  }, [])
+  const { setSelectedSpot, setMobileTab, userProfile, userLocation, setProfileOpen } = useSpotStore()
+  const [result, setResult] = useState<SwelloAIResponse | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError]     = useState<string | null>(null)
 
   async function getRecommendations() {
     setLoading(true)
     setError(null)
     try {
-      const data = await fetchSwelloAI(profile)
+      const data = await fetchSwelloAI(userProfile, userLocation ?? undefined)
       setResult(data)
     } catch (e) {
       setError('Could not load recommendations. Backend may be starting up.')
@@ -471,8 +340,37 @@ export function SwelloAIPanel() {
         }} />
       </div>
 
-      {/* Profile picker */}
-      <ProfilePicker profile={profile} onChange={handleProfileChange} />
+      {/* Profile summary — tap to edit */}
+      <div
+        onClick={() => setProfileOpen(true)}
+        style={{
+          background: 'rgba(13,28,42,0.80)',
+          border: '1px solid rgba(120,184,216,0.12)',
+          borderRadius: 16, padding: '12px 16px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          cursor: 'pointer', transition: 'border-color 0.15s',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <UserCircle size={20} style={{ color: '#78B8D8', flexShrink: 0 }} />
+          <div>
+            <p style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 15, color: '#D8EEF8', letterSpacing: '0.06em', margin: 0 }}>
+              {userProfile.skill.charAt(0).toUpperCase() + userProfile.skill.slice(1)} · {userProfile.board.charAt(0).toUpperCase() + userProfile.board.slice(1)}
+            </p>
+            <p style={{ fontFamily: "'Inter', system-ui", fontSize: 11, color: '#4A7A9A', margin: '2px 0 0' }}>
+              {[
+                userProfile.prefers_bigger    && 'bigger waves',
+                userProfile.prefers_cleaner   && 'clean surf',
+                userProfile.prefers_uncrowded && 'uncrowded',
+              ].filter(Boolean).join(' · ') || 'No preferences set'}
+              {userLocation && ' · 📍 nearby'}
+            </p>
+          </div>
+        </div>
+        <span style={{ fontFamily: "'Bangers', Impact, system-ui", fontSize: 11, letterSpacing: '0.14em', color: '#5AAAC8' }}>
+          EDIT ›
+        </span>
+      </div>
 
       {/* CTA button */}
       <button

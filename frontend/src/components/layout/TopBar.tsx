@@ -1,9 +1,9 @@
-import { Settings, RefreshCw, Map } from 'lucide-react'
+import { Settings, RefreshCw, Map, UserCircle } from 'lucide-react'
 import { useSpotStore } from '../../store/spotStore'
 import { useQueryClient } from '@tanstack/react-query'
 
 export function TopBar() {
-  const { setPreferencesOpen, preferencesOpen, setMobileTab, mobileTab } = useSpotStore()
+  const { setPreferencesOpen, preferencesOpen, setMobileTab, mobileTab, setProfileOpen, userProfile } = useSpotStore()
   const qc = useQueryClient()
 
   return (
@@ -78,12 +78,25 @@ export function TopBar() {
           <Settings size={11} /> PREFS
         </button>
 
+        {/* Profile button — visible on all screen sizes */}
         <button
-          onClick={() => setMobileTab('ai')}
-          className="md:hidden"
-          style={{ padding: '6px 8px', borderRadius: 10, color: '#6AAED0', background: 'transparent', border: 'none', cursor: 'pointer' }}
+          onClick={() => setProfileOpen(true)}
+          style={{
+            padding: '5px 8px', borderRadius: 10,
+            background: 'rgba(120,184,216,0.10)',
+            border: '1px solid rgba(120,184,216,0.20)',
+            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
+            transition: 'all 0.2s',
+          }}
+          title="Surf Profile"
         >
-          <Settings size={16} />
+          <UserCircle size={17} style={{ color: '#78B8D8' }} />
+          <span className="hidden md:inline" style={{
+            fontFamily: "'Bangers', Impact, system-ui", fontWeight: 400,
+            fontSize: 11, letterSpacing: '0.14em', color: '#78B8D8',
+          }}>
+            {userProfile.skill.toUpperCase()}
+          </span>
         </button>
       </div>
     </header>

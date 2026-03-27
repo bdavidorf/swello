@@ -68,14 +68,17 @@ export async function triggerCrowdCollect(spotId?: string) {
 }
 
 
-export async function fetchSwelloAI(profile: {
-  skill: string
-  board: string
-  prefers_bigger: boolean
-  prefers_cleaner: boolean
-  prefers_uncrowded: boolean
-}) {
-  const { data } = await api.post('/swello-ai/recommend', profile)
+export async function fetchSwelloAI(
+  profile: {
+    skill: string
+    board: string
+    prefers_bigger: boolean
+    prefers_cleaner: boolean
+    prefers_uncrowded: boolean
+  },
+  location?: { lat: number; lon: number },
+) {
+  const { data } = await api.post('/swello-ai/recommend', { ...profile, ...location })
   return data
 }
 

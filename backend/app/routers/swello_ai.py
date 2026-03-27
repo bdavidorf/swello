@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from datetime import datetime, timezone
 from typing import Optional
 import asyncio
+import math
 
 from app.config import get_spots
 from app.services.ndbc import fetch_buoy_with_fallback
@@ -21,12 +22,22 @@ router = APIRouter(prefix="/swello-ai", tags=["swello-ai"])
 
 # ── Request / Response models ─────────────────────────────────────────────────
 
+def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    R = 6371.0
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = math.sin(dlat/2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon/2)**2
+    return R * 2 * math.asin(math.sqrt(a))
+
+
 class RecommendRequest(BaseModel):
     skill:             SkillLevel = "intermediate"
     board:             BoardType  = "shortboard"
     prefers_bigger:    bool = False
     prefers_cleaner:   bool = False
     prefers_uncrowded: bool = False
+    lat:               Optional[float] = None   # user's GPS latitude
+    lon:               Optional[float] = None   # user's GPS longitude
 
 
 class BreakdownOut(BaseModel):
@@ -134,7 +145,17 @@ async def recommend(request: RecommendRequest):
         prefers_uncrowded=request.prefers_uncrowded,
     )
 
-    spots = get_spots()
+    all_spots = get_spots()
+
+    # Filter to nearby spots if user location provided (within 250 km).
+    # Fall back to all spots if fewer than 5 are found in that radius.
+    if request.lat is not None and request.lon is not None:
+        nearby = [s for s in all_spots
+                  if _haversine_km(request.lat, request.lon, s["lat"], s["lon"]) <= 250]
+        spots = nearby if len(nearby) >= 5 else all_spots
+    else:
+        spots = all_spots
+
     tasks = [_fetch_spot_data(s) for s in spots]
     results = await asyncio.gather(*tasks)
 

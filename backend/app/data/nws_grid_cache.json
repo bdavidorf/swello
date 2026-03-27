@@ -70,5 +70,17 @@
     "gridX": 62,
     "gridY": 43,
     "forecast_hourly_url": "https://api.weather.gov/gridpoints/BOX/62,43/forecast/hourly"
+  },
+  "34.308,-119.413": {
+    "office": "LOX",
+    "gridX": 115,
+    "gridY": 64,
+    "forecast_hourly_url": "https://api.weather.gov/gridpoints/LOX/115,64/forecast/hourly"
+  },
+  "18.453,-67.16": {
+    "office": "SJU",
+    "gridX": 74,
+    "gridY": 131,
+    "forecast_hourly_url": "https://api.weather.gov/gridpoints/SJU/74,131/forecast/hourly"
   }
 }
