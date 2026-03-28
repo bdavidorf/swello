@@ -29,6 +29,41 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
   const [modelUsed, setModelUsed] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
+  // Drag state — null means "use default CSS position"
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null)
+  const dragRef = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null)
+
+  function onDragStart(e: React.MouseEvent) {
+    // Only drag on desktop (primary mouse button), not on the close button
+    if (e.button !== 0 || (e.target as HTMLElement).closest('button')) return
+    e.preventDefault()
+    const rect = (e.currentTarget.closest('.surf-chat-window') as HTMLElement).getBoundingClientRect()
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      originX: rect.left,
+      originY: rect.top,
+    }
+    window.addEventListener('mousemove', onDragMove)
+    window.addEventListener('mouseup', onDragEnd)
+  }
+
+  function onDragMove(e: MouseEvent) {
+    if (!dragRef.current) return
+    const dx = e.clientX - dragRef.current.startX
+    const dy = e.clientY - dragRef.current.startY
+    setPos({
+      x: dragRef.current.originX + dx,
+      y: dragRef.current.originY + dy,
+    })
+  }
+
+  function onDragEnd() {
+    dragRef.current = null
+    window.removeEventListener('mousemove', onDragMove)
+    window.removeEventListener('mouseup', onDragEnd)
+  }
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, loading])
@@ -72,8 +107,9 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
     <div
       className="fixed z-50 surf-chat-window"
       style={{
-        bottom: 'calc(env(safe-area-inset-bottom) + 280px)',
-        right: 16,
+        ...(pos
+          ? { left: pos.x, top: pos.y, bottom: 'auto', right: 'auto' }
+          : { bottom: 'calc(env(safe-area-inset-bottom) + 280px)', right: 16 }),
         width: 'min(340px, calc(100vw - 32px))',
         background: 'rgba(18,42,66,0.95)',
         backdropFilter: 'blur(24px)',
@@ -87,8 +123,12 @@ function ChatWindow({ onClose }: { onClose: () => void }) {
         maxHeight: '65vh',
       }}
     >
-      {/* Header */}
-      <div className="surf-chat-header flex items-center justify-between flex-shrink-0" style={{ padding: '14px 16px 12px', borderBottom: '1px solid rgba(120,184,216,0.10)' }}>
+      {/* Header — drag handle on desktop */}
+      <div
+        className="surf-chat-header flex items-center justify-between flex-shrink-0"
+        onMouseDown={onDragStart}
+        style={{ padding: '14px 16px 12px', borderBottom: '1px solid rgba(120,184,216,0.10)', cursor: 'grab', userSelect: 'none' }}
+      >
         <div className="flex items-center gap-2.5">
           <div style={{
             width: 30, height: 30, borderRadius: 9,
