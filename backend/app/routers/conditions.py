@@ -144,6 +144,9 @@ async def _build_condition(spot: dict) -> SurfCondition | None:
             spot_context=bc.spot_context,
         )
 
+    # Sun times (cheap calculation, no network call)
+    sun_data = get_sun_times(spot["lat"], spot["lon"])
+
     crowd = None
     if buoy.wvht_m is not None and buoy.dpd_s is not None:
         crowd = predict_crowd(
@@ -155,8 +158,17 @@ async def _build_condition(spot: dict) -> SurfCondition | None:
         )
         crowd.peak_hour_today = None
 
-    # Sun times (cheap calculation, no network call)
-    sun_data = get_sun_times(spot["lat"], spot["lon"])
+        # No surfers in the dark — zero out crowd between dusk and dawn
+        if sun_data:
+            from datetime import datetime as _dt
+            from zoneinfo import ZoneInfo as _ZI
+            _tz = _ZI("America/Los_Angeles")
+            _now = _dt.now(_tz)
+            _dawn = _dt.fromisoformat(sun_data["first_light"])
+            _dusk = _dt.fromisoformat(sun_data["last_light"])
+            if not (_dawn <= _now <= _dusk):
+                from app.models.crowd import CrowdPrediction, score_to_level
+                crowd = CrowdPrediction(score=0.0, level="empty", confidence=1.0)
     sun_times = SunTimes(**{k: sun_data[k] for k in SunTimes.model_fields if k in sun_data}) if sun_data else None
 
     # Swell components from Open-Meteo (current hour)
