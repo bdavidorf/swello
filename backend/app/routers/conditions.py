@@ -60,7 +60,9 @@ async def _build_condition(spot: dict) -> SurfCondition | None:
         return None
     nws_raw    = nws_raw    if not isinstance(nws_raw,    BaseException) else []
     tide_data  = tide_data  if not isinstance(tide_data,  BaseException) else None
-    marine_data = marine_data if not isinstance(marine_data, BaseException) else []
+    marine_result = marine_data if not isinstance(marine_data, BaseException) else None
+    marine_data = marine_result.hours if marine_result else []
+    _marine_utc_offset = marine_result.utc_offset_seconds if marine_result else -28800  # fallback: PT
     om_wind    = om_wind    if not isinstance(om_wind,    BaseException) else (None, None, None)
 
     # Next upcoming tide event
@@ -171,11 +173,14 @@ async def _build_condition(spot: dict) -> SurfCondition | None:
                 crowd = CrowdPrediction(score=0.0, level="empty", confidence=1.0)
     sun_times = SunTimes(**{k: sun_data[k] for k in SunTimes.model_fields if k in sun_data}) if sun_data else None
 
-    # Swell components from Open-Meteo (current hour)
+    # Swell components from Open-Meteo (current hour).
+    # Marine timestamps are naive local time (timezone=auto). Compute "now" in the
+    # same naive local time using the UTC offset returned by the API.
     swells: list[SwellComponent] = []
     if marine_data:
-        now = datetime.now()
-        current_hour = min(marine_data, key=lambda h: abs((h.timestamp - now).total_seconds()))
+        from datetime import timedelta as _td
+        _now_local = datetime.now(timezone.utc).replace(tzinfo=None) + _td(seconds=_marine_utc_offset)
+        current_hour = min(marine_data, key=lambda h: abs((h.timestamp - _now_local).total_seconds()))
         swells = _build_swells(current_hour)
 
     # Fallback: build swell list from buoy if Open-Meteo returned nothing

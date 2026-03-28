@@ -1,6 +1,6 @@
 from __future__ import annotations
 from fastapi import APIRouter, HTTPException
-from datetime import datetime, timezone, date
+from datetime import datetime, timezone, date, timedelta
 from collections import defaultdict
 from zoneinfo import ZoneInfo
 import asyncio
@@ -182,33 +182,41 @@ async def spot_forecast(spot_id: str):
     if not tide_station:
         tide_window = None
 
-    if isinstance(marine, Exception) or not marine:
+    if isinstance(marine, Exception) or not marine or not marine.hours:
         raise HTTPException(503, "Marine forecast unavailable")
 
-    # NWS wind lookup: (date, hour) in LA time to match marine forecast timestamps.
-    # NWS timestamps are timezone-aware (local to forecast point). Converting to LA
-    # time ensures correct hour matching for all US spots regardless of their timezone.
+    marine_hours = marine.hours
+    utc_offset_seconds = marine.utc_offset_seconds
+
+    # Spot's local timezone offset (fixed, from Open-Meteo response).
+    # Marine and Open-Meteo wind timestamps are naive datetimes in this local time.
+    _spot_tz = timezone(timedelta(seconds=utc_offset_seconds))
+
+    # Current time in the spot's local timezone (matches marine timestamp format)
+    now_local = datetime.now(_spot_tz).replace(tzinfo=None)
+
+    # NWS wind lookup: NWS timestamps are timezone-aware in the forecast-point's
+    # local timezone. Convert to the same naive local time as the marine timestamps.
     wind_by_hour: dict = {}
     if isinstance(nws, list):
         for pt in nws:
-            ts_la = pt.timestamp.astimezone(_LA_TZ)
-            wind_by_hour[(ts_la.date(), ts_la.hour)] = pt
+            ts_local = pt.timestamp.astimezone(_spot_tz).replace(tzinfo=None)
+            wind_by_hour[(ts_local.date(), ts_local.hour)] = pt
 
-    # Open-Meteo wind lookup: covers 16 days, fills days 7-14 where NWS runs out.
-    # Also in LA timezone — matches marine timestamps directly.
+    # Open-Meteo wind: also uses timezone=auto → timestamps are naive local time,
+    # matching marine timestamps directly.
     om_wind_by_hour: dict = {}
     if isinstance(om_wind, list):
         for wh in om_wind:
             om_wind_by_hour[(wh.timestamp.date(), wh.timestamp.hour)] = wh
 
-    # Tide lookup: (date, hour) -> tide_ft (MLLW)
+    # Tide lookup: (date, hour) -> tide_ft (MLLW).
+    # CO-OPS returns UTC timestamps; convert to spot's local time for hour matching.
     tide_by_hour: dict = {}
     if not isinstance(tide_window, Exception) and tide_window:
         for tp in (tide_window.predictions or []):
-            tide_by_hour[(tp.timestamp.date(), tp.timestamp.hour)] = tp.height_ft
-
-    # Current time in LA timezone (marine timestamps are naive LA time)
-    now_la = datetime.now(_LA_TZ).replace(tzinfo=None)
+            ts_local = tp.timestamp.astimezone(_spot_tz)
+            tide_by_hour[(ts_local.date(), ts_local.hour)] = tp.height_ft
 
     # Valid buoy reading to anchor forecast near present
     live_buoy = buoy if (buoy and not isinstance(buoy, BaseException) and
@@ -216,9 +224,9 @@ async def spot_forecast(spot_id: str):
 
     # ── Hourly interpreted forecast ──────────────────────────────────────────
     hourly = []
-    for mh in marine:
+    for mh in marine_hours:
         ts = mh.timestamp
-        hours_from_now = (ts - now_la).total_seconds() / 3600
+        hours_from_now = (ts - now_local).total_seconds() / 3600
 
         # Anchor current window (±3h) to actual buoy reading so the forecast
         # matches the live conditions card instead of the (often lower) model data.
@@ -368,10 +376,10 @@ async def spot_forecast(spot_id: str):
     for h in hourly:
         by_day[h["date"]].append(h)
 
-    today_str = datetime.now(_LA_TZ).date().isoformat()
+    today_str = now_local.date().isoformat()
     daily = []
 
-    current_hour = now_la.hour
+    current_hour = now_local.hour
 
     for day_str in sorted(by_day.keys()):
         all_h = by_day[day_str]

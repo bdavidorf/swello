@@ -6,9 +6,15 @@ https://open-meteo.com/en/docs/marine-weather-api
 """
 
 import httpx
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 from datetime import datetime
+
+
+@dataclass
+class MarineForecastResult:
+    hours: list["MarineHour"]
+    utc_offset_seconds: int = 0   # seconds east of UTC for the spot's local timezone
 
 
 @dataclass
@@ -89,12 +95,18 @@ def _parse_hours(h: dict, has_extra: bool) -> list[MarineHour]:
     return result
 
 
-async def fetch_marine_forecast(lat: float, lon: float) -> list[MarineHour]:
+async def fetch_marine_forecast(lat: float, lon: float) -> MarineForecastResult:
+    """
+    Fetches marine forecast from Open-Meteo.
+    Uses timezone=auto so timestamps are in the spot's actual local timezone —
+    correct for all US regions (Hawaii, Pacific, Mountain, Central, Eastern, PR).
+    Returns MarineForecastResult with hours + utc_offset_seconds for downstream use.
+    """
     url = "https://marine-api.open-meteo.com/v1/marine"
     base = {
         "latitude": lat,
         "longitude": lon,
-        "timezone": "America/Los_Angeles",
+        "timezone": "auto",
         "forecast_days": 14,
     }
 
@@ -104,7 +116,10 @@ async def fetch_marine_forecast(lat: float, lon: float) -> list[MarineHour]:
             params = {**base, "hourly": ",".join(_BASE_PARAMS + _EXTRA_PARAMS)}
             resp = await client.get(url, params=params)
             if resp.status_code == 200:
-                return _parse_hours(resp.json().get("hourly", {}), has_extra=True)
+                data = resp.json()
+                offset = data.get("utc_offset_seconds", 0)
+                hours = _parse_hours(data.get("hourly", {}), has_extra=True)
+                return MarineForecastResult(hours=hours, utc_offset_seconds=offset)
         except Exception:
             pass
 
@@ -113,9 +128,12 @@ async def fetch_marine_forecast(lat: float, lon: float) -> list[MarineHour]:
             params = {**base, "hourly": ",".join(_BASE_PARAMS)}
             resp = await client.get(url, params=params)
             resp.raise_for_status()
-            return _parse_hours(resp.json().get("hourly", {}), has_extra=False)
+            data = resp.json()
+            offset = data.get("utc_offset_seconds", 0)
+            hours = _parse_hours(data.get("hourly", {}), has_extra=False)
+            return MarineForecastResult(hours=hours, utc_offset_seconds=offset)
         except Exception:
-            return []
+            return MarineForecastResult(hours=[], utc_offset_seconds=0)
 
 
 async def fetch_current_wind(lat: float, lon: float) -> tuple[Optional[float], Optional[float], Optional[float]]:
@@ -159,7 +177,7 @@ async def fetch_wind_forecast(lat: float, lon: float) -> list[WindHour]:
                     "longitude": lon,
                     "hourly": "wind_speed_10m,wind_direction_10m",
                     "wind_speed_unit": "mph",
-                    "timezone": "America/Los_Angeles",
+                    "timezone": "auto",
                     "forecast_days": 16,
                 },
             )
