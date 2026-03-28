@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, UserPlus, Check, Copy, Link } from 'lucide-react'
+import { X, UserPlus, Check, Copy, Share2 } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSpotStore } from '../../store/spotStore'
@@ -39,6 +39,7 @@ export function FriendsPanel() {
   const [addError, setAddError] = useState('')
   const [addSuccess, setAddSuccess] = useState('')
   const [copied, setCopied] = useState(false)
+  const [locError, setLocError] = useState('')
 
   const friendLink = username ? `${window.location.origin}?add=${username}` : ''
 
@@ -106,10 +107,24 @@ export function FriendsPanel() {
 
   function handleSurfNow() {
     if (mySession) { clearSession.mutate(); return }
-    const spotMeta = qc.getQueryData<any[]>(['spot-meta'])
-    const spot = spotMeta?.find(s => s.id === selectedSpotId)
-    if (!spot) return
-    setSession.mutate({ spot_id: spot.id, spot_name: spot.name, lat: spot.lat, lon: spot.lon })
+    setLocError('')
+    if (!navigator.geolocation) {
+      setLocError('Location is not supported on this device.')
+      return
+    }
+    navigator.geolocation.getCurrentPosition(
+      () => {
+        // Location granted — proceed with session
+        const spotMeta = qc.getQueryData<any[]>(['spot-meta'])
+        const spot = spotMeta?.find(s => s.id === selectedSpotId)
+        if (!spot) return
+        setSession.mutate({ spot_id: spot.id, spot_name: spot.name, lat: spot.lat, lon: spot.lon })
+      },
+      () => {
+        setLocError('Turn on location to share your session. Go to Settings → Privacy → Location Services and allow Swello.')
+      },
+      { timeout: 8000 }
+    )
   }
 
   function handleCopyLink() {
@@ -117,6 +132,18 @@ export function FriendsPanel() {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     })
+  }
+
+  function handleShare() {
+    if (navigator.share) {
+      navigator.share({
+        title: `Add ${username} on Swello`,
+        text: `Hey! Add me on Swello so you can see where I'm surfing 🤙`,
+        url: friendLink,
+      }).catch(() => {}) // user cancelled — no-op
+    } else {
+      handleCopyLink()
+    }
   }
 
   const btnStyle = (active: boolean): React.CSSProperties => ({
@@ -181,6 +208,11 @@ export function FriendsPanel() {
                     {mySession ? 'END SESSION' : 'GO LIVE →'}
                   </button>
                 </div>
+                {locError && (
+                  <p style={{ fontFamily: "'Inter', system-ui", fontSize: 12, color: '#FBBF24', marginTop: 10, lineHeight: 1.5 }}>
+                    📍 {locError}
+                  </p>
+                )}
               </div>
 
               {/* Surfing Now */}
@@ -325,14 +357,23 @@ export function FriendsPanel() {
                     {friendLink}
                   </p>
 
-                  {/* Copy link button */}
-                  <button
-                    onClick={handleCopyLink}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', borderRadius: 14, cursor: 'pointer', background: copied ? 'rgba(74,222,128,0.15)' : 'rgba(120,184,216,0.12)', border: `1px solid ${copied ? 'rgba(74,222,128,0.40)' : 'rgba(120,184,216,0.30)'}`, fontFamily: "'Bangers', Impact, system-ui", fontSize: 13, letterSpacing: '0.12em', color: copied ? '#4ADE80' : '#D8EEF8' }}
-                  >
-                    {copied ? <Check size={15} /> : <Copy size={15} />}
-                    {copied ? 'COPIED!' : 'COPY LINK'}
-                  </button>
+                  {/* Share buttons */}
+                  <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+                    <button
+                      onClick={handleShare}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 20px', borderRadius: 14, cursor: 'pointer', background: 'linear-gradient(135deg, #78B8D8, #5AAAC8)', border: 'none', fontFamily: "'Bangers', Impact, system-ui", fontSize: 13, letterSpacing: '0.12em', color: '#0D1C2A' }}
+                    >
+                      <Share2 size={15} />
+                      SHARE / TEXT A FRIEND
+                    </button>
+                    <button
+                      onClick={handleCopyLink}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 16px', borderRadius: 14, cursor: 'pointer', background: copied ? 'rgba(74,222,128,0.15)' : 'rgba(120,184,216,0.10)', border: `1px solid ${copied ? 'rgba(74,222,128,0.40)' : 'rgba(120,184,216,0.25)'}`, fontFamily: "'Bangers', Impact, system-ui", fontSize: 13, letterSpacing: '0.12em', color: copied ? '#4ADE80' : '#A0C0D8' }}
+                    >
+                      {copied ? <Check size={15} /> : <Copy size={15} />}
+                      {copied ? 'COPIED!' : 'COPY'}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

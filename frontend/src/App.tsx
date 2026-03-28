@@ -157,18 +157,35 @@ function MainApp() {
   )
 }
 
+// Store ?add=username in sessionStorage so it survives through signup/login
+function capturePendingAdd() {
+  const params = new URLSearchParams(window.location.search)
+  const addUser = params.get('add')
+  if (addUser) {
+    sessionStorage.setItem('swello_pending_add', addUser)
+    window.history.replaceState({}, '', window.location.pathname)
+  }
+}
+capturePendingAdd()
+
 export default function App() {
   const { token, profileComplete, setAuth, setProfileComplete } = useAuthStore()
+
+  function onAuthSuccess(isNew: boolean) {
+    if (!isNew) setProfileComplete(true)
+    // Fire any pending friend request from a ?add= deep link
+    const pendingAdd = sessionStorage.getItem('swello_pending_add')
+    if (pendingAdd) {
+      sessionStorage.removeItem('swello_pending_add')
+      sendFriendRequest(pendingAdd).catch(() => {})
+    }
+  }
 
   // Not logged in → show auth page
   if (!token) {
     return (
       <BrowserRouter>
-        <AuthPage onSuccess={(isNew) => {
-          // isNew = came from signup → show wizard
-          // On login, profileComplete is already true from previous session
-          if (!isNew) setProfileComplete(true)
-        }} />
+        <AuthPage onSuccess={onAuthSuccess} />
       </BrowserRouter>
     )
   }
@@ -177,7 +194,14 @@ export default function App() {
   if (!profileComplete) {
     return (
       <BrowserRouter>
-        <ProfileSetupWizard onComplete={() => setProfileComplete(true)} />
+        <ProfileSetupWizard onComplete={() => {
+          setProfileComplete(true)
+          const pendingAdd = sessionStorage.getItem('swello_pending_add')
+          if (pendingAdd) {
+            sessionStorage.removeItem('swello_pending_add')
+            sendFriendRequest(pendingAdd).catch(() => {})
+          }
+        }} />
       </BrowserRouter>
     )
   }
