@@ -58,6 +58,13 @@ async def _build_condition(spot: dict) -> SurfCondition | None:
         tide_data = None
     if buoy is None or isinstance(buoy, BaseException):
         return None
+    # Clear wave fields for stale buoy readings (> 3 hours old) so the conditions
+    # card doesn't display a month-old wave height as current.
+    if buoy.data_age_minutes is not None and buoy.data_age_minutes > 180:
+        buoy = buoy.model_copy(update={
+            'wvht_m': None, 'wvht_ft': None,
+            'dpd_s': None, 'mwd_deg': None, 'mwd_label': None,
+        })
     nws_raw    = nws_raw    if not isinstance(nws_raw,    BaseException) else []
     tide_data  = tide_data  if not isinstance(tide_data,  BaseException) else None
     marine_result = marine_data if not isinstance(marine_data, BaseException) else None

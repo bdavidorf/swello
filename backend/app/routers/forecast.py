@@ -218,9 +218,11 @@ async def spot_forecast(spot_id: str):
             ts_local = tp.timestamp.astimezone(_spot_tz)
             tide_by_hour[(ts_local.date(), ts_local.hour)] = tp.height_ft
 
-    # Valid buoy reading to anchor forecast near present
+    # Valid buoy reading to anchor forecast near present.
+    # Reject stale readings (> 3 hours old) — a month-old buoy must not anchor live data.
     live_buoy = buoy if (buoy and not isinstance(buoy, BaseException) and
-                         buoy.wvht_m is not None and buoy.dpd_s is not None) else None
+                         buoy.wvht_m is not None and buoy.dpd_s is not None and
+                         buoy.data_age_minutes is not None and buoy.data_age_minutes < 180) else None
 
     # ── Hourly interpreted forecast ──────────────────────────────────────────
     hourly = []
